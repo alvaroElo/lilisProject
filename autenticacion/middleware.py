@@ -29,34 +29,20 @@ class RoleBasedAdminMiddleware(MiddlewareMixin):
         if request.user.is_superuser:
             return None
             
+        # Verificar que tenga perfil de usuario
         try:
             usuario_profile = request.user.usuario_profile
             rol = usuario_profile.rol.nombre
         except:
-            # Si no tiene perfil o rol, denegar acceso
-            return HttpResponseForbidden("No tienes permisos para acceder al admin")
+            # Si no tiene perfil, solo permitir logout
+            if request.path != '/admin/logout/':
+                return HttpResponseForbidden("No tienes un perfil de usuario configurado")
+            return None
             
-        # Definir qué apps puede ver cada rol
-        permisos_por_rol = {
-            'VENDEDOR': ['productos', 'maestros'],  # Solo productos y maestros
-            'BODEGUERO': ['inventario', 'maestros'],  # Solo inventario y maestros
-            'FINANZAS': ['compras', 'maestros'],  # Solo compras y maestros
-            'JEFE_VENTAS': ['productos', 'maestros', 'compras'],  # Productos, maestros y compras
-        }
-        
-        apps_permitidas = permisos_por_rol.get(rol, [])
-        
-        # Verificar si está accediendo a una app permitida
-        path_parts = request.path.strip('/').split('/')
-        if len(path_parts) >= 2:
-            app_name = path_parts[1]  # admin/app_name/model_name/
+        # Permitir acceso al índice del admin para usuarios con staff
+        if request.path == '/admin/' and request.user.is_staff:
+            return None
             
-            # Permitir acceso al índice del admin
-            if app_name == '' or app_name == 'admin':
-                return None
-                
-            # Si la app no está en las permitidas, denegar acceso
-            if app_name not in apps_permitidas:
-                return HttpResponseForbidden(f"No tienes permisos para acceder a {app_name}")
-        
+        # Para rutas específicas de modelos, Django manejará los permisos
+        # Este middleware solo bloquea accesos no autorizados básicos
         return None

@@ -11,10 +11,109 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LiliProject.settings')
 django.setup()
 
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import Permission
 from autenticacion.models import Rol, Usuario
 from maestros.models import Categoria, Marca, UnidadMedida, Proveedor, Producto
 from inventario.models import Bodega
 from decimal import Decimal
+
+
+def asignar_permisos_por_rol():
+    """Asignar permisos de Django basados en roles"""
+    from django.contrib.auth.models import Group, Permission
+    from django.contrib.contenttypes.models import ContentType
+    
+    # Limpiar grupos existentes y crear nuevos
+    Group.objects.filter(name__in=['Vendedores', 'Bodegueros', 'Finanzas', 'Jefe_Ventas']).delete()
+    
+    grupo_vendedor = Group.objects.create(name='Vendedores')
+    grupo_bodeguero = Group.objects.create(name='Bodegueros')
+    grupo_finanzas = Group.objects.create(name='Finanzas')
+    grupo_jefe_ventas = Group.objects.create(name='Jefe_Ventas')
+    
+    # Obtener content types de maestros
+    from maestros.models import Producto, Categoria, Marca, UnidadMedida, Proveedor
+    
+    # Obtener content types de inventario y compras
+    try:
+        from inventario.models import StockActual, MovimientoInventario, Bodega, AlertaStock
+        from compras.models import OrdenCompra, OrdenCompraDetalle
+    except:
+        pass
+    
+    # === PERMISOS PARA VENDEDOR ===
+    permisos_vendedor_codenames = [
+        # Maestros - lectura y gestión de productos para testing
+        'view_producto', 'add_producto', 'change_producto', 'delete_producto',
+        'view_categoria', 'view_marca', 'view_unidadmedida',
+        # Inventario - solo consulta
+        'view_stockactual', 'view_bodega'
+    ]
+    
+    for codename in permisos_vendedor_codenames:
+        try:
+            permiso = Permission.objects.get(codename=codename)
+            grupo_vendedor.permissions.add(permiso)
+        except Permission.DoesNotExist:
+            print(f"  Permiso {codename} no encontrado")
+    
+    # === PERMISOS PARA BODEGUERO ===
+    permisos_bodeguero_codenames = [
+        # Maestros - lectura
+        'view_producto', 'view_categoria', 'view_marca', 'view_unidadmedida',
+        # Inventario - completo
+        'view_stockactual', 'add_stockactual', 'change_stockactual',
+        'view_movimientoinventario', 'add_movimientoinventario', 'change_movimientoinventario',
+        'view_bodega', 'change_bodega',
+        'view_alertastock', 'change_alertastock'
+    ]
+    
+    for codename in permisos_bodeguero_codenames:
+        try:
+            permiso = Permission.objects.get(codename=codename)
+            grupo_bodeguero.permissions.add(permiso)
+        except Permission.DoesNotExist:
+            print(f"  Permiso {codename} no encontrado")
+    
+    # === PERMISOS PARA FINANZAS ===
+    permisos_finanzas_codenames = [
+        # Maestros - productos y proveedores
+        'view_producto', 'view_categoria', 'view_marca', 'view_unidadmedida',
+        'view_proveedor', 'add_proveedor', 'change_proveedor',
+        # Compras - completo
+        'view_ordencompra', 'add_ordencompra', 'change_ordencompra',
+        'view_ordencompradetalle', 'add_ordencompradetalle', 'change_ordencompradetalle',
+        # Inventario - solo lectura
+        'view_stockactual'
+    ]
+    
+    for codename in permisos_finanzas_codenames:
+        try:
+            permiso = Permission.objects.get(codename=codename)
+            grupo_finanzas.permissions.add(permiso)
+        except Permission.DoesNotExist:
+            print(f"  Permiso {codename} no encontrado")
+    
+    # === PERMISOS PARA JEFE VENTAS ===
+    permisos_jefe_ventas_codenames = [
+        # Maestros - productos completos
+        'view_producto', 'add_producto', 'change_producto',
+        'view_categoria', 'view_marca', 'view_unidadmedida',
+        # Inventario - lectura y reportes
+        'view_stockactual', 'view_movimientoinventario', 'view_bodega',
+        # Compras - lectura
+        'view_ordencompra', 'view_ordencompradetalle'
+    ]
+    
+    for codename in permisos_jefe_ventas_codenames:
+        try:
+            permiso = Permission.objects.get(codename=codename)
+            grupo_jefe_ventas.permissions.add(permiso)
+        except Permission.DoesNotExist:
+            print(f"  Permiso {codename} no encontrado")
+    
+    print("✓ Permisos por rol configurados")
 
 def main():
     print('🔄 CARGANDO DATOS COMPLETOS DE EJEMPLO EN MYSQL...')
@@ -90,7 +189,10 @@ def main():
         if created:
             print(f"✓ Rol {rol_data['nombre']}: creado")
     
-    # ====== CREAR USUARIOS ======
+    # ====== CONFIGURAR PERMISOS POR ROL ======
+    asignar_permisos_por_rol()
+    
+    # ====== CREAR SUPERUSUARIO ======
     # Crear superusuario admin
     try:
         user_admin = User.objects.get(username='admin')
@@ -167,6 +269,28 @@ def main():
     for user_data in usuarios_adicionales:
         try:
             django_user = User.objects.get(username=user_data['username'])
+            # Asegurar que el usuario tenga is_staff=True
+            if not django_user.is_staff:
+                django_user.is_staff = True
+                django_user.save()
+            
+            # Asignar a grupo si no está ya asignado
+            from django.contrib.auth.models import Group
+            grupo_map = {
+                'VENDEDOR': 'Vendedores',
+                'BODEGUERO': 'Bodegueros', 
+                'FINANZAS': 'Finanzas',
+                'JEFE_VENTAS': 'Jefe_Ventas'
+            }
+            
+            if user_data['rol'] in grupo_map:
+                try:
+                    grupo = Group.objects.get(name=grupo_map[user_data['rol']])
+                    if not django_user.groups.filter(name=grupo.name).exists():
+                        django_user.groups.add(grupo)
+                except Group.DoesNotExist:
+                    print(f"  Grupo {grupo_map[user_data['rol']]} no encontrado")
+            
             print(f"✓ Usuario {user_data['username']} ya existe")
         except User.DoesNotExist:
             # Crear usuario Django
@@ -191,6 +315,23 @@ def main():
                 area_unidad=user_data['area_unidad'],
                 observaciones=user_data['observaciones']
             )
+            
+            # Asignar usuario a grupo correspondiente
+            from django.contrib.auth.models import Group
+            grupo_map = {
+                'VENDEDOR': 'Vendedores',
+                'BODEGUERO': 'Bodegueros', 
+                'FINANZAS': 'Finanzas',
+                'JEFE_VENTAS': 'Jefe_Ventas'
+            }
+            
+            if user_data['rol'] in grupo_map:
+                try:
+                    grupo = Group.objects.get(name=grupo_map[user_data['rol']])
+                    django_user.groups.add(grupo)
+                except Group.DoesNotExist:
+                    pass
+            
             print(f"✓ Usuario {user_data['username']} creado")
     
     # ====== CREAR CATEGORÍAS ======
