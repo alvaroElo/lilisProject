@@ -38,6 +38,7 @@ copy .env.example .env         # Windows
 # Editar .env con tu configuración MySQL
 
 # 6. Migrar base de datos
+python manage.py makemigrations
 python manage.py migrate
 
 # 7. Cargar datos de ejemplo
@@ -65,9 +66,28 @@ python manage.py runserver
 ```bash
 # Reiniciar base de datos completa
 python drop_tables.py
+python manage.py makemigrations
 python manage.py migrate
 python cargar_datos.py
 
 # Crear superusuario
 python manage.py createsuperuser
+
+# Si hay problemas con makemigrations
+python manage.py makemigrations autenticacion
+python manage.py makemigrations maestros
+python manage.py makemigrations inventario
+python manage.py makemigrations compras
+```
+
+## ⚠️ Solución de Problemas
+
+**Error en makemigrations:**
+```bash
+# Si falla makemigrations, ejecutar por aplicación:
+python manage.py makemigrations autenticacion
+python manage.py makemigrations maestros  
+python manage.py makemigrations inventario
+python manage.py makemigrations compras
+python manage.py migrate
 ```

@@ -23,6 +23,7 @@ copy .env.example .env  # Windows
 # Editar .env con tu configuración MySQL
 
 # 5. Configurar MySQL y migrar
+python manage.py makemigrations
 python manage.py migrate
 
 # 6. Cargar datos de ejemplo
