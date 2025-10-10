@@ -5,6 +5,13 @@
 - MySQL 8.0+
 - Git
 
+## ⚠️ Problema Común en Windows (VS Code)
+Si al activar el entorno virtual obtienes un error de PowerShell:
+```powershell
+# Solución rápida - Ejecutar en terminal como administrador:
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
 ## Comandos de Instalación
 
 ```bash
@@ -14,8 +21,9 @@ cd LiliProject
 
 # 2. Entorno virtual
 python -m venv venv
-venv\Scripts\activate          # Windows
-# source venv/bin/activate     # Mac/Linux
+.\venv\Scripts\Activate.ps1        # Windows VS Code PowerShell
+# venv\Scripts\activate.bat        # Windows CMD
+# source venv/bin/activate         # Mac/Linux
 
 # 3. Instalar dependencias
 pip install -r requirements.txt
