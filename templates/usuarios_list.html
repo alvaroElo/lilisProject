@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Usuarios - Dulcería Lilis{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="fas fa-users"></i> Gestión de Usuarios
+        </h2>
+        <p class="page-subtitle">Administra los usuarios del sistema</p>
+    </div>
+    {% if perms.autenticacion.add_usuario %}
+    <a href="{% url 'usuario_create' %}" class="btn btn-primary">
+        <i class="fas fa-user-plus"></i> Nuevo Usuario
+    </a>
+    {% endif %}
+</div>
+
+<!-- Filtros de Búsqueda -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-filter"></i> Filtros
+        </h3>
+    </div>
+    <form method="get" class="filter-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="search" class="form-label">Buscar</label>
+                <input 
+                    type="text" 
+                    id="search" 
+                    name="search" 
+                    class="form-control" 
+                    placeholder="Nombre, usuario, email..."
+                    value="{{ request.GET.search }}"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="rol" class="form-label">Rol</label>
+                <select id="rol" name="rol" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="ADMIN">Administrador</option>
+                    <option value="VENDEDOR">Vendedor</option>
+                    <option value="BODEGUERO">Bodeguero</option>
+                    <option value="FINANZAS">Finanzas</option>
+                    <option value="JEFE_VENTAS">Jefe de Ventas</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="estado" class="form-label">Estado</label>
+                <select id="estado" name="estado" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="ACTIVO">Activo</option>
+                    <option value="BLOQUEADO">Bloqueado</option>
+                    <option value="INACTIVO">Inactivo</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Lista de Usuarios -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-list"></i> Lista de Usuarios ({{ usuarios.count }})
+        </h3>
+    </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Nombre Completo</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Estado</th>
+                    <th>Área/Unidad</th>
+                    <th>Último Acceso</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td>
+                        <i class="fas fa-user-circle" style="color: var(--color-submenu); font-size: 1.2rem;"></i>
+                        <strong>{{ usuario.user.username }}</strong>
+                    </td>
+                    <td>{{ usuario.nombre_completo|default:"Sin nombre" }}</td>
+                    <td>
+                        <i class="fas fa-envelope"></i>
+                        {{ usuario.user.email }}
+                    </td>
+                    <td>
+                        <span class="badge badge-info">
+                            {{ usuario.rol.get_nombre_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-{% if usuario.estado == 'ACTIVO' %}success{% elif usuario.estado == 'BLOQUEADO' %}danger{% else %}secondary{% endif %}">
+                            {{ usuario.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>{{ usuario.area_unidad|default:"-" }}</td>
+                    <td>
+                        {% if usuario.ultimo_acceso %}
+                            {{ usuario.ultimo_acceso|date:"d/m/Y H:i" }}
+                        {% else %}
+                            <span class="text-muted">Nunca</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'usuario_detail' usuario.id %}" class="btn btn-sm btn-info" title="Ver detalles">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if perms.autenticacion.change_usuario %}
+                            <a href="{% url 'usuario_edit' usuario.id %}" class="btn btn-sm btn-warning" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% endif %}
+                            {% if perms.autenticacion.delete_usuario %}
+                            <button class="btn btn-sm btn-danger" title="Desactivar" onclick="confirmarDesactivar({{ usuario.id }})">
+                                <i class="fas fa-ban"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">
+                        <i class="fas fa-inbox" style="font-size: 3rem; color: var(--color-border); margin: 2rem 0;"></i>
+                        <p>No se encontraron usuarios</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    color: var(--color-text-focus);
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    color: var(--color-text);
+    margin: 0;
+}
+
+.filter-form {
+    padding: 1rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.text-muted {
+    color: var(--color-text);
+    font-style: italic;
+}
+</style>
+
+<script>
+function confirmarDesactivar(userId) {
+    if (confirm('¿Está seguro de desactivar este usuario?')) {
+        // Aquí iría la lógica para desactivar
+        window.location.href = `/usuarios/${userId}/desactivar/`;
+    }
+}
+</script>
+{% endblock %}

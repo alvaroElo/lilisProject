@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login - Dulcería Lilis{% endblock %}
+
+{% block extra_css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #D20A11 0%, #c4a75b 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+    }
+    
+    .login-container {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        max-width: 900px;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .login-left {
+        background-color: var(--color-header);
+        color: white;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .login-logo {
+        max-width: 200px;
+        margin-bottom: 2rem;
+    }
+    
+    .login-left h2 {
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+    
+    .login-left p {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+    
+    .login-right {
+        padding: 3rem;
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+    
+    .login-header h3 {
+        color: var(--color-text-focus);
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .login-header p {
+        color: var(--color-text);
+    }
+    
+    .login-form .form-group {
+        margin-bottom: 1.5rem;
+    }
+    
+    .login-form .form-control {
+        padding: 1rem;
+        font-size: 1rem;
+    }
+    
+    .login-form .btn-login {
+        width: 100%;
+        padding: 1rem;
+        background-color: var(--color-header);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .login-form .btn-login:hover {
+        background-color: #a00810;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(210, 10, 17, 0.3);
+    }
+    
+    .forgot-password {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+    
+    .forgot-password a {
+        color: var(--color-text2);
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+    
+    .forgot-password a:hover {
+        color: var(--color-header);
+    }
+    
+    .alert {
+        padding: 1rem;
+        border-radius: 5px;
+        margin-bottom: 1rem;
+    }
+    
+    .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    @media (max-width: 768px) {
+        .login-container {
+            grid-template-columns: 1fr;
+        }
+        
+        .login-left {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-left">
+        <img src="{% static 'img/Logo-lilis.png' %}" alt="Dulcería Lilis" class="login-logo">
+        <h2>Bienvenido</h2>
+        <p>Sistema de Gestión de Inventario</p>
+        <p style="margin-top: 2rem; font-size: 0.9rem;">
+            <i class="fas fa-shield-alt"></i> Acceso seguro y confiable
+        </p>
+    </div>
+    
+    <div class="login-right">
+        <div class="login-header">
+            <h3>Iniciar Sesión</h3>
+            <p>Ingresa tus credenciales para continuar</p>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        
+        <form method="post" action="{% url 'login' %}" class="login-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="username" class="form-label">
+                    <i class="fas fa-user"></i> Usuario o Email
+                </label>
+                <input 
+                    type="text" 
+                    id="username" 
+                    name="username" 
+                    class="form-control" 
+                    placeholder="Ingresa tu usuario o email"
+                    required
+                    autofocus
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock"></i> Contraseña
+                </label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    class="form-control" 
+                    placeholder="Ingresa tu contraseña"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" name="remember_me">
+                    <span>Recordar sesión</span>
+                </label>
+            </div>
+            
+            <button type="submit" class="btn-login">
+                <i class="fas fa-sign-in-alt"></i> Ingresar
+            </button>
+        </form>
+        
+        <div class="forgot-password">
+            <a href="{% url 'password_reset' %}">
+                <i class="fas fa-key"></i> ¿Olvidaste tu contraseña?
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

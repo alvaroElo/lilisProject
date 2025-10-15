@@ -1,0 +1,345 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Inventario - Dulcería Lilis{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="fas fa-warehouse"></i> Gestión de Inventario
+        </h2>
+        <p class="page-subtitle">Control de movimientos y stock</p>
+    </div>
+    {% if perms.inventario.add_movimientoinventario %}
+    <a href="{% url 'movimiento_create' %}" class="btn btn-primary">
+        <i class="fas fa-exchange-alt"></i> Nuevo Movimiento
+    </a>
+    {% endif %}
+</div>
+
+<!-- Tabs de Navegación -->
+<div class="tabs-container">
+    <div class="tabs">
+        <button class="tab-button active" data-tab="movimientos">
+            <i class="fas fa-exchange-alt"></i> Movimientos
+        </button>
+        <button class="tab-button" data-tab="stock">
+            <i class="fas fa-boxes"></i> Stock Actual
+        </button>
+        <button class="tab-button" data-tab="lotes">
+            <i class="fas fa-layer-group"></i> Lotes
+        </button>
+        <button class="tab-button" data-tab="alertas">
+            <i class="fas fa-exclamation-triangle"></i> Alertas
+        </button>
+    </div>
+</div>
+
+<!-- Tab: Movimientos -->
+<div id="tab-movimientos" class="tab-content active">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-list"></i> Movimientos de Inventario
+            </h3>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo</th>
+                        <th>Producto</th>
+                        <th>Proveedor</th>
+                        <th>Bodega Origen</th>
+                        <th>Bodega Destino</th>
+                        <th>Cantidad</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mov in movimientos %}
+                    <tr>
+                        <td>{{ mov.fecha_movimiento|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="badge badge-{% if mov.tipo_movimiento == 'INGRESO' %}success{% elif mov.tipo_movimiento == 'SALIDA' %}danger{% else %}info{% endif %}">
+                                {{ mov.get_tipo_movimiento_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong>{{ mov.producto.sku }}</strong><br>
+                            <small>{{ mov.producto.nombre }}</small>
+                        </td>
+                        <td>{{ mov.proveedor.razon_social|default:"-" }}</td>
+                        <td>{{ mov.bodega_origen.nombre|default:"-" }}</td>
+                        <td>{{ mov.bodega_destino.nombre|default:"-" }}</td>
+                        <td class="text-center">
+                            <strong>{{ mov.cantidad }}</strong> {{ mov.unidad_medida.codigo }}
+                        </td>
+                        <td>
+                            <span class="badge badge-{% if mov.estado == 'CONFIRMADO' %}success{% elif mov.estado == 'ANULADO' %}danger{% else %}warning{% endif %}">
+                                {{ mov.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'movimiento_detail' mov.id %}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center">
+                            <p>No hay movimientos registrados</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Stock Actual -->
+<div id="tab-stock" class="tab-content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-boxes"></i> Stock por Bodega
+            </h3>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Bodega</th>
+                        <th>Disponible</th>
+                        <th>Reservado</th>
+                        <th>En Tránsito</th>
+                        <th>Total</th>
+                        <th>Stock Mín.</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stock in stock_items %}
+                    <tr class="{% if stock.cantidad_disponible < stock.producto.stock_minimo %}row-warning{% endif %}">
+                        <td>
+                            <strong>{{ stock.producto.sku }}</strong><br>
+                            <small>{{ stock.producto.nombre }}</small>
+                        </td>
+                        <td>{{ stock.bodega.nombre }}</td>
+                        <td class="text-center">
+                            <strong>{{ stock.cantidad_disponible }}</strong>
+                        </td>
+                        <td class="text-center">{{ stock.cantidad_reservada }}</td>
+                        <td class="text-center">{{ stock.cantidad_transito }}</td>
+                        <td class="text-center">
+                            <strong>{{ stock.cantidad_disponible|add:stock.cantidad_reservada|add:stock.cantidad_transito }}</strong>
+                        </td>
+                        <td class="text-center">{{ stock.producto.stock_minimo }}</td>
+                        <td>
+                            {% if stock.cantidad_disponible < stock.producto.stock_minimo %}
+                                <span class="badge badge-danger">Bajo</span>
+                            {% elif stock.cantidad_disponible > stock.producto.stock_maximo %}
+                                <span class="badge badge-warning">Alto</span>
+                            {% else %}
+                                <span class="badge badge-success">Normal</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">
+                            <p>No hay stock registrado</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Lotes -->
+<div id="tab-lotes" class="tab-content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-layer-group"></i> Control de Lotes
+            </h3>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Código Lote</th>
+                        <th>Producto</th>
+                        <th>Bodega</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Cant. Inicial</th>
+                        <th>Disponible</th>
+                        <th>Reservada</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lote in lotes %}
+                    <tr>
+                        <td><strong>{{ lote.codigo_lote }}</strong></td>
+                        <td>{{ lote.producto.nombre }}</td>
+                        <td>{{ lote.bodega.nombre }}</td>
+                        <td>
+                            {% if lote.fecha_vencimiento %}
+                                {{ lote.fecha_vencimiento|date:"d/m/Y" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ lote.cantidad_inicial }}</td>
+                        <td class="text-center"><strong>{{ lote.cantidad_disponible }}</strong></td>
+                        <td class="text-center">{{ lote.cantidad_reservada }}</td>
+                        <td>
+                            <span class="badge badge-{% if lote.estado == 'ACTIVO' %}success{% elif lote.estado == 'VENCIDO' %}danger{% else %}secondary{% endif %}">
+                                {{ lote.get_estado_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">
+                            <p>No hay lotes registrados</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Tab: Alertas -->
+<div id="tab-alertas" class="tab-content">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-bell"></i> Alertas de Stock
+            </h3>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Tipo</th>
+                        <th>Producto</th>
+                        <th>Bodega</th>
+                        <th>Cantidad</th>
+                        <th>Prioridad</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alerta in alertas %}
+                    <tr>
+                        <td>
+                            <span class="badge badge-warning">
+                                {{ alerta.get_tipo_alerta_display }}
+                            </span>
+                        </td>
+                        <td>{{ alerta.producto.nombre }}</td>
+                        <td>{{ alerta.bodega.nombre|default:"-" }}</td>
+                        <td class="text-center">{{ alerta.cantidad_actual }}</td>
+                        <td>
+                            <span class="badge badge-{% if alerta.prioridad == 'CRITICA' %}danger{% elif alerta.prioridad == 'ALTA' %}warning{% else %}info{% endif %}">
+                                {{ alerta.get_prioridad_display }}
+                            </span>
+                        </td>
+                        <td>{{ alerta.fecha_generacion|date:"d/m/Y" }}</td>
+                        <td>
+                            <span class="badge badge-{% if alerta.estado == 'ACTIVA' %}danger{% else %}success{% endif %}">
+                                {{ alerta.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-success" title="Resolver">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">
+                            <p>No hay alertas activas</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.tabs-container {
+    margin-bottom: 1rem;
+}
+
+.tabs {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 2px solid var(--color-border);
+}
+
+.tab-button {
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    color: var(--color-text);
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.tab-button:hover {
+    color: var(--color-header);
+}
+
+.tab-button.active {
+    color: var(--color-header);
+    border-bottom-color: var(--color-header);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+</style>
+
+<script>
+// Gestión de tabs
+document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const tabName = this.dataset.tab;
+        
+        // Desactivar todos los tabs
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        // Activar el tab seleccionado
+        this.classList.add('active');
+        document.getElementById(`tab-${tabName}`).classList.add('active');
+    });
+});
+</script>
+{% endblock %}

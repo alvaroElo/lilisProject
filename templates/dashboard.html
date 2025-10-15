@@ -1,0 +1,265 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Dulcería Lilis{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2 class="page-title">
+        <i class="fas fa-home"></i> Panel de Control
+    </h2>
+    <p class="page-subtitle">Bienvenido, {{ user.get_full_name|default:user.username }}</p>
+</div>
+
+<!-- Tarjetas de Estadísticas -->
+<div class="stats-grid">
+    <div class="stat-card stat-primary">
+        <div class="stat-icon">
+            <i class="fas fa-box"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ total_productos|default:0 }}</h3>
+            <p class="stat-label">Productos Activos</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-success">
+        <div class="stat-icon">
+            <i class="fas fa-warehouse"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ total_stock|default:0 }}</h3>
+            <p class="stat-label">Items en Stock</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-warning">
+        <div class="stat-icon">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ alertas_stock|default:0 }}</h3>
+            <p class="stat-label">Alertas Activas</p>
+        </div>
+    </div>
+    
+    <div class="stat-card stat-info">
+        <div class="stat-icon">
+            <i class="fas fa-truck"></i>
+        </div>
+        <div class="stat-content">
+            <h3 class="stat-value">{{ proveedores_activos|default:0 }}</h3>
+            <p class="stat-label">Proveedores Activos</p>
+        </div>
+    </div>
+</div>
+
+<!-- Alertas y Notificaciones -->
+{% if alertas_recientes %}
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-bell"></i> Alertas Recientes
+        </h3>
+    </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Producto</th>
+                    <th>Bodega</th>
+                    <th>Prioridad</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alerta in alertas_recientes %}
+                <tr>
+                    <td>
+                        <span class="badge badge-warning">
+                            {{ alerta.get_tipo_alerta_display }}
+                        </span>
+                    </td>
+                    <td>{{ alerta.producto.nombre }}</td>
+                    <td>{{ alerta.bodega.nombre }}</td>
+                    <td>
+                        <span class="badge badge-{% if alerta.prioridad == 'CRITICA' %}danger{% elif alerta.prioridad == 'ALTA' %}warning{% else %}info{% endif %}">
+                            {{ alerta.get_prioridad_display }}
+                        </span>
+                    </td>
+                    <td>{{ alerta.fecha_generacion|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <a href="#" class="btn btn-sm btn-info">
+                            <i class="fas fa-eye"></i> Ver
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Accesos Rápidos -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-bolt"></i> Accesos Rápidos
+        </h3>
+    </div>
+    <div class="quick-actions">
+        {% if perms.maestros.add_producto %}
+        <a href="{% url 'productos_create' %}" class="quick-action-card">
+            <i class="fas fa-plus-circle"></i>
+            <span>Nuevo Producto</span>
+        </a>
+        {% endif %}
+        
+        {% if perms.inventario.add_movimientoinventario %}
+        <a href="{% url 'movimiento_create' %}" class="quick-action-card">
+            <i class="fas fa-exchange-alt"></i>
+            <span>Registrar Movimiento</span>
+        </a>
+        {% endif %}
+        
+        {% if perms.compras.add_ordencompra %}
+        <a href="{% url 'orden_compra_create' %}" class="quick-action-card">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Nueva Orden de Compra</span>
+        </a>
+        {% endif %}
+        
+        {% if perms.inventario.view_stockactual %}
+        <a href="{% url 'stock_list' %}" class="quick-action-card">
+            <i class="fas fa-boxes"></i>
+            <span>Consultar Stock</span>
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    color: var(--color-text-focus);
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    color: var(--color-text);
+    font-size: 1.1rem;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 2px 10px var(--color-shadow);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px var(--color-shadow);
+}
+
+.stat-icon {
+    font-size: 3rem;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+}
+
+.stat-primary .stat-icon {
+    background-color: rgba(210, 10, 17, 0.1);
+    color: var(--color-header);
+}
+
+.stat-success .stat-icon {
+    background-color: rgba(40, 167, 69, 0.1);
+    color: var(--color-success);
+}
+
+.stat-warning .stat-icon {
+    background-color: rgba(255, 193, 7, 0.1);
+    color: var(--color-warning);
+}
+
+.stat-info .stat-icon {
+    background-color: rgba(23, 162, 184, 0.1);
+    color: var(--color-info);
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-focus);
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    color: var(--color-text);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.quick-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.quick-action-card {
+    background: linear-gradient(135deg, var(--color-header) 0%, #a00810 100%);
+    color: white;
+    padding: 2rem 1rem;
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(210, 10, 17, 0.3);
+}
+
+.quick-action-card i {
+    font-size: 2.5rem;
+}
+
+.quick-action-card span {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.btn-sm {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+}
+</style>
+{% endblock %}

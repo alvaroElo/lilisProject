@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Proveedores - Dulcería Lilis{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="fas fa-truck"></i> Gestión de Proveedores
+        </h2>
+        <p class="page-subtitle">Administra tus proveedores</p>
+    </div>
+    {% if perms.maestros.add_proveedor %}
+    <a href="{% url 'proveedor_create' %}" class="btn btn-primary">
+        <i class="fas fa-plus-circle"></i> Nuevo Proveedor
+    </a>
+    {% endif %}
+</div>
+
+<!-- Filtros -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-filter"></i> Filtros
+        </h3>
+    </div>
+    <form method="get" class="filter-form">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="search" class="form-label">Buscar</label>
+                <input 
+                    type="text" 
+                    id="search" 
+                    name="search" 
+                    class="form-control" 
+                    placeholder="RUT, razón social, email..."
+                    value="{{ request.GET.search }}"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="estado" class="form-label">Estado</label>
+                <select id="estado" name="estado" class="form-control">
+                    <option value="">Todos</option>
+                    <option value="ACTIVO">Activo</option>
+                    <option value="BLOQUEADO">Bloqueado</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="condiciones_pago" class="form-label">Condiciones Pago</label>
+                <select id="condiciones_pago" name="condiciones_pago" class="form-control">
+                    <option value="">Todas</option>
+                    <option value="CONTADO">Contado</option>
+                    <option value="30_DIAS">30 días</option>
+                    <option value="60_DIAS">60 días</option>
+                    <option value="90_DIAS">90 días</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">&nbsp;</label>
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fas fa-search"></i> Buscar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Lista de Proveedores -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="fas fa-list"></i> Lista de Proveedores ({{ proveedores.count }})
+        </h3>
+    </div>
+    <div class="table-container">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>RUT/NIF</th>
+                    <th>Razón Social</th>
+                    <th>Contacto</th>
+                    <th>Ciudad/País</th>
+                    <th>Condiciones Pago</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for proveedor in proveedores %}
+                <tr>
+                    <td><strong>{{ proveedor.rut_nif }}</strong></td>
+                    <td>
+                        <div>
+                            <strong>{{ proveedor.razon_social }}</strong>
+                            {% if proveedor.nombre_fantasia %}
+                            <small class="d-block text-muted">{{ proveedor.nombre_fantasia }}</small>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            <i class="fas fa-envelope"></i> {{ proveedor.email }}
+                            {% if proveedor.telefono %}
+                            <br><i class="fas fa-phone"></i> {{ proveedor.telefono }}
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td>
+                        {{ proveedor.ciudad|default:"-" }}, {{ proveedor.pais }}
+                    </td>
+                    <td>
+                        <span class="badge badge-secondary">
+                            {{ proveedor.get_condiciones_pago_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge badge-{% if proveedor.estado == 'ACTIVO' %}success{% else %}danger{% endif %}">
+                            {{ proveedor.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'proveedor_detail' proveedor.id %}" class="btn btn-sm btn-info" title="Ver">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            {% if perms.maestros.change_proveedor %}
+                            <a href="{% url 'proveedor_edit' proveedor.id %}" class="btn btn-sm btn-warning" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center">
+                        <i class="fas fa-truck" style="font-size: 3rem; color: var(--color-border); margin: 2rem 0;"></i>
+                        <p>No se encontraron proveedores</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

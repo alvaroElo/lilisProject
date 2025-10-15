@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if producto %}Editar{% else %}Nuevo{% endif %} Producto - Dulcería Lilis{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="fas fa-{% if producto %}edit{% else %}plus-circle{% endif %}"></i>
+            {% if producto %}Editar Producto{% else %}Nuevo Producto{% endif %}
+        </h2>
+        <p class="page-subtitle">Completa la información del producto</p>
+    </div>
+    <a href="{% url 'productos_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+</div>
+
+<form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    <!-- Información Básica -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-info-circle"></i> Información Básica
+            </h3>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="sku" class="form-label">SKU *</label>
+                <input 
+                    type="text" 
+                    id="sku" 
+                    name="sku" 
+                    class="form-control" 
+                    value="{{ producto.sku|default:'' }}"
+                    required
+                    {% if producto %}readonly{% endif %}
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="ean_upc" class="form-label">EAN/UPC</label>
+                <input 
+                    type="text" 
+                    id="ean_upc" 
+                    name="ean_upc" 
+                    class="form-control" 
+                    value="{{ producto.ean_upc|default:'' }}"
+                >
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="nombre" class="form-label">Nombre del Producto *</label>
+            <input 
+                type="text" 
+                id="nombre" 
+                name="nombre" 
+                class="form-control" 
+                value="{{ producto.nombre|default:'' }}"
+                required
+            >
+        </div>
+        
+        <div class="form-group">
+            <label for="descripcion" class="form-label">Descripción</label>
+            <textarea 
+                id="descripcion" 
+                name="descripcion" 
+                class="form-control" 
+                rows="3"
+            >{{ producto.descripcion|default:'' }}</textarea>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="categoria" class="form-label">Categoría *</label>
+                <select id="categoria" name="categoria" class="form-control" required>
+                    <option value="">Seleccionar...</option>
+                    {% for cat in categorias %}
+                    <option value="{{ cat.id }}" {% if producto and producto.categoria.id == cat.id %}selected{% endif %}>
+                        {{ cat.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="marca" class="form-label">Marca</label>
+                <select id="marca" name="marca" class="form-control">
+                    <option value="">Seleccionar...</option>
+                    {% for marca in marcas %}
+                    <option value="{{ marca.id }}" {% if producto and producto.marca.id == marca.id %}selected{% endif %}>
+                        {{ marca.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="modelo" class="form-label">Modelo</label>
+                <input 
+                    type="text" 
+                    id="modelo" 
+                    name="modelo" 
+                    class="form-control" 
+                    value="{{ producto.modelo|default:'' }}"
+                >
+            </div>
+        </div>
+    </div>
+    
+    <!-- Precios y Costos -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-dollar-sign"></i> Precios y Costos
+            </h3>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="costo_estandar" class="form-label">Costo Estándar</label>
+                <input 
+                    type="number" 
+                    id="costo_estandar" 
+                    name="costo_estandar" 
+                    class="form-control" 
+                    value="{{ producto.costo_estandar|default:'' }}"
+                    step="0.01"
+                    min="0"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="precio_venta" class="form-label">Precio de Venta *</label>
+                <input 
+                    type="number" 
+                    id="precio_venta" 
+                    name="precio_venta" 
+                    class="form-control" 
+                    value="{{ producto.precio_venta|default:'' }}"
+                    step="0.01"
+                    min="0"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="impuesto_iva" class="form-label">IVA (%)</label>
+                <input 
+                    type="number" 
+                    id="impuesto_iva" 
+                    name="impuesto_iva" 
+                    class="form-control" 
+                    value="{{ producto.impuesto_iva|default:'19' }}"
+                    step="0.01"
+                    min="0"
+                    max="100"
+                >
+            </div>
+        </div>
+    </div>
+    
+    <!-- Control de Stock -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-warehouse"></i> Control de Stock
+            </h3>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="stock_minimo" class="form-label">Stock Mínimo *</label>
+                <input 
+                    type="number" 
+                    id="stock_minimo" 
+                    name="stock_minimo" 
+                    class="form-control" 
+                    value="{{ producto.stock_minimo|default:'0' }}"
+                    step="1"
+                    min="0"
+                    required
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="stock_maximo" class="form-label">Stock Máximo</label>
+                <input 
+                    type="number" 
+                    id="stock_maximo" 
+                    name="stock_maximo" 
+                    class="form-control" 
+                    value="{{ producto.stock_maximo|default:'' }}"
+                    step="1"
+                    min="0"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="punto_reorden" class="form-label">Punto de Reorden</label>
+                <input 
+                    type="number" 
+                    id="punto_reorden" 
+                    name="punto_reorden" 
+                    class="form-control" 
+                    value="{{ producto.punto_reorden|default:'' }}"
+                    step="1"
+                    min="0"
+                >
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="uom_compra" class="form-label">Unidad Compra *</label>
+                <select id="uom_compra" name="uom_compra" class="form-control" required>
+                    {% for uom in unidades_medida %}
+                    <option value="{{ uom.id }}" {% if producto and producto.uom_compra.id == uom.id %}selected{% endif %}>
+                        {{ uom.codigo }} - {{ uom.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="uom_venta" class="form-label">Unidad Venta *</label>
+                <select id="uom_venta" name="uom_venta" class="form-control" required>
+                    {% for uom in unidades_medida %}
+                    <option value="{{ uom.id }}" {% if producto and producto.uom_venta.id == uom.id %}selected{% endif %}>
+                        {{ uom.codigo }} - {{ uom.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="uom_stock" class="form-label">Unidad Stock *</label>
+                <select id="uom_stock" name="uom_stock" class="form-control" required>
+                    {% for uom in unidades_medida %}
+                    <option value="{{ uom.id }}" {% if producto and producto.uom_stock.id == uom.id %}selected{% endif %}>
+                        {{ uom.codigo }} - {{ uom.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Características Especiales -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-cog"></i> Características Especiales
+            </h3>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Controles</label>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" name="perishable" {% if producto.perishable %}checked{% endif %}>
+                        <i class="fas fa-calendar-times"></i> Producto Perecedero
+                    </label>
+                    <label>
+                        <input type="checkbox" name="control_por_lote" {% if producto.control_por_lote %}checked{% endif %}>
+                        <i class="fas fa-layer-group"></i> Control por Lote
+                    </label>
+                    <label>
+                        <input type="checkbox" name="control_por_serie" {% if producto.control_por_serie %}checked{% endif %}>
+                        <i class="fas fa-barcode"></i> Control por Serie
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div id="fecha-vencimiento-group" class="form-row" style="display: {% if producto.perishable %}flex{% else %}none{% endif %};">
+            <div class="form-group">
+                <label for="fecha_vencimiento" class="form-label">Fecha de Vencimiento</label>
+                <input 
+                    type="date" 
+                    id="fecha_vencimiento" 
+                    name="fecha_vencimiento" 
+                    class="form-control" 
+                    value="{{ producto.fecha_vencimiento|date:'Y-m-d'|default:'' }}"
+                >
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="estado" class="form-label">Estado *</label>
+                <select id="estado" name="estado" class="form-control" required>
+                    <option value="ACTIVO" {% if not producto or producto.estado == 'ACTIVO' %}selected{% endif %}>Activo</option>
+                    <option value="INACTIVO" {% if producto and producto.estado == 'INACTIVO' %}selected{% endif %}>Inactivo</option>
+                    <option value="DESCONTINUADO" {% if producto and producto.estado == 'DESCONTINUADO' %}selected{% endif %}>Descontinuado</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Botones -->
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Guardar Producto
+        </button>
+        <a href="{% url 'productos_list' %}" class="btn btn-secondary">
+            <i class="fas fa-times"></i> Cancelar
+        </a>
+    </div>
+</form>
+
+<style>
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.checkbox-group i {
+    color: var(--color-submenu);
+}
+</style>
+
+<script>
+// Mostrar/ocultar fecha de vencimiento según checkbox perecedero
+document.querySelector('input[name="perishable"]')?.addEventListener('change', function() {
+    const fechaGroup = document.getElementById('fecha-vencimiento-group');
+    fechaGroup.style.display = this.checked ? 'flex' : 'none';
+});
+</script>
+{% endblock %}
