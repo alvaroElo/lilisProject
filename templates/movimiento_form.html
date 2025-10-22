@@ -1,0 +1,578 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if movimiento %}Ver{% else %}Nuevo{% endif %} Movimiento - Dulcería Lilis{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-title">
+            <i class="fas fa-{% if movimiento %}eye{% else %}plus-circle{% endif %}"></i>
+            {% if movimiento %}Detalle de Movimiento{% else %}Nuevo Movimiento de Inventario{% endif %}
+        </h2>
+        <p class="page-subtitle">
+            {% if movimiento %}
+                Movimiento #{{ movimiento.id }} - {{ movimiento.get_tipo_movimiento_display }}
+            {% else %}
+                Registra ingresos, salidas, ajustes o transferencias
+            {% endif %}
+        </p>
+    </div>
+    <a href="{% url 'inventario_list' %}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+</div>
+
+<form method="post" action="" id="movimiento-form">
+    {% csrf_token %}
+    
+    <!-- Información del Movimiento -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-info-circle"></i> Información del Movimiento
+            </h3>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="tipo_movimiento" class="form-label">Tipo de Movimiento *</label>
+                <select id="tipo_movimiento" name="tipo_movimiento" class="form-control" required {% if movimiento %}disabled{% endif %}>
+                    <option value="">Seleccionar...</option>
+                    <option value="INGRESO" {% if movimiento and movimiento.tipo_movimiento == 'INGRESO' %}selected{% endif %}>
+                        <i class="fas fa-arrow-down"></i> Ingreso (Compra/Recepción)
+                    </option>
+                    <option value="SALIDA" {% if movimiento and movimiento.tipo_movimiento == 'SALIDA' %}selected{% endif %}>
+                        Salida (Venta/Despacho)
+                    </option>
+                    <option value="AJUSTE" {% if movimiento and movimiento.tipo_movimiento == 'AJUSTE' %}selected{% endif %}>
+                        Ajuste (Corrección de inventario)
+                    </option>
+                    <option value="DEVOLUCION" {% if movimiento and movimiento.tipo_movimiento == 'DEVOLUCION' %}selected{% endif %}>
+                        Devolución
+                    </option>
+                    <option value="TRANSFERENCIA" {% if movimiento and movimiento.tipo_movimiento == 'TRANSFERENCIA' %}selected{% endif %}>
+                        Transferencia (Entre bodegas)
+                    </option>
+                </select>
+                <small class="form-help">El tipo determina qué campos son obligatorios</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="fecha_movimiento" class="form-label">Fecha y Hora *</label>
+                <input 
+                    type="datetime-local" 
+                    id="fecha_movimiento" 
+                    name="fecha_movimiento" 
+                    class="form-control" 
+                    value="{% if movimiento %}{{ movimiento.fecha_movimiento|date:'Y-m-d\TH:i' }}{% else %}{{ now|date:'Y-m-d\TH:i' }}{% endif %}"
+                    required
+                    {% if movimiento %}readonly{% endif %}
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="estado" class="form-label">Estado</label>
+                <select id="estado" name="estado" class="form-control" {% if movimiento %}disabled{% endif %}>
+                    <option value="PENDIENTE" {% if not movimiento or movimiento.estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+                    <option value="CONFIRMADO" {% if movimiento and movimiento.estado == 'CONFIRMADO' %}selected{% endif %}>Confirmado</option>
+                    <option value="ANULADO" {% if movimiento and movimiento.estado == 'ANULADO' %}selected{% endif %}>Anulado</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Producto y Cantidad -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-box"></i> Producto y Cantidad
+            </h3>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group" style="flex: 2;">
+                <label for="producto" class="form-label">Producto *</label>
+                <select id="producto" name="producto" class="form-control" required {% if movimiento %}disabled{% endif %}>
+                    <option value="">Seleccionar producto...</option>
+                    {% for prod in productos %}
+                    <option value="{{ prod.id }}" 
+                            data-sku="{{ prod.sku }}"
+                            data-nombre="{{ prod.nombre }}"
+                            data-uom="{{ prod.uom_stock.codigo }}"
+                            {% if movimiento and movimiento.producto.id == prod.id %}selected{% endif %}>
+                        {{ prod.sku }} - {{ prod.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="cantidad" class="form-label">Cantidad *</label>
+                <input 
+                    type="number" 
+                    id="cantidad" 
+                    name="cantidad" 
+                    class="form-control" 
+                    value="{{ movimiento.cantidad|default:'1' }}"
+                    step="0.01"
+                    min="0.01"
+                    data-tipo="numero"
+                    required
+                    {% if movimiento %}readonly{% endif %}
+                >
+                <small class="validation-help">Debe ser mayor a 0</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="unidad_medida" class="form-label">Unidad *</label>
+                <select id="unidad_medida" name="unidad_medida" class="form-control" required {% if movimiento %}disabled{% endif %}>
+                    {% for uom in unidades_medida %}
+                    <option value="{{ uom.id }}" {% if movimiento and movimiento.unidad_medida.id == uom.id %}selected{% endif %}>
+                        {{ uom.codigo }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="costo_unitario" class="form-label">Costo Unitario</label>
+                <input 
+                    type="number" 
+                    id="costo_unitario" 
+                    name="costo_unitario" 
+                    class="form-control" 
+                    value="{{ movimiento.costo_unitario|default:'' }}"
+                    step="0.01"
+                    min="0"
+                    data-tipo="numero"
+                    {% if movimiento %}readonly{% endif %}
+                >
+                <small class="validation-help">Opcional - debe ser mayor o igual a 0</small>
+            </div>
+            
+            <div class="form-group">
+                <label for="costo_total" class="form-label">Costo Total</label>
+                <input 
+                    type="number" 
+                    id="costo_total" 
+                    name="costo_total" 
+                    class="form-control" 
+                    value="{{ movimiento.costo_total|default:'' }}"
+                    step="0.01"
+                    min="0"
+                    readonly
+                >
+                <small class="validation-help">Calculado automáticamente</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Origen y Destino -->
+    <div class="card" id="bodegas-card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-warehouse"></i> Bodegas y Ubicación
+            </h3>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group" id="proveedor-group">
+                <label for="proveedor" class="form-label">Proveedor <span class="required-indicator">*</span></label>
+                <select id="proveedor" name="proveedor" class="form-control" {% if movimiento %}disabled{% endif %}>
+                    <option value="">Seleccionar proveedor...</option>
+                    {% for prov in proveedores %}
+                    <option value="{{ prov.id }}" {% if movimiento and movimiento.proveedor and movimiento.proveedor.id == prov.id %}selected{% endif %}>
+                        {{ prov.razon_social }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <small class="form-help">Obligatorio para INGRESO y DEVOLUCIÓN</small>
+            </div>
+            
+            <div class="form-group" id="bodega-origen-group">
+                <label for="bodega_origen" class="form-label">Bodega Origen <span class="required-indicator">*</span></label>
+                <select id="bodega_origen" name="bodega_origen" class="form-control" {% if movimiento %}disabled{% endif %}>
+                    <option value="">Seleccionar bodega...</option>
+                    {% for bod in bodegas %}
+                    <option value="{{ bod.id }}" {% if movimiento and movimiento.bodega_origen and movimiento.bodega_origen.id == bod.id %}selected{% endif %}>
+                        {{ bod.codigo }} - {{ bod.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <small class="form-help">Obligatorio para SALIDA, AJUSTE y TRANSFERENCIA</small>
+            </div>
+            
+            <div class="form-group" id="bodega-destino-group">
+                <label for="bodega_destino" class="form-label">Bodega Destino <span class="required-indicator">*</span></label>
+                <select id="bodega_destino" name="bodega_destino" class="form-control" {% if movimiento %}disabled{% endif %}>
+                    <option value="">Seleccionar bodega...</option>
+                    {% for bod in bodegas %}
+                    <option value="{{ bod.id }}" {% if movimiento and movimiento.bodega_destino and movimiento.bodega_destino.id == bod.id %}selected{% endif %}>
+                        {{ bod.codigo }} - {{ bod.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <small class="form-help">Obligatorio para INGRESO y TRANSFERENCIA</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Control de Lote/Serie -->
+    <div class="card" id="control-card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-barcode"></i> Control de Lote/Serie
+            </h3>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group" id="lote-group">
+                <label for="lote" class="form-label">Lote</label>
+                <input 
+                    type="text" 
+                    id="lote" 
+                    name="lote" 
+                    class="form-control" 
+                    value="{{ movimiento.lote.codigo_lote|default:'' }}"
+                    placeholder="Ingrese código de lote"
+                    {% if movimiento %}readonly{% endif %}
+                >
+                <small class="form-help">Obligatorio si el producto tiene control por lote</small>
+            </div>
+            
+            <div class="form-group" id="serie-group">
+                <label for="serie" class="form-label">Serie</label>
+                <input 
+                    type="text" 
+                    id="serie" 
+                    name="serie" 
+                    class="form-control" 
+                    value="{{ movimiento.serie|default:'' }}"
+                    placeholder="Ingrese número de serie"
+                    {% if movimiento %}readonly{% endif %}
+                >
+                <small class="form-help">Obligatorio si el producto tiene control por serie</small>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Documentos y Referencias -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-file-alt"></i> Documentos y Referencias
+            </h3>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="documento_padre_tipo" class="form-label">Tipo Documento Origen</label>
+                <select id="documento_padre_tipo" name="documento_padre_tipo" class="form-control" {% if movimiento %}disabled{% endif %}>
+                    <option value="">Ninguno</option>
+                    <option value="ORDEN_COMPRA" {% if movimiento and movimiento.documento_padre_tipo == 'ORDEN_COMPRA' %}selected{% endif %}>Orden de Compra</option>
+                    <option value="ORDEN_VENTA" {% if movimiento and movimiento.documento_padre_tipo == 'ORDEN_VENTA' %}selected{% endif %}>Orden de Venta</option>
+                    <option value="AJUSTE_MANUAL" {% if movimiento and movimiento.documento_padre_tipo == 'AJUSTE_MANUAL' %}selected{% endif %}>Ajuste Manual</option>
+                    <option value="TRANSFERENCIA_INTERNA" {% if movimiento and movimiento.documento_padre_tipo == 'TRANSFERENCIA_INTERNA' %}selected{% endif %}>Transferencia Interna</option>
+                    <option value="DEVOLUCION_CLIENTE" {% if movimiento and movimiento.documento_padre_tipo == 'DEVOLUCION_CLIENTE' %}selected{% endif %}>Devolución Cliente</option>
+                    <option value="DEVOLUCION_PROVEEDOR" {% if movimiento and movimiento.documento_padre_tipo == 'DEVOLUCION_PROVEEDOR' %}selected{% endif %}>Devolución Proveedor</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="documento_referencia" class="form-label">N° Documento Referencia</label>
+                <input 
+                    type="text" 
+                    id="documento_referencia" 
+                    name="documento_referencia" 
+                    class="form-control" 
+                    value="{{ movimiento.documento_referencia|default:'' }}"
+                    placeholder="Ej: Factura 12345, Guía 67890"
+                    {% if movimiento %}readonly{% endif %}
+                >
+            </div>
+        </div>
+    </div>
+    
+    <!-- Motivo y Observaciones -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-comment-dots"></i> Motivo y Observaciones
+            </h3>
+        </div>
+        
+        <div class="form-group" id="motivo-group">
+            <label for="motivo_ajuste" class="form-label">Motivo <span class="required-indicator">*</span></label>
+            <textarea 
+                id="motivo_ajuste" 
+                name="motivo_ajuste" 
+                class="form-control" 
+                rows="3"
+                placeholder="Explica el motivo del ajuste o devolución..."
+                {% if movimiento %}readonly{% endif %}
+            >{{ movimiento.motivo_ajuste|default:'' }}</textarea>
+            <small class="form-help">Obligatorio para AJUSTE y DEVOLUCIÓN</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="observaciones" class="form-label">Observaciones</label>
+            <textarea 
+                id="observaciones" 
+                name="observaciones" 
+                class="form-control" 
+                rows="3"
+                placeholder="Información adicional sobre el movimiento..."
+                {% if movimiento %}readonly{% endif %}
+            >{{ movimiento.observaciones|default:'' }}</textarea>
+        </div>
+    </div>
+    
+    {% if movimiento and movimiento.estado == 'CONFIRMADO' %}
+    <!-- Información de Confirmación (Solo lectura) -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-check-circle"></i> Información de Confirmación
+            </h3>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Confirmado por</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    value="{{ movimiento.usuario_confirmacion.user.get_full_name|default:movimiento.usuario_confirmacion.user.username }}"
+                    readonly
+                >
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fecha de Confirmación</label>
+                <input 
+                    type="text" 
+                    class="form-control" 
+                    value="{{ movimiento.fecha_confirmacion|date:'d/m/Y H:i' }}"
+                    readonly
+                >
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Botones -->
+    <div class="form-actions">
+        {% if not movimiento %}
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Guardar Movimiento
+        </button>
+        <button type="button" class="btn btn-success" onclick="guardarYConfirmar()">
+            <i class="fas fa-check"></i> Guardar y Confirmar
+        </button>
+        {% elif movimiento.estado == 'PENDIENTE' %}
+        <button type="button" class="btn btn-success" onclick="confirmarMovimiento()">
+            <i class="fas fa-check"></i> Confirmar Movimiento
+        </button>
+        <button type="button" class="btn btn-danger" onclick="anularMovimiento()">
+            <i class="fas fa-times"></i> Anular
+        </button>
+        {% endif %}
+        <a href="{% url 'inventario_list' %}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</form>
+
+<style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    color: var(--color-text-focus);
+    margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+    color: var(--color-text);
+    font-size: 1rem;
+}
+
+.form-help {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--color-text);
+    margin-top: 0.25rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px var(--color-shadow);
+}
+
+.required-indicator {
+    color: var(--color-danger);
+    display: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+input[readonly],
+select[disabled],
+textarea[readonly] {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+
+<script>
+// Calcular costo total automáticamente
+function calcularCostoTotal() {
+    const cantidad = parseFloat(document.getElementById('cantidad').value) || 0;
+    const costoUnitario = parseFloat(document.getElementById('costo_unitario').value) || 0;
+    const costoTotal = cantidad * costoUnitario;
+    document.getElementById('costo_total').value = costoTotal.toFixed(2);
+}
+
+document.getElementById('cantidad')?.addEventListener('input', calcularCostoTotal);
+document.getElementById('costo_unitario')?.addEventListener('input', calcularCostoTotal);
+
+// Manejar cambios en el tipo de movimiento
+document.getElementById('tipo_movimiento')?.addEventListener('change', function() {
+    const tipo = this.value;
+    
+    // Elementos a controlar
+    const proveedorGroup = document.getElementById('proveedor-group');
+    const bodegaOrigenGroup = document.getElementById('bodega-origen-group');
+    const bodegaDestinoGroup = document.getElementById('bodega-destino-group');
+    const motivoGroup = document.getElementById('motivo-group');
+    
+    const proveedorSelect = document.getElementById('proveedor');
+    const bodegaOrigenSelect = document.getElementById('bodega_origen');
+    const bodegaDestinoSelect = document.getElementById('bodega_destino');
+    const motivoTextarea = document.getElementById('motivo_ajuste');
+    
+    // Limpiar requerimientos
+    proveedorSelect.required = false;
+    bodegaOrigenSelect.required = false;
+    bodegaDestinoSelect.required = false;
+    motivoTextarea.required = false;
+    
+    // Ocultar todos los indicadores de requerido
+    document.querySelectorAll('.required-indicator').forEach(el => el.style.display = 'none');
+    
+    // Mostrar/ocultar según el tipo
+    switch(tipo) {
+        case 'INGRESO':
+            proveedorSelect.required = true;
+            bodegaDestinoSelect.required = true;
+            proveedorGroup.querySelector('.required-indicator').style.display = 'inline';
+            bodegaDestinoGroup.querySelector('.required-indicator').style.display = 'inline';
+            break;
+            
+        case 'SALIDA':
+            bodegaOrigenSelect.required = true;
+            bodegaOrigenGroup.querySelector('.required-indicator').style.display = 'inline';
+            break;
+            
+        case 'AJUSTE':
+            bodegaOrigenSelect.required = true;
+            motivoTextarea.required = true;
+            bodegaOrigenGroup.querySelector('.required-indicator').style.display = 'inline';
+            motivoGroup.querySelector('.required-indicator').style.display = 'inline';
+            break;
+            
+        case 'DEVOLUCION':
+            proveedorSelect.required = true;
+            motivoTextarea.required = true;
+            proveedorGroup.querySelector('.required-indicator').style.display = 'inline';
+            motivoGroup.querySelector('.required-indicator').style.display = 'inline';
+            break;
+            
+        case 'TRANSFERENCIA':
+            bodegaOrigenSelect.required = true;
+            bodegaDestinoSelect.required = true;
+            bodegaOrigenGroup.querySelector('.required-indicator').style.display = 'inline';
+            bodegaDestinoGroup.querySelector('.required-indicator').style.display = 'inline';
+            break;
+    }
+});
+
+// Disparar el evento change al cargar si hay un tipo seleccionado
+if (document.getElementById('tipo_movimiento')?.value) {
+    document.getElementById('tipo_movimiento').dispatchEvent(new Event('change'));
+}
+
+// Funciones de botones
+function guardarYConfirmar() {
+    if (confirm('¿Deseas guardar y confirmar el movimiento? Esta acción afectará el stock inmediatamente.')) {
+        // Agregar campo hidden para indicar confirmación
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'confirmar';
+        input.value = 'true';
+        document.getElementById('movimiento-form').appendChild(input);
+        document.getElementById('movimiento-form').submit();
+    }
+}
+
+function confirmarMovimiento() {
+    if (confirm('¿Deseas confirmar este movimiento? Esta acción afectará el stock y no se puede deshacer.')) {
+        alert('Funcionalidad de confirmación en desarrollo');
+        // Aquí iría la lógica de confirmación
+    }
+}
+
+function anularMovimiento() {
+    if (confirm('¿Estás seguro de anular este movimiento? Esta acción no se puede deshacer.')) {
+        alert('Funcionalidad de anulación en desarrollo');
+        // Aquí iría la lógica de anulación
+    }
+}
+
+// Validación del formulario
+document.getElementById('movimiento-form')?.addEventListener('submit', function(e) {
+    const tipo = document.getElementById('tipo_movimiento').value;
+    
+    // Validaciones específicas por tipo
+    if (tipo === 'TRANSFERENCIA') {
+        const origen = document.getElementById('bodega_origen').value;
+        const destino = document.getElementById('bodega_destino').value;
+        
+        if (origen && destino && origen === destino) {
+            e.preventDefault();
+            alert('La bodega de origen y destino no pueden ser la misma en una transferencia.');
+            return false;
+        }
+    }
+});
+</script>
+{% endblock %}

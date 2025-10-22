@@ -1,9 +1,12 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block title %}Login - Dulcería Lilis{% endblock %}
-
-{% block extra_css %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Dulcería Lilis</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     body {
         background: linear-gradient(135deg, #D20A11 0%, #c4a75b 100%);
@@ -11,6 +14,8 @@
         justify-content: center;
         align-items: center;
         min-height: 100vh;
+        margin: 0;
+        padding: 0;
     }
     
     .login-container {
@@ -133,6 +138,7 @@
     @media (max-width: 768px) {
         .login-container {
             grid-template-columns: 1fr;
+            margin: 1rem;
         }
         
         .login-left {
@@ -140,9 +146,8 @@
         }
     }
 </style>
-{% endblock %}
-
-{% block content %}
+</head>
+<body>
 <div class="login-container">
     <div class="login-left">
         <img src="{% static 'img/Logo-lilis.png' %}" alt="Dulcería Lilis" class="login-logo">
@@ -216,6 +221,36 @@
                 <i class="fas fa-key"></i> ¿Olvidaste tu contraseña?
             </a>
         </div>
+        
+        <!-- Botón de acceso directo al dashboard (solo para testing) -->
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dashed #dee2e6; text-align: center;">
+            <p style="color: #6c757d; font-size: 0.9rem; margin-bottom: 0.75rem;">
+                <i class="fas fa-flask"></i> Modo de Prueba
+            </p>
+            <a href="{% url 'dashboard' %}" class="btn-test-dashboard">
+                <i class="fas fa-tachometer-alt"></i> Ir al Dashboard
+            </a>
+        </div>
     </div>
 </div>
-{% endblock %}
+
+<style>
+    .btn-test-dashboard {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        background-color: #c4a75b;
+        color: white;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .btn-test-dashboard:hover {
+        background-color: #b09548;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(196, 167, 91, 0.3);
+    }
+</style>
+</body>
+</html>

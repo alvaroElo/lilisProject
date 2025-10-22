@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Dulcería Lilis - Sistema de Gestión{% endblock %}</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=1.1">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block extra_css %}{% endblock %}
 </head>
@@ -101,7 +101,9 @@
     </footer>
     {% endif %}
 
-    <script src="{% static 'js/main.js' %}"></script>
+    <!-- Scripts -->
+    <script src="{% static 'js/validaciones.js' %}?v=1.1"></script>
+    <script src="{% static 'js/main.js' %}?v=1.1"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

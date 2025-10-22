@@ -4,6 +4,7 @@ Sin necesidad de backend completo
 """
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
 from maestros.models import Producto, Categoria, Marca, Proveedor, UnidadMedida
 from inventario.models import StockActual, MovimientoInventario, Bodega, Lote, AlertaStock
 from autenticacion.models import Usuario, Rol
@@ -30,6 +31,18 @@ def test_password_reset_confirm(request):
     return render(request, 'password_reset_confirm.html')
 
 
+@login_required
+def test_validaciones_demo(request):
+    """Vista de prueba para demostrar el sistema de validaciones"""
+    return render(request, 'validaciones_demo.html')
+
+
+@login_required
+def test_estilos_alertas_demo(request):
+    """Vista de prueba para demostrar los estilos mejorados de alertas"""
+    return render(request, 'estilos_alertas_demo.html')
+
+
 # ============================================
 # DASHBOARD
 # ============================================
@@ -41,7 +54,7 @@ def test_dashboard(request):
     # Calcular estadísticas reales
     total_productos = Producto.objects.filter(estado='ACTIVO').count()
     total_stock = StockActual.objects.aggregate(
-        total=sum('cantidad_disponible')
+        total=Sum('cantidad_disponible')
     )['total'] or 0
     alertas_stock = AlertaStock.objects.filter(estado='ACTIVA').count()
     proveedores_activos = Proveedor.objects.filter(estado='ACTIVO').count()
@@ -265,7 +278,8 @@ def test_proveedores_list(request):
 @login_required
 def test_proveedor_create(request):
     """Vista de prueba para crear proveedor"""
-    return render(request, 'proveedores_list.html')
+    context = {}
+    return render(request, 'proveedor_form.html', context)
 
 
 @login_required
@@ -273,7 +287,7 @@ def test_proveedor_edit(request, pk):
     """Vista de prueba para editar proveedor"""
     proveedor = Proveedor.objects.get(pk=pk)
     context = {'proveedor': proveedor}
-    return render(request, 'proveedores_list.html', context)
+    return render(request, 'proveedor_form.html', context)
 
 
 @login_required
@@ -281,7 +295,7 @@ def test_proveedor_detail(request, pk):
     """Vista de prueba para detalle de proveedor"""
     proveedor = Proveedor.objects.get(pk=pk)
     context = {'proveedor': proveedor}
-    return render(request, 'proveedores_list.html', context)
+    return render(request, 'proveedor_form.html', context)
 
 
 # ============================================
@@ -336,8 +350,9 @@ def test_movimiento_create(request):
         'proveedores': proveedores,
         'bodegas': bodegas,
         'unidades_medida': unidades,
+        'now': timezone.now(),
     }
-    return render(request, 'inventario_list.html', context)
+    return render(request, 'movimiento_form.html', context)
 
 
 @login_required
@@ -346,13 +361,23 @@ def test_movimiento_detail(request, pk):
     
     movimiento = MovimientoInventario.objects.select_related(
         'producto', 'proveedor', 'bodega_origen', 'bodega_destino',
-        'unidad_medida', 'usuario'
+        'unidad_medida', 'usuario', 'usuario_confirmacion'
     ).get(pk=pk)
+    
+    # También pasar los datos necesarios para el template
+    productos = Producto.objects.filter(estado='ACTIVO')
+    proveedores = Proveedor.objects.filter(estado='ACTIVO')
+    bodegas = Bodega.objects.filter(activo=True)
+    unidades = UnidadMedida.objects.filter(activo=True)
     
     context = {
         'movimiento': movimiento,
+        'productos': productos,
+        'proveedores': proveedores,
+        'bodegas': bodegas,
+        'unidades_medida': unidades,
     }
-    return render(request, 'inventario_list.html', context)
+    return render(request, 'movimiento_form.html', context)
 
 
 @login_required

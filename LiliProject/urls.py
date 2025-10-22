@@ -38,6 +38,10 @@ urlpatterns = [
     path('', test_views.test_dashboard, name='dashboard'),
     path('dashboard/', test_views.test_dashboard, name='dashboard'),
     
+    # Demo de Validaciones
+    path('demo/validaciones/', test_views.test_validaciones_demo, name='validaciones_demo'),
+    path('demo/estilos-alertas/', test_views.test_estilos_alertas_demo, name='estilos_alertas_demo'),
+    
     # Usuarios
     path('usuarios/', test_views.test_usuarios_list, name='usuarios_list'),
     path('usuarios/crear/', test_views.test_usuario_create, name='usuario_create'),

@@ -1,4 +1,10 @@
 /* ============================
+   Dulcería Lilis - Estilos Principales
+   Versión: 1.1 - Alertas Mejoradas
+   Última actualización: Octubre 2025
+   ============================ */
+
+/* ============================
    Variables de Colores
    ============================ */
 :root {
@@ -15,6 +21,12 @@
     --color-info: #17a2b8;
     --color-border: #dee2e6;
     --color-shadow: rgba(0, 0, 0, 0.1);
+    --color-error: #dc3545;
+    --color-error-bg: #f8d7da;
+    --color-error-border: #f5c6cb;
+    --color-valid: #28a745;
+    --color-valid-bg: #d4edda;
+    --color-valid-border: #c3e6cb;
 }
 
 /* ============================
@@ -487,5 +499,304 @@ ul {
     
     .main-content {
         padding: 1rem;
+    }
+}
+
+/* ============================
+   Estilos de Validación
+   ============================ */
+
+/* Estados de validación para inputs */
+input.is-invalid,
+select.is-invalid,
+textarea.is-invalid {
+    border-color: #dc3545 !important;
+    border-width: 2px !important;
+    background-color: #fff5f5;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.2rem;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.15),
+                inset 0 1px 2px rgba(220, 53, 69, 0.1);
+    animation: shake 0.3s ease;
+}
+
+input.is-valid,
+select.is-valid,
+textarea.is-valid {
+    border-color: #28a745 !important;
+    border-width: 2px !important;
+    background-color: #f0f9f4;
+    padding-right: 2.5rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2328a745' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.2rem;
+    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.15),
+                inset 0 1px 2px rgba(40, 167, 69, 0.1);
+}
+
+/* Mensaje de error */
+.error-message {
+    display: none;
+    color: #721c24;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+    padding: 0.75rem 1rem;
+    background-color: #f8d7da;
+    background-image: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border: 2px solid #dc3545;
+    border-left: 5px solid #dc3545;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    animation: slideDown 0.3s ease, pulse 0.5s ease;
+    position: relative;
+}
+
+.error-message::before {
+    content: '⚠';
+    font-size: 1.2rem;
+    margin-right: 0.5rem;
+    display: inline-block;
+    animation: shake 0.5s ease;
+}
+
+.error-message i {
+    margin-right: 0.5rem;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+/* Mensaje de éxito */
+.success-message {
+    display: none;
+    color: var(--color-valid);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--color-valid-bg);
+    border-left: 3px solid var(--color-valid);
+    border-radius: 0.25rem;
+    animation: slideDown 0.3s ease;
+}
+
+/* Alert personalizada para formularios */
+.alert {
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    border: 3px solid transparent;
+    border-radius: 0.75rem;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideDown 0.3s ease;
+}
+
+.alert i {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.alert-danger {
+    color: #721c24;
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-color: #dc3545;
+    border-left-width: 6px;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.alert-danger i {
+    color: #dc3545;
+    animation: pulse 2s ease infinite;
+}
+
+.alert-success {
+    color: #155724;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #28a745;
+    border-left-width: 6px;
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.alert-success i {
+    color: #28a745;
+}
+
+.alert-warning {
+    color: #856404;
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-color: #ffc107;
+    border-left-width: 6px;
+    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.alert-warning i {
+    color: #ffc107;
+}
+
+.alert-info {
+    color: #0c5460;
+    background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+    border-color: #17a2b8;
+    border-left-width: 6px;
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.alert-info i {
+    color: #17a2b8;
+}
+
+.alert-dismissible {
+    padding-right: 4rem;
+}
+
+.alert .btn-close {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.1);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    color: inherit;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+}
+
+.alert .btn-close:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* Animación fade para alerts */
+.fade {
+    transition: opacity 0.3s ease;
+}
+
+.fade.show {
+    opacity: 1;
+}
+
+/* Indicador de campo requerido */
+.required-indicator {
+    color: #dc3545;
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-left: 0.25rem;
+    text-shadow: 0 1px 2px rgba(220, 53, 69, 0.3);
+    animation: pulse 2s ease infinite;
+}
+
+/* Tooltip de ayuda para validación */
+.validation-help {
+    font-size: 0.875rem;
+    color: var(--color-text);
+    opacity: 0.7;
+    margin-top: 0.25rem;
+    font-style: italic;
+}
+
+/* Focus con validación */
+input.is-invalid:focus,
+select.is-invalid:focus,
+textarea.is-invalid:focus {
+    border-color: #dc3545;
+    border-width: 3px !important;
+    box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.3),
+                inset 0 1px 2px rgba(220, 53, 69, 0.1);
+    outline: none;
+}
+
+input.is-valid:focus,
+select.is-valid:focus,
+textarea.is-valid:focus {
+    border-color: #28a745;
+    border-width: 3px !important;
+    box-shadow: 0 0 0 4px rgba(40, 167, 69, 0.3),
+                inset 0 1px 2px rgba(40, 167, 69, 0.1);
+    outline: none;
+}
+
+/* Spinner de carga para validaciones async */
+.validation-spinner {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-left-color: var(--color-info);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: translateY(-50%) rotate(360deg);
+    }
+}
+
+/* Responsive para validaciones */
+@media (max-width: 768px) {
+    .error-message,
+    .success-message {
+        font-size: 0.8rem;
+        padding: 0.6rem 0.8rem;
+    }
+    
+    .alert {
+        padding: 1rem 1.25rem;
+        font-size: 0.875rem;
     }
 }
