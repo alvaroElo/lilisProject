@@ -10,17 +10,29 @@
 {% block body %}
 <div class="login-container">
     <div class="login-box">
-        <!-- Header -->
-        <div class="login-header">
+        <!-- Panel Izquierdo - Bienvenida -->
+        <div class="login-left">
             <div class="login-logo">
-                <img src="{% static 'img/logo.png' %}" alt="Dulcería Lilis Logo" onerror="this.style.display='none'">
+                <img src="{% static 'img/Logo-lilis.png' %}" alt="Dulcería Lilis Logo">
             </div>
-            <h1 class="login-title">Dulcería Lilis</h1>
-            <p class="login-subtitle">Sistema de Gestión de Inventario</p>
+            <div class="login-welcome">
+                <h1 class="login-title">Bienvenido</h1>
+                <p class="login-subtitle">Sistema de Gestión de Inventario</p>
+                <div class="login-security">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Acceso seguro y confiable</span>
+                </div>
+            </div>
         </div>
         
-        <!-- Body -->
-        <div class="login-body">
+        <!-- Panel Derecho - Formulario -->
+        <div class="login-right">
+            <!-- Header del Formulario -->
+            <div class="login-form-header">
+                <h2 class="login-form-title">Iniciar Sesión</h2>
+                <p class="login-form-subtitle">Ingresa tus credenciales para continuar</p>
+            </div>
+            
             <!-- Mensajes de Django -->
             {% if messages %}
                 {% for message in messages %}
@@ -36,13 +48,13 @@
                 
                 <!-- Usuario -->
                 <div class="form-group has-label">
-                    <label for="username" class="form-label">Usuario</label>
+                    <label for="username" class="form-label"><i class="fas fa-user"></i> Usuario o Email</label>
                     <input 
                         type="text" 
                         id="username" 
                         name="username" 
                         class="form-control" 
-                        placeholder="Ingresa tu usuario"
+                        placeholder="Ingresa tu usuario o email"
                         autocomplete="username"
                         required
                         autofocus
@@ -52,7 +64,7 @@
                 
                 <!-- Contraseña -->
                 <div class="form-group has-label">
-                    <label for="password" class="form-label">Contraseña</label>
+                    <label for="password" class="form-label"><i class="fas fa-lock"></i> Contraseña</label>
                     <input 
                         type="password" 
                         id="password" 
@@ -76,17 +88,15 @@
                 
                 <!-- Submit Button -->
                 <button type="submit" class="btn btn-login">
-                    Iniciar Sesión
+                    <i class="fas fa-sign-in-alt"></i> Ingresar
                 </button>
             </form>
-        </div>
-        
-        <!-- Footer -->
-        <div class="login-footer">
-            <p>¿Necesitas ayuda? <a href="#">Contacta al administrador</a></p>
-            <p style="margin-top: 0.5rem; font-size: 11px; color: #999;">
-                © 2025 Dulcería Lilis. Todos los derechos reservados.
-            </p>
+            
+            <!-- Footer -->
+            <div class="login-footer">
+                <p>¿Necesitas ayuda? <a href="#">Contacta al administrador</a></p>
+                <p class="login-copyright">© 2025 Dulcería Lilis. Todos los derechos reservados.</p>
+            </div>
         </div>
     </div>
 </div>

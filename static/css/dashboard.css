@@ -30,7 +30,7 @@
 
 .sidebar-header {
     padding: var(--spacing-lg);
-    background: var(--color-header);
+    background: linear-gradient(135deg, #D20A11 0%, #8B0000 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -127,14 +127,14 @@
 }
 
 .sidebar-menu-link:hover {
-    background-color: var(--color-bg-light);
-    color: var(--color-header);
+    background: linear-gradient(90deg, rgba(196, 167, 91, 0.08) 0%, transparent 100%);
+    color: var(--color-secondary);
 }
 
 .sidebar-menu-link.active {
-    background-color: rgba(210, 10, 17, 0.1);
-    color: var(--color-header);
-    border-left: 3px solid var(--color-header);
+    background: linear-gradient(90deg, rgba(196, 167, 91, 0.15) 0%, transparent 100%);
+    color: var(--color-primary);
+    border-left: 3px solid var(--color-secondary);
 }
 
 .sidebar-menu-icon {
@@ -213,7 +213,7 @@
 
 .menu-toggle:hover {
     background: var(--color-bg-light);
-    color: var(--color-header);
+    color: var(--color-secondary);
 }
 
 .page-title {
@@ -243,7 +243,7 @@
 
 .notification-bell:hover {
     background: var(--color-bg-light);
-    color: var(--color-header);
+    color: var(--color-secondary);
 }
 
 .notification-badge {
@@ -315,7 +315,7 @@
 
 .notification-item.unread {
     background: rgba(196, 167, 91, 0.05);
-    border-left: 3px solid var(--color-submenu);
+    border-left: 3px solid var(--color-secondary);
 }
 
 .notification-title {
@@ -344,12 +344,12 @@
 
 .notification-footer a {
     font-size: var(--font-size-sm);
-    color: var(--color-submenu);
+    color: var(--color-secondary);
     font-weight: 500;
 }
 
 .notification-footer a:hover {
-    color: var(--color-header);
+    color: var(--color-cafe);
 }
 
 /* === USER DROPDOWN === */
@@ -377,7 +377,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--color-submenu);
+    background: linear-gradient(135deg, #c4a75b 0%, #a38944 100%);
     color: white;
     display: flex;
     align-items: center;
@@ -459,7 +459,7 @@
 
 .user-dropdown-item:hover {
     background: var(--color-bg-light);
-    color: var(--color-header);
+    color: var(--color-secondary);
 }
 
 .user-dropdown-item.logout {
