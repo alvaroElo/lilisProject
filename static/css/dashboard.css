@@ -1,0 +1,517 @@
+/* ===================================
+   DULCERÍA LILIS - DASHBOARD LAYOUT
+   =================================== */
+
+/* === LAYOUT PRINCIPAL === */
+.dashboard-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-bg-light);
+}
+
+/* === SIDEBAR === */
+.sidebar {
+    width: 260px;
+    background-color: white;
+    box-shadow: 2px 0 8px var(--color-shadow);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    transition: transform var(--transition-normal);
+}
+
+.sidebar.collapsed {
+    transform: translateX(-260px);
+}
+
+.sidebar-header {
+    padding: var(--spacing-lg);
+    background: var(--color-header);
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    min-height: 70px;
+}
+
+.sidebar-logo {
+    width: 45px;
+    height: 45px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-logo img {
+    width: 35px;
+    height: 35px;
+    object-fit: contain;
+}
+
+.sidebar-brand {
+    flex: 1;
+}
+
+.sidebar-brand-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.sidebar-brand-subtitle {
+    font-size: 11px;
+    opacity: 0.9;
+}
+
+.sidebar-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-md) 0;
+}
+
+/* Scrollbar personalizado */
+.sidebar-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-body::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.sidebar-body::-webkit-scrollbar-thumb {
+    background: var(--color-submenu);
+    border-radius: 3px;
+}
+
+.sidebar-body::-webkit-scrollbar-thumb:hover {
+    background: #a38944;
+}
+
+.sidebar-section {
+    margin-bottom: var(--spacing-md);
+}
+
+.sidebar-section-title {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--color-text);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-menu {
+    list-style: none;
+}
+
+.sidebar-menu-item {
+    position: relative;
+}
+
+.sidebar-menu-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: 0.75rem var(--spacing-lg);
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.sidebar-menu-link:hover {
+    background-color: var(--color-bg-light);
+    color: var(--color-header);
+}
+
+.sidebar-menu-link.active {
+    background-color: rgba(210, 10, 17, 0.1);
+    color: var(--color-header);
+    border-left: 3px solid var(--color-header);
+}
+
+.sidebar-menu-icon {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+.sidebar-menu-text {
+    flex: 1;
+}
+
+.sidebar-footer {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg-light);
+}
+
+.sidebar-footer-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) 0;
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.sidebar-footer-link:hover {
+    color: #a80810;
+}
+
+/* === CONTENIDO PRINCIPAL === */
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left var(--transition-normal);
+}
+
+.main-content.expanded {
+    margin-left: 0;
+}
+
+/* === HEADER === */
+.top-header {
+    background: white;
+    box-shadow: 0 2px 4px var(--color-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--spacing-lg);
+    min-height: 70px;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.menu-toggle {
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.menu-toggle:hover {
+    background: var(--color-bg-light);
+    color: var(--color-header);
+}
+
+.page-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-text-focus);
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+/* === NOTIFICACIONES === */
+.notification-bell {
+    position: relative;
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    color: var(--color-text);
+    cursor: pointer;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    transition: all var(--transition-fast);
+}
+
+.notification-bell:hover {
+    background: var(--color-bg-light);
+    color: var(--color-header);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: var(--color-danger);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* Dropdown de notificaciones */
+.notification-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 20px var(--color-shadow);
+    width: 320px;
+    max-height: 400px;
+    display: none;
+    z-index: 1001;
+}
+
+.notification-dropdown.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notification-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+    font-weight: 600;
+    color: var(--color-text-focus);
+}
+
+.notification-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.notification-item:hover {
+    background: var(--color-bg-light);
+}
+
+.notification-item.unread {
+    background: rgba(196, 167, 91, 0.05);
+    border-left: 3px solid var(--color-submenu);
+}
+
+.notification-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--color-text-focus);
+    margin-bottom: var(--spacing-xs);
+}
+
+.notification-text {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+    margin-bottom: var(--spacing-xs);
+}
+
+.notification-time {
+    font-size: 11px;
+    color: var(--color-text);
+}
+
+.notification-footer {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    text-align: center;
+    border-top: 1px solid var(--color-border);
+}
+
+.notification-footer a {
+    font-size: var(--font-size-sm);
+    color: var(--color-submenu);
+    font-weight: 500;
+}
+
+.notification-footer a:hover {
+    color: var(--color-header);
+}
+
+/* === USER DROPDOWN === */
+.user-profile {
+    position: relative;
+}
+
+.user-profile-button {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius);
+    transition: all var(--transition-fast);
+}
+
+.user-profile-button:hover {
+    background: var(--color-bg-light);
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--color-submenu);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.user-info {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-text-focus);
+}
+
+.user-role {
+    font-size: 11px;
+    color: var(--color-text);
+}
+
+.user-dropdown-arrow {
+    font-size: 14px;
+    color: var(--color-text);
+}
+
+/* Dropdown del usuario */
+.user-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: 0 4px 20px var(--color-shadow);
+    min-width: 220px;
+    display: none;
+    z-index: 1001;
+}
+
+.user-dropdown.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
+}
+
+.user-dropdown-header {
+    padding: var(--spacing-md) var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.user-dropdown-name {
+    font-weight: 600;
+    color: var(--color-text-focus);
+    margin-bottom: 2px;
+}
+
+.user-dropdown-email {
+    font-size: var(--font-size-sm);
+    color: var(--color-text);
+}
+
+.user-dropdown-menu {
+    padding: var(--spacing-sm) 0;
+}
+
+.user-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.user-dropdown-item:hover {
+    background: var(--color-bg-light);
+    color: var(--color-header);
+}
+
+.user-dropdown-item.logout {
+    color: var(--color-danger);
+    border-top: 1px solid var(--color-border);
+    margin-top: var(--spacing-sm);
+}
+
+.user-dropdown-item.logout:hover {
+    background: rgba(220, 53, 69, 0.1);
+}
+
+/* === CONTENIDO === */
+.page-content {
+    flex: 1;
+    padding: var(--spacing-xl);
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 992px) {
+    .sidebar {
+        transform: translateX(-260px);
+    }
+    
+    .sidebar.show {
+        transform: translateX(0);
+    }
+    
+    .main-content {
+        margin-left: 0;
+    }
+    
+    .user-info {
+        display: none;
+    }
+}
+
+@media (max-width: 576px) {
+    .page-title {
+        font-size: 16px;
+    }
+    
+    .top-header {
+        padding: 0 var(--spacing-md);
+    }
+    
+    .page-content {
+        padding: var(--spacing-md);
+    }
+    
+    .notification-dropdown,
+    .user-dropdown {
+        width: 280px;
+    }
+}
