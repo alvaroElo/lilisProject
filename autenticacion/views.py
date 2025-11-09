@@ -39,6 +39,7 @@ def dashboard_view(request):
     
     # Obtener estadísticas
     context = {
+        'active_menu': 'dashboard',  # Para resaltar en el menú
         'productos_count': Producto.objects.filter(estado='ACTIVO').count(),
         'alertas_count': AlertaStock.objects.filter(estado='ACTIVA').count(),
         'ordenes_count': OrdenCompra.objects.filter(estado__in=['BORRADOR', 'ENVIADA', 'CONFIRMADA']).count(),

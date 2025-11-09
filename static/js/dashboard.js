@@ -10,16 +10,29 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.querySelector('.sidebar');
     const mainContent = document.querySelector('.main-content');
     
+    // Crear overlay para móvil
+    const overlay = document.createElement('div');
+    overlay.className = 'sidebar-overlay';
+    document.body.appendChild(overlay);
+    
     if (menuToggle) {
-        menuToggle.addEventListener('click', function() {
+        menuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
             if (window.innerWidth > 992) {
                 sidebar.classList.toggle('collapsed');
                 mainContent.classList.toggle('expanded');
             } else {
                 sidebar.classList.toggle('show');
+                overlay.classList.toggle('show');
             }
         });
     }
+    
+    // Cerrar sidebar al hacer clic en overlay
+    overlay.addEventListener('click', function() {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+    });
     
     // Cerrar sidebar en móvil al hacer clic en un enlace
     const sidebarLinks = document.querySelectorAll('.sidebar-menu-link');
@@ -27,6 +40,7 @@ document.addEventListener('DOMContentLoaded', function() {
         link.addEventListener('click', function() {
             if (window.innerWidth <= 992) {
                 sidebar.classList.remove('show');
+                overlay.classList.remove('show');
             }
         });
     });
@@ -61,13 +75,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // === CERRAR DROPDOWNS AL HACER CLIC FUERA ===
+    // === CERRAR DROPDOWNS Y SIDEBAR AL HACER CLIC FUERA ===
     document.addEventListener('click', function(e) {
+        // Cerrar user dropdown
         if (userDropdown && !userDropdown.contains(e.target) && !userProfileButton.contains(e.target)) {
             userDropdown.classList.remove('show');
         }
+        // Cerrar notification dropdown
         if (notificationDropdown && !notificationDropdown.contains(e.target) && !notificationBell.contains(e.target)) {
             notificationDropdown.classList.remove('show');
+        }
+        // Cerrar sidebar en móvil al hacer clic fuera
+        if (window.innerWidth <= 992 && sidebar.classList.contains('show')) {
+            if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                sidebar.classList.remove('show');
+            }
         }
     });
     
@@ -109,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function handleResize() {
         if (window.innerWidth > 992) {
             sidebar.classList.remove('show');
+            overlay.classList.remove('show');
         }
     }
     

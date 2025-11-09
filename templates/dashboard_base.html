@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% block module_css %}{% endblock %}
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <img src="{% static 'img/Logo-lilis.png' %}" alt="Logo Dulcería Lilis">
+            </div>
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-title">Dulcería Lilis</div>
+                <div class="sidebar-brand-subtitle">Sistema de Gestión</div>
+            </div>
+        </div>
+        
+        <!-- Sidebar Body -->
+        <div class="sidebar-body">
+            <!-- Panel de Control -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Panel de Control</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a href="{% url 'dashboard' %}" class="sidebar-menu-link {% if active_menu == 'dashboard' %}active{% endif %}">
+                            <i class="fas fa-home sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Dashboard</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Gestión -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Gestión</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/maestros/producto/" class="sidebar-menu-link {% if active_menu == 'productos' %}active{% endif %}">
+                            <i class="fas fa-box sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Productos</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/maestros/categoria/" class="sidebar-menu-link {% if active_menu == 'categorias' %}active{% endif %}">
+                            <i class="fas fa-tags sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Categorías</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/maestros/marca/" class="sidebar-menu-link {% if active_menu == 'marcas' %}active{% endif %}">
+                            <i class="fas fa-trademark sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Marcas</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/maestros/proveedor/" class="sidebar-menu-link {% if active_menu == 'proveedores' %}active{% endif %}">
+                            <i class="fas fa-truck sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Proveedores</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Inventario -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Inventario</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/inventario/stockactual/" class="sidebar-menu-link {% if active_menu == 'stock' %}active{% endif %}">
+                            <i class="fas fa-warehouse sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Stock Actual</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/inventario/movimientoinventario/" class="sidebar-menu-link {% if active_menu == 'movimientos' %}active{% endif %}">
+                            <i class="fas fa-exchange-alt sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Movimientos</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/inventario/bodega/" class="sidebar-menu-link {% if active_menu == 'bodegas' %}active{% endif %}">
+                            <i class="fas fa-building sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Bodegas</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/inventario/alertastock/" class="sidebar-menu-link {% if active_menu == 'alertas' %}active{% endif %}">
+                            <i class="fas fa-exclamation-triangle sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Alertas</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Compras -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Compras</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/compras/ordencompra/" class="sidebar-menu-link {% if active_menu == 'ordenes' %}active{% endif %}">
+                            <i class="fas fa-shopping-cart sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Órdenes de Compra</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            
+            <!-- Sistema -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Sistema</div>
+                <ul class="sidebar-menu">
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/autenticacion/usuario/" class="sidebar-menu-link {% if active_menu == 'usuarios' %}active{% endif %}">
+                            <i class="fas fa-users sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Usuarios</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
+                        <a href="/admin/" class="sidebar-menu-link {% if active_menu == 'configuracion' %}active{% endif %}">
+                            <i class="fas fa-cog sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Configuración</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="sidebar-footer-link">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <button class="menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+            </div>
+            
+            <div class="header-right">
+                <!-- Notificaciones -->
+                <div class="notification-bell-wrapper" style="position: relative;">
+                    <button class="notification-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">{{ notification_count|default:3 }}</span>
+                    </button>
+                    
+                    <!-- Dropdown de Notificaciones -->
+                    <div class="notification-dropdown">
+                        <div class="notification-header">
+                            Notificaciones
+                        </div>
+                        <div class="notification-list">
+                            <!-- Ejemplo de notificaciones -->
+                            <div class="notification-item unread">
+                                <div class="notification-title">Alerta de Stock Bajo</div>
+                                <div class="notification-text">El producto "Chocolate Nestlé 50g" está por debajo del stock mínimo.</div>
+                                <div class="notification-time">Hace 5 minutos</div>
+                            </div>
+                            <div class="notification-item unread">
+                                <div class="notification-title">Nueva Orden de Compra</div>
+                                <div class="notification-text">Se ha creado la orden de compra OC-2025-001.</div>
+                                <div class="notification-time">Hace 1 hora</div>
+                            </div>
+                            <div class="notification-item unread">
+                                <div class="notification-title">Producto por Vencer</div>
+                                <div class="notification-text">Lote L-2024-089 vence en 7 días.</div>
+                                <div class="notification-time">Hace 2 horas</div>
+                            </div>
+                        </div>
+                        <div class="notification-footer">
+                            <a href="/admin/inventario/alertastock/">Ver todas las notificaciones</a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Profile -->
+                <div class="user-profile">
+                    <button class="user-profile-button">
+                        <div class="user-avatar">{{ user.first_name.0|upper }}{{ user.last_name.0|upper }}</div>
+                        <div class="user-info">
+                            <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="user-role">{{ user.usuario_profile.rol.get_nombre_display|default:"Administrador" }}</div>
+                        </div>
+                        <i class="fas fa-chevron-down user-dropdown-arrow"></i>
+                    </button>
+                    
+                    <!-- Dropdown del Usuario -->
+                    <div class="user-dropdown">
+                        <div class="user-dropdown-header">
+                            <div class="user-dropdown-name">{{ user.get_full_name|default:user.username }}</div>
+                            <div class="user-dropdown-email">{{ user.email }}</div>
+                        </div>
+                        <div class="user-dropdown-menu">
+                            <a href="/admin/password_change/" class="user-dropdown-item">
+                                <i class="fas fa-key"></i>
+                                <span>Cambiar Contraseña</span>
+                            </a>
+                            <a href="{% url 'logout' %}" class="user-dropdown-item logout">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Cerrar Sesión</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Page Content -->
+        <main class="page-content">
+            {% block content %}
+            <!-- El contenido específico de cada módulo va aquí -->
+            {% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% block module_js %}{% endblock %}
+{% endblock %}
