@@ -14,7 +14,7 @@ Ctrl+C (si está corriendo)
 
 ### 2. Eliminar todas las tablas
 ```powershell
-venv\Scripts\python.exe drop_tables.py
+venv\Scripts\python.exe scripts\drop_tables.py
 ```
 
 ### 3. Eliminar archivos de migración
@@ -34,7 +34,7 @@ venv\Scripts\python.exe manage.py migrate
 
 ### 6. Cargar datos de ejemplo
 ```powershell
-venv\Scripts\python.exe cargar_datos.py
+venv\Scripts\python.exe scripts\cargar_datos.py
 ```
 
 ### 7. Iniciar servidor

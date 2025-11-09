@@ -50,7 +50,7 @@ python manage.py makemigrations
 python manage.py migrate
 
 # 7. Cargar datos de ejemplo
-python cargar_datos.py
+python scripts/cargar_datos.py
 
 # 8. Ejecutar servidor
 python manage.py runserver
@@ -73,10 +73,10 @@ python manage.py runserver
 
 ```bash
 # Reiniciar base de datos completa
-python drop_tables.py
+python scripts/drop_tables.py
 python manage.py makemigrations
 python manage.py migrate
-python cargar_datos.py
+python scripts/cargar_datos.py
 
 # Crear superusuario
 python manage.py createsuperuser

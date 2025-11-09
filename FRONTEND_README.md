@@ -52,7 +52,7 @@ python manage.py migrate
 
 #### 4. Cargar Datos de Prueba (si no lo has hecho)
 ```powershell
-python cargar_datos.py
+python scripts/cargar_datos.py
 ```
 
 #### 5. Iniciar Servidor

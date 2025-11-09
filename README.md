@@ -27,7 +27,7 @@ python manage.py makemigrations
 python manage.py migrate
 
 # 6. Cargar datos de ejemplo
-python cargar_datos.py
+python scripts/cargar_datos.py
 
 # 7. Ejecutar servidor
 python manage.py runserver
@@ -155,7 +155,7 @@ python manage.py migrate
 
 7. **Cargar datos de ejemplo** (recomendado)
 ```bash
-python cargar_datos.py
+python scripts/cargar_datos.py
 ```
 
 Este script crea automáticamente:
