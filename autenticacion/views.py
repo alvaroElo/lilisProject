@@ -35,7 +35,7 @@ def login_view(request):
         else:
             messages.error(request, 'Usuario o contraseña incorrectos.')
     
-    return render(request, 'login.html')
+    return render(request, 'login/login.html')
 
 
 @login_required(login_url='login')
@@ -434,7 +434,7 @@ def password_reset_request(request):
             pass
         except Exception as e:
             messages.error(request, 'Error al procesar la solicitud. Intenta nuevamente.')
-            return render(request, 'password_reset.html')
+            return render(request, 'login/password_reset.html')
         
         # Siempre mostrar un mensaje genérico por seguridad
         if reset_link:
@@ -450,7 +450,7 @@ def password_reset_request(request):
             else:
                 # Falló el envío - mostrar el link (solo en desarrollo)
                 messages.warning(request, 'El correo no pudo ser enviado. Usa el siguiente enlace:')
-                return render(request, 'password_reset.html', {
+                return render(request, 'login/password_reset.html', {
                     'reset_link': reset_link,
                     'email': email
                 })
@@ -458,9 +458,9 @@ def password_reset_request(request):
             # Usuario no existe - mensaje genérico sin revelar
             messages.success(request, 'Si el correo está registrado, recibirás las instrucciones para restablecer tu contraseña.')
         
-        return render(request, 'password_reset.html')
+        return render(request, 'login/password_reset.html')
     
-    return render(request, 'password_reset.html')
+    return render(request, 'login/password_reset.html')
 
 
 def password_reset_confirm(request, uidb64, token):
@@ -485,7 +485,7 @@ def password_reset_confirm(request, uidb64, token):
                 # Validar que las contraseñas coincidan
                 if new_password1 != new_password2:
                     messages.error(request, 'Las contraseñas no coinciden.')
-                    return render(request, 'password_reset_confirm.html', {
+                    return render(request, 'login/password_reset_confirm.html', {
                         'valid_link': True,
                         'email': user.email
                     })
@@ -493,7 +493,7 @@ def password_reset_confirm(request, uidb64, token):
                 # Validar longitud mínima
                 if len(new_password1) < 8:
                     messages.error(request, 'La contraseña debe tener al menos 8 caracteres.')
-                    return render(request, 'password_reset_confirm.html', {
+                    return render(request, 'login/password_reset_confirm.html', {
                         'valid_link': True,
                         'email': user.email
                     })
@@ -506,17 +506,17 @@ def password_reset_confirm(request, uidb64, token):
                 return redirect('login')
             
             # GET - Mostrar formulario
-            return render(request, 'password_reset_confirm.html', {
+            return render(request, 'login/password_reset_confirm.html', {
                 'valid_link': True,
                 'email': user.email
             })
         else:
             # Token inválido
-            return render(request, 'password_reset_confirm.html', {
+            return render(request, 'login/password_reset_confirm.html', {
                 'valid_link': False
             })
             
     except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-        return render(request, 'password_reset_confirm.html', {
+        return render(request, 'login/password_reset_confirm.html', {
             'valid_link': False
         })
