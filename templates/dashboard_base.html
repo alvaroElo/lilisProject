@@ -65,7 +65,7 @@
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="/admin/maestros/proveedor/" class="sidebar-menu-link {% if active_menu == 'proveedores' %}active{% endif %}">
+                        <a href="{% url 'proveedores_list' %}" class="sidebar-menu-link {% if active_menu == 'proveedores' %}active{% endif %}">
                             <i class="fas fa-truck sidebar-menu-icon"></i>
                             <span class="sidebar-menu-text">Proveedores</span>
                         </a>

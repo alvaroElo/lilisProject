@@ -21,7 +21,12 @@ from django.conf.urls.static import static
 from autenticacion.views import (
     login_view, dashboard_view, logout_view,
     usuarios_list, usuario_create, usuario_edit, usuario_delete,
-    password_reset_request, password_reset_confirm
+    password_reset_request, password_reset_confirm,
+    exportar_usuarios_excel
+)
+from maestros.views import (
+    proveedores_list, proveedor_create, proveedor_edit, proveedor_delete,
+    exportar_proveedores_excel
 )
 
 urlpatterns = [
@@ -43,6 +48,14 @@ urlpatterns = [
     path('usuarios/create/', usuario_create, name='usuario_create'),
     path('usuarios/<int:usuario_id>/edit/', usuario_edit, name='usuario_edit'),
     path('usuarios/<int:usuario_id>/delete/', usuario_delete, name='usuario_delete'),
+    path('usuarios/exportar-excel/', exportar_usuarios_excel, name='exportar_usuarios_excel'),
+    
+    # Gestión de Proveedores
+    path('proveedores/', proveedores_list, name='proveedores_list'),
+    path('proveedores/create/', proveedor_create, name='proveedor_create'),
+    path('proveedores/<int:proveedor_id>/edit/', proveedor_edit, name='proveedor_edit'),
+    path('proveedores/<int:proveedor_id>/delete/', proveedor_delete, name='proveedor_delete'),
+    path('proveedores/exportar-excel/', exportar_proveedores_excel, name='exportar_proveedores_excel'),
 ]
 
 # Servir archivos estáticos y media en desarrollo

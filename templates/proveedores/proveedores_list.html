@@ -1,87 +1,87 @@
 {% extends 'dashboard_base.html' %}
 {% load static %}
 
-{% block title %}Gestión de Usuarios - Dulcería Lilis{% endblock %}
-{% block page_title %}Gestión de Usuarios 👥{% endblock %}
+{% block title %}Gestión de Proveedores - Dulcería Lilis{% endblock %}
+{% block page_title %}Gestión de Proveedores 🚚{% endblock %}
 
 {% block module_css %}
-<link rel="stylesheet" href="{% static 'css/usuarios.css' %}">
+<link rel="stylesheet" href="{% static 'css/proveedores.css' %}">
 {% endblock %}
 
 {% block content %}
 <!-- Toolbar de Acciones -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
-        <p class="text-muted mb-0">Administración de usuarios del sistema</p>
+        <p class="text-muted mb-0">Administración de proveedores del sistema</p>
     </div>
     <div>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUsuario" onclick="openCreateModal()">
-            <i class="fas fa-user-plus me-2"></i>Agregar Usuario
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProveedor" onclick="openCreateModal()">
+            <i class="fas fa-truck me-2"></i>Agregar Proveedor
         </button>
     </div>
 </div>
 
 <!-- Estadísticas -->
 <div class="row g-4 mb-4">
-    <!-- Total Usuarios -->
+    <!-- Total Proveedores -->
     <div class="col-12 col-sm-6 col-lg-3">
         <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #3b82f6 !important;">
             <div class="card-body d-flex align-items-center gap-3">
                 <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
                      style="width: 60px; height: 60px; background: #3b82f6;">
-                    <i class="fas fa-users fs-2 text-white"></i>
+                    <i class="fas fa-truck fs-2 text-white"></i>
                 </div>
                 <div class="flex-grow-1">
-                    <div class="fs-2 fw-bold">{{ total_usuarios }}</div>
-                    <div class="text-muted small">Total Usuarios</div>
+                    <div class="fs-2 fw-bold">{{ total_proveedores }}</div>
+                    <div class="text-muted small">Total Proveedores</div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Usuarios Activos -->
+    <!-- Proveedores Activos -->
     <div class="col-12 col-sm-6 col-lg-3">
         <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #28a745 !important;">
             <div class="card-body d-flex align-items-center gap-3">
                 <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
                      style="width: 60px; height: 60px; background: #28a745;">
-                    <i class="fas fa-user-check fs-2 text-white"></i>
+                    <i class="fas fa-check-circle fs-2 text-white"></i>
                 </div>
                 <div class="flex-grow-1">
-                    <div class="fs-2 fw-bold">{{ usuarios_activos }}</div>
-                    <div class="text-muted small">Usuarios Activos</div>
+                    <div class="fs-2 fw-bold">{{ proveedores_activos }}</div>
+                    <div class="text-muted small">Proveedores Activos</div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Usuarios Bloqueados -->
+    <!-- Proveedores Bloqueados -->
     <div class="col-12 col-sm-6 col-lg-3">
         <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #ffc107 !important;">
             <div class="card-body d-flex align-items-center gap-3">
                 <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
                      style="width: 60px; height: 60px; background: #ffc107;">
-                    <i class="fas fa-user-lock fs-2 text-white"></i>
+                    <i class="fas fa-ban fs-2 text-white"></i>
                 </div>
                 <div class="flex-grow-1">
-                    <div class="fs-2 fw-bold">{{ usuarios_bloqueados }}</div>
+                    <div class="fs-2 fw-bold">{{ proveedores_bloqueados }}</div>
                     <div class="text-muted small">Bloqueados</div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- Usuarios Inactivos -->
+    <!-- Condiciones 30 días -->
     <div class="col-12 col-sm-6 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #dc3545 !important;">
+        <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #c4a75b !important;">
             <div class="card-body d-flex align-items-center gap-3">
                 <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
-                     style="width: 60px; height: 60px; background: #dc3545;">
-                    <i class="fas fa-user-times fs-2 text-white"></i>
+                     style="width: 60px; height: 60px; background: #c4a75b;">
+                    <i class="fas fa-calendar-alt fs-2 text-white"></i>
                 </div>
                 <div class="flex-grow-1">
-                    <div class="fs-2 fw-bold">{{ usuarios_inactivos }}</div>
-                    <div class="text-muted small">Inactivos</div>
+                    <div class="fs-2 fw-bold">{{ proveedores_30_dias }}</div>
+                    <div class="text-muted small">Pago 30 días</div>
                 </div>
             </div>
         </div>
@@ -91,7 +91,7 @@
 <!-- Filtros y Búsqueda -->
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body">
-        <form method="get" action="{% url 'usuarios_list' %}" id="filterForm">
+        <form method="get" action="{% url 'proveedores_list' %}" id="filterForm">
             <div class="row g-3">
                 <div class="col-12 col-md-4">
                     <label class="form-label small text-muted mb-1">
@@ -100,18 +100,18 @@
                     <input type="text" 
                            name="search" 
                            class="form-control" 
-                           placeholder="Nombre o email..." 
+                           placeholder="RUT, razón social, email..." 
                            value="{{ search }}">
                 </div>
                 <div class="col-12 col-md-3">
                     <label class="form-label small text-muted mb-1">
-                        <i class="fas fa-user-tag me-1"></i>Rol
+                        <i class="fas fa-money-bill me-1"></i>Condiciones Pago
                     </label>
-                    <select name="rol" class="form-select">
-                        <option value="">Todos los roles</option>
-                        {% for rol in roles %}
-                        <option value="{{ rol.nombre }}" {% if rol_filter == rol.nombre %}selected{% endif %}>
-                            {{ rol.get_nombre_display }}
+                    <select name="condicion_pago" class="form-select">
+                        <option value="">Todas</option>
+                        {% for value, label in CONDICIONES_PAGO_CHOICES %}
+                        <option value="{{ value }}" {% if condicion_pago_filter == value %}selected{% endif %}>
+                            {{ label }}
                         </option>
                         {% endfor %}
                     </select>
@@ -122,16 +122,18 @@
                     </label>
                     <select name="estado" class="form-select">
                         <option value="">Todos</option>
-                        <option value="ACTIVO" {% if estado_filter == 'ACTIVO' %}selected{% endif %}>Activo</option>
-                        <option value="BLOQUEADO" {% if estado_filter == 'BLOQUEADO' %}selected{% endif %}>Bloqueado</option>
-                        <option value="INACTIVO" {% if estado_filter == 'INACTIVO' %}selected{% endif %}>Inactivo</option>
+                        {% for value, label in ESTADO_CHOICES %}
+                        <option value="{{ value }}" {% if estado_filter == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
                     </select>
                 </div>
                 <div class="col-12 col-md-2 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-secondary flex-grow-1">
+                    <button type="submit" class="btn btn-primary flex-fill" title="Aplicar filtros">
                         <i class="fas fa-filter me-2"></i>Filtrar
                     </button>
-                    <a href="{% url 'usuarios_list' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                    <a href="{% url 'proveedores_list' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
                         <i class="fas fa-times"></i>
                     </a>
                 </div>
@@ -140,23 +142,17 @@
     </div>
 </div>
 
-<!-- Tabla de Usuarios -->
+<!-- Tabla de Proveedores -->
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white border-bottom">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <h5 class="mb-0">
-                <i class="fas fa-table me-2"></i>Listado de Usuarios
+                <i class="fas fa-table me-2"></i>Listado de Proveedores
                 <span class="badge bg-secondary ms-2">{{ page_obj.paginator.count }}</span>
             </h5>
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-secondary" onclick="window.print()" title="Imprimir">
-                    <i class="fas fa-print me-2"></i>Imprimir
-                </button>
                 <button class="btn btn-outline-success" onclick="exportarExcel()" title="Exportar a Excel">
                     <i class="fas fa-file-excel me-2"></i>Excel
-                </button>
-                <button class="btn btn-outline-danger" onclick="exportarPDF()" title="Exportar a PDF">
-                    <i class="fas fa-file-pdf me-2"></i>PDF
                 </button>
             </div>
         </div>
@@ -164,27 +160,27 @@
     <div class="card-body p-0">
         <!-- Wrapper con responsividad Bootstrap -->
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="min-width: 900px;">
+            <table class="table table-hover align-middle mb-0" style="min-width: 1100px;">
                 <thead>
                     <tr style="background: linear-gradient(135deg, #D20A11 0%, #8B0000 100%) !important;">
-                        <th class="ps-4 sortable" data-sort="username" style="color: white !important; border: none !important; background: transparent !important; cursor: pointer;">
-                            Usuario 
+                        <th class="ps-4 sortable" data-sort="rut_nif" style="color: white !important; border: none !important; background: transparent !important; cursor: pointer;">
+                            RUT/NIF
                             <i class="fas fa-sort ms-1 sort-icon"></i>
                         </th>
-                        <th class="sortable" data-sort="nombre" style="color: white !important; border: none !important; background: transparent !important; cursor: pointer;">
-                            Nombre Completo
+                        <th class="sortable" data-sort="razon_social" style="color: white !important; border: none !important; background: transparent !important; cursor: pointer;">
+                            Razón Social
                             <i class="fas fa-sort ms-1 sort-icon"></i>
                         </th>
                         <th class="sortable" data-sort="email" style="color: white !important; border: none !important; background: transparent !important; cursor: pointer;">
                             Email
                             <i class="fas fa-sort ms-1 sort-icon"></i>
                         </th>
-                        <th class="sortable" data-sort="rol" style="color: white !important; border: none !important; background: transparent !important; cursor: pointer;">
-                            Rol
+                        <th style="color: white !important; border: none !important; background: transparent !important;">Teléfono</th>
+                        <th style="color: white !important; border: none !important; background: transparent !important;">Ciudad</th>
+                        <th class="sortable" data-sort="condiciones_pago" style="color: white !important; border: none !important; background: transparent !important; cursor: pointer;">
+                            Condiciones Pago
                             <i class="fas fa-sort ms-1 sort-icon"></i>
                         </th>
-                        <th style="color: white !important; border: none !important; background: transparent !important;">Teléfono</th>
-                        <th style="color: white !important; border: none !important; background: transparent !important;">Área/Unidad</th>
                         <th class="sortable" data-sort="estado" style="color: white !important; border: none !important; background: transparent !important; cursor: pointer;">
                             Estado
                             <i class="fas fa-sort ms-1 sort-icon"></i>
@@ -193,73 +189,62 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for usuario in usuarios %}
+                    {% for proveedor in proveedores %}
                     <tr>
                         <td class="ps-4">
-                            <div class="d-flex align-items-center gap-2">
-                                {% if usuario.foto_perfil %}
-                                <div class="rounded-circle" 
-                                     style="width: 40px; height: 40px; background-image: url('{{ usuario.foto_perfil.url }}'); background-size: cover; background-position: center; flex-shrink: 0;">
-                                </div>
-                                {% else %}
-                                <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white" 
-                                     style="width: 40px; height: 40px; background: linear-gradient(135deg, #c4a75b 0%, #a38944 100%); font-size: 15px; flex-shrink: 0;">
-                                    {{ usuario.user.first_name.0|upper|default:'U' }}{{ usuario.user.last_name.0|upper|default:'' }}
-                                </div>
-                                {% endif %}
-                                <div class="text-nowrap">
-                                    <div class="fw-semibold">{{ usuario.user.username }}</div>
-                                    <small class="text-muted">ID: {{ usuario.id }}</small>
-                                </div>
-                            </div>
+                            <div class="fw-semibold text-nowrap">{{ proveedor.rut_nif }}</div>
+                            <small class="text-muted">ID: {{ proveedor.id }}</small>
                         </td>
                         <td>
-                            <div class="fw-medium text-nowrap">{{ usuario.user.get_full_name|default:'—' }}</div>
+                            <div class="fw-medium">{{ proveedor.razon_social }}</div>
+                            {% if proveedor.nombre_fantasia %}
+                            <small class="text-muted">{{ proveedor.nombre_fantasia }}</small>
+                            {% endif %}
                         </td>
                         <td>
+                            {% if proveedor.email %}
                             <div class="d-flex align-items-center gap-2">
                                 <i class="fas fa-envelope text-muted" style="font-size: 0.85rem;"></i>
-                                <span class="text-nowrap">{{ usuario.user.email|default:'—' }}</span>
+                                <span class="text-nowrap">{{ proveedor.email }}</span>
                             </div>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if proveedor.telefono %}
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-phone text-muted" style="font-size: 0.85rem;"></i>
+                                <span class="text-nowrap">{{ proveedor.telefono }}</span>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if proveedor.ciudad %}
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-city text-muted" style="font-size: 0.85rem;"></i>
+                                <span class="text-nowrap">{{ proveedor.ciudad }}</span>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
                         </td>
                         <td>
                             <span class="badge rounded-pill" style="background: rgba(196, 167, 91, 0.15); color: #c4a75b; padding: 0.4em 0.8em;">
-                                <i class="fas fa-user-tag me-1"></i>
-                                {{ usuario.rol.get_nombre_display }}
+                                <i class="fas fa-money-bill me-1"></i>
+                                {{ proveedor.get_condiciones_pago_display }}
                             </span>
                         </td>
                         <td>
-                            {% if usuario.telefono %}
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="fas fa-phone text-muted" style="font-size: 0.85rem;"></i>
-                                <span class="text-nowrap">{{ usuario.telefono }}</span>
-                            </div>
-                            {% else %}
-                            <span class="text-muted">—</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if usuario.area_unidad %}
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="fas fa-building text-muted" style="font-size: 0.85rem;"></i>
-                                <span class="text-nowrap">{{ usuario.area_unidad }}</span>
-                            </div>
-                            {% else %}
-                            <span class="text-muted">—</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if usuario.estado == 'ACTIVO' %}
+                            {% if proveedor.estado == 'ACTIVO' %}
                             <span class="badge rounded-pill bg-success">
                                 <i class="fas fa-check-circle me-1"></i>Activo
                             </span>
-                            {% elif usuario.estado == 'BLOQUEADO' %}
+                            {% else %}
                             <span class="badge rounded-pill bg-warning text-dark">
                                 <i class="fas fa-lock me-1"></i>Bloqueado
-                            </span>
-                            {% else %}
-                            <span class="badge rounded-pill bg-danger">
-                                <i class="fas fa-times-circle me-1"></i>Inactivo
                             </span>
                             {% endif %}
                         </td>
@@ -268,21 +253,21 @@
                                 <button class="btn btn-primary btn-action-solid" 
                                         title="Ver detalles" 
                                         data-action="view"
-                                        data-id="{{ usuario.id }}">
+                                        data-id="{{ proveedor.id }}">
                                     <i class="fas fa-eye"></i>
                                 </button>
                                 <button class="btn btn-warning btn-action-solid" 
                                         title="Editar" 
                                         data-action="edit"
-                                        data-id="{{ usuario.id }}">
+                                        data-id="{{ proveedor.id }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
                                 <button class="btn btn-danger btn-action-solid" 
-                                        title="Desactivar" 
+                                        title="Bloquear" 
                                         data-action="delete"
-                                        data-id="{{ usuario.id }}"
-                                        data-username="{{ usuario.user.username }}">
-                                    <i class="fas fa-user-times"></i>
+                                        data-id="{{ proveedor.id }}"
+                                        data-razonsocial="{{ proveedor.razon_social }}">
+                                    <i class="fas fa-ban"></i>
                                 </button>
                             </div>
                         </td>
@@ -291,10 +276,10 @@
                     <tr>
                         <td colspan="8" class="text-center py-5">
                             <div class="d-flex flex-column align-items-center gap-3">
-                                <i class="fas fa-inbox" style="font-size: 4rem; color: #dee2e6;"></i>
+                                <i class="fas fa-truck" style="font-size: 4rem; color: #dee2e6;"></i>
                                 <div>
-                                    <h6 class="text-muted mb-1">No se encontraron usuarios</h6>
-                                    <p class="text-muted small mb-0">Intenta ajustar los filtros de búsqueda o agrega un nuevo usuario</p>
+                                    <h6 class="text-muted mb-1">No se encontraron proveedores</h6>
+                                    <p class="text-muted small mb-0">Intenta ajustar los filtros de búsqueda o agrega un nuevo proveedor</p>
                                 </div>
                             </div>
                         </td>
@@ -327,12 +312,12 @@
                     <ul class="pagination pagination-sm justify-content-md-end mb-0 flex-wrap">
                         {% if page_obj.has_previous %}
                         <li class="page-item">
-                            <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if rol_filter %}&rol={{ rol_filter }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}&per_page={{ per_page }}">
+                            <a class="page-link" href="?page=1{% if search %}&search={{ search }}{% endif %}{% if condicion_pago_filter %}&condicion_pago={{ condicion_pago_filter }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}&per_page={{ per_page }}">
                                 <i class="fas fa-angle-double-left"></i>
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if rol_filter %}&rol={{ rol_filter }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}&per_page={{ per_page }}">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if condicion_pago_filter %}&condicion_pago={{ condicion_pago_filter }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}&per_page={{ per_page }}">
                                 <i class="fas fa-angle-left"></i>
                             </a>
                         </li>
@@ -352,19 +337,19 @@
                         </li>
                         {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if rol_filter %}&rol={{ rol_filter }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}&per_page={{ per_page }}">{{ num }}</a>
+                            <a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if condicion_pago_filter %}&condicion_pago={{ condicion_pago_filter }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}&per_page={{ per_page }}">{{ num }}</a>
                         </li>
                         {% endif %}
                         {% endfor %}
                         
                         {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if rol_filter %}&rol={{ rol_filter }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}&per_page={{ per_page }}">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if condicion_pago_filter %}&condicion_pago={{ condicion_pago_filter }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}&per_page={{ per_page }}">
                                 <i class="fas fa-angle-right"></i>
                             </a>
                         </li>
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if rol_filter %}&rol={{ rol_filter }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}&per_page={{ per_page }}">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if condicion_pago_filter %}&condicion_pago={{ condicion_pago_filter }}{% endif %}{% if estado_filter %}&estado={{ estado_filter }}{% endif %}&per_page={{ per_page }}">
                                 <i class="fas fa-angle-double-right"></i>
                             </a>
                         </li>
@@ -384,58 +369,43 @@
     {% endif %}
 </div>
 
-<!-- Modal Agregar/Editar Usuario -->
-<div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
+<!-- Modal Agregar/Editar Proveedor -->
+<div class="modal fade" id="modalProveedor" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow">
             <div class="modal-header text-white" style="background: linear-gradient(135deg, #D20A11 0%, #8B0000 100%); border-bottom: none;">
                 <h5 class="modal-title">
-                    <i class="fas fa-user-plus me-2"></i>
-                    <span id="modalTitle">Agregar Nuevo Usuario</span>
+                    <i class="fas fa-truck me-2"></i>
+                    <span id="modalTitle">Agregar Nuevo Proveedor</span>
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-4">
-                <form id="usuarioForm">
+                <form id="proveedorForm">
                     {% csrf_token %}
-                    <input type="hidden" id="usuarioId" name="usuario_id">
+                    <input type="hidden" id="proveedorId" name="proveedor_id">
                     
-                    <!-- Información de Cuenta -->
+                    <!-- Información Básica -->
                     <div class="mb-4">
                         <h6 class="text-secondary mb-3">
-                            <i class="fas fa-user-circle me-2"></i>Información de Cuenta
+                            <i class="fas fa-building me-2"></i>Información Básica
                         </h6>
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
-                                <label for="username" class="form-label">
-                                    Nombre de Usuario <span class="text-danger">*</span>
+                                <label for="rut_nif" class="form-label">
+                                    RUT/NIF <span class="text-danger">*</span>
                                 </label>
-                                <input type="text" class="form-control" id="username" name="username" required>
-                                <small class="text-muted">Será usado para iniciar sesión</small>
+                                <input type="text" class="form-control" id="rut_nif" name="rut_nif" required placeholder="12.345.678-9 o NIF123456">
                             </div>
                             <div class="col-12 col-md-6">
-                                <label for="password" class="form-label">
-                                    Contraseña <span class="text-danger" id="passwordRequired">*</span>
+                                <label for="razon_social" class="form-label">
+                                    Razón Social <span class="text-danger">*</span>
                                 </label>
-                                <input type="password" class="form-control" id="password" name="password">
-                                <small class="text-muted" id="passwordHelp">Mínimo 8 caracteres</small>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Información Personal -->
-                    <div class="mb-4">
-                        <h6 class="text-secondary mb-3">
-                            <i class="fas fa-id-card me-2"></i>Información Personal
-                        </h6>
-                        <div class="row g-3">
-                            <div class="col-12 col-md-6">
-                                <label for="first_name" class="form-label">Nombre</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name">
+                                <input type="text" class="form-control" id="razon_social" name="razon_social" required>
                             </div>
                             <div class="col-12 col-md-6">
-                                <label for="last_name" class="form-label">Apellido</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name">
+                                <label for="nombre_fantasia" class="form-label">Nombre Fantasía</label>
+                                <input type="text" class="form-control" id="nombre_fantasia" name="nombre_fantasia">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label for="email" class="form-label">
@@ -443,53 +413,106 @@
                                 </label>
                                 <input type="email" class="form-control" id="email" name="email" required>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información de Contacto -->
+                    <div class="mb-4">
+                        <h6 class="text-secondary mb-3">
+                            <i class="fas fa-phone me-2"></i>Información de Contacto
+                        </h6>
+                        <div class="row g-3">
                             <div class="col-12 col-md-6">
                                 <label for="telefono" class="form-label">Teléfono</label>
                                 <input type="text" class="form-control" id="telefono" name="telefono" placeholder="+56 9 1234 5678">
                             </div>
+                            <div class="col-12 col-md-6">
+                                <label for="sitio_web" class="form-label">Sitio Web</label>
+                                <input type="url" class="form-control" id="sitio_web" name="sitio_web" placeholder="https://www.ejemplo.com">
+                            </div>
                             <div class="col-12">
-                                <label for="foto_perfil" class="form-label">
-                                    <i class="fas fa-camera me-1"></i>Foto de Perfil
-                                </label>
-                                <input type="file" class="form-control" id="foto_perfil" name="foto_perfil" accept="image/*">
-                                <small class="text-muted">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB</small>
-                                <div id="fotoPreview" class="mt-2" style="display: none;">
-                                    <img id="fotoPreviewImg" src="" alt="Vista previa" class="rounded" style="max-width: 150px; max-height: 150px; object-fit: cover;">
-                                </div>
+                                <label for="direccion" class="form-label">Dirección</label>
+                                <input type="text" class="form-control" id="direccion" name="direccion">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label for="ciudad" class="form-label">Ciudad</label>
+                                <input type="text" class="form-control" id="ciudad" name="ciudad">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label for="pais" class="form-label">País</label>
+                                <input type="text" class="form-control" id="pais" name="pais" value="Chile">
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <label for="moneda" class="form-label">Moneda</label>
+                                <select class="form-select" id="moneda" name="moneda">
+                                    <option value="CLP">CLP - Peso Chileno</option>
+                                    <option value="USD">USD - Dólar</option>
+                                    <option value="EUR">EUR - Euro</option>
+                                </select>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Información del Sistema -->
+                    <!-- Condiciones Comerciales -->
                     <div class="mb-4">
                         <h6 class="text-secondary mb-3">
-                            <i class="fas fa-cog me-2"></i>Información del Sistema
+                            <i class="fas fa-handshake me-2"></i>Condiciones Comerciales
                         </h6>
                         <div class="row g-3">
                             <div class="col-12 col-md-6">
-                                <label for="rol" class="form-label">
-                                    Rol <span class="text-danger">*</span>
+                                <label for="condiciones_pago" class="form-label">
+                                    Condiciones de Pago <span class="text-danger">*</span>
                                 </label>
-                                <select class="form-select" id="rol" name="rol" required>
+                                <select class="form-select" id="condiciones_pago" name="condiciones_pago" required onchange="toggleCondicionesDetalle()">
                                     <option value="">Seleccionar...</option>
-                                    {% for rol in roles %}
-                                    <option value="{{ rol.id }}">{{ rol.get_nombre_display }}</option>
-                                    {% endfor %}
+                                    <option value="CONTADO">Contado</option>
+                                    <option value="30_DIAS">30 días</option>
+                                    <option value="60_DIAS">60 días</option>
+                                    <option value="90_DIAS">90 días</option>
+                                    <option value="OTRO">Otro</option>
                                 </select>
+                            </div>
+                            <div class="col-12 col-md-6" id="condicionesDetalleGroup" style="display: none;">
+                                <label for="condiciones_pago_detalle" class="form-label">Detalle de Condiciones</label>
+                                <input type="text" class="form-control" id="condiciones_pago_detalle" name="condiciones_pago_detalle" placeholder="Especificar otras condiciones">
                             </div>
                             <div class="col-12 col-md-6">
                                 <label for="estado" class="form-label">Estado</label>
                                 <select class="form-select" id="estado" name="estado">
                                     <option value="ACTIVO">Activo</option>
                                     <option value="BLOQUEADO">Bloqueado</option>
-                                    <option value="INACTIVO">Inactivo</option>
                                 </select>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Contacto Principal -->
+                    <div class="mb-4">
+                        <h6 class="text-secondary mb-3">
+                            <i class="fas fa-user-tie me-2"></i>Contacto Principal
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <label for="contacto_principal_nombre" class="form-label">Nombre</label>
+                                <input type="text" class="form-control" id="contacto_principal_nombre" name="contacto_principal_nombre">
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label for="contacto_principal_telefono" class="form-label">Teléfono</label>
+                                <input type="text" class="form-control" id="contacto_principal_telefono" name="contacto_principal_telefono">
+                            </div>
                             <div class="col-12">
-                                <label for="area_unidad" class="form-label">Área/Unidad</label>
-                                <input type="text" class="form-control" id="area_unidad" name="area_unidad" placeholder="Ej: Ventas, Bodega, Administración">
+                                <label for="contacto_principal_email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="contacto_principal_email" name="contacto_principal_email">
                             </div>
                         </div>
+                    </div>
+                    
+                    <!-- Observaciones -->
+                    <div class="mb-3">
+                        <label for="observaciones" class="form-label">
+                            <i class="fas fa-sticky-note me-1"></i>Observaciones
+                        </label>
+                        <textarea class="form-control" id="observaciones" name="observaciones" rows="3" placeholder="Notas adicionales sobre el proveedor..."></textarea>
                     </div>
                 </form>
             </div>
@@ -497,9 +520,9 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                     <i class="fas fa-times me-2"></i>Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" onclick="saveUsuario()">
+                <button type="button" class="btn btn-primary" onclick="saveProveedor()">
                     <i class="fas fa-save me-2"></i>
-                    <span id="btnSaveText">Guardar Usuario</span>
+                    <span id="btnSaveText">Guardar Proveedor</span>
                 </button>
             </div>
         </div>
@@ -508,5 +531,5 @@
 {% endblock %}
 
 {% block module_js %}
-<script src="{% static 'js/usuarios.js' %}"></script>
+<script src="{% static 'js/proveedores.js' %}"></script>
 {% endblock %}

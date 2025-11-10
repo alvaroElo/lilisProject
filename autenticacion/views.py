@@ -5,11 +5,14 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from maestros.models import Producto
 from inventario.models import AlertaStock, Bodega
 from compras.models import OrdenCompra
 from .models import Usuario, Rol
+from openpyxl import Workbook
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from datetime import datetime
 
 
 def login_view(request):
@@ -72,6 +75,8 @@ def usuarios_list(request):
     rol_filter = request.GET.get('rol', '')
     estado_filter = request.GET.get('estado', '')
     per_page = request.GET.get('per_page', '10')
+    sort_by = request.GET.get('sort', 'created_at')
+    sort_order = request.GET.get('order', 'desc')
     
     # Query base
     usuarios = Usuario.objects.select_related('user', 'rol').all()
@@ -91,8 +96,26 @@ def usuarios_list(request):
     if estado_filter:
         usuarios = usuarios.filter(estado=estado_filter)
     
-    # Ordenar por fecha de creación (más recientes primero)
-    usuarios = usuarios.order_by('-created_at')
+    # Mapeo de campos permitidos para ordenar
+    sort_fields = {
+        'username': 'user__username',
+        'nombre': 'user__first_name',
+        'email': 'user__email',
+        'rol': 'rol__nombre',
+        'estado': 'estado',
+        'created_at': 'created_at',
+    }
+    
+    # Validar y aplicar ordenamiento
+    if sort_by in sort_fields:
+        order_field = sort_fields[sort_by]
+        if sort_order == 'asc':
+            usuarios = usuarios.order_by(order_field)
+        else:
+            usuarios = usuarios.order_by(f'-{order_field}')
+    else:
+        # Ordenamiento por defecto
+        usuarios = usuarios.order_by('-created_at')
     
     # Estadísticas
     total_usuarios = Usuario.objects.count()
@@ -128,6 +151,8 @@ def usuarios_list(request):
         'rol_filter': rol_filter,
         'estado_filter': estado_filter,
         'per_page': per_page,
+        'sort_by': sort_by,
+        'sort_order': sort_order,
     }
     
     return render(request, 'usuarios/usuarios_list.html', context)
@@ -529,3 +554,114 @@ def password_reset_confirm(request, uidb64, token):
         return render(request, 'login/password_reset_confirm.html', {
             'valid_link': False
         })
+
+
+@login_required(login_url='login')
+def exportar_usuarios_excel(request):
+    """Exportar listado de usuarios a Excel"""
+    
+    # Obtener usuarios con los mismos filtros que la vista principal
+    usuarios = Usuario.objects.select_related('user', 'rol').all()
+    
+    # Aplicar filtros de búsqueda si existen
+    search = request.GET.get('search', '').strip()
+    if search:
+        usuarios = usuarios.filter(
+            Q(user__username__icontains=search) |
+            Q(user__first_name__icontains=search) |
+            Q(user__last_name__icontains=search) |
+            Q(user__email__icontains=search) |
+            Q(telefono__icontains=search)
+        )
+    
+    # Filtros adicionales
+    rol_filter = request.GET.get('rol')
+    if rol_filter:
+        usuarios = usuarios.filter(rol_id=rol_filter)
+    
+    estado_filter = request.GET.get('estado')
+    if estado_filter:
+        usuarios = usuarios.filter(estado=estado_filter)
+    
+    # Aplicar ordenamiento si existe
+    sort_by = request.GET.get('sort', 'created_at')
+    sort_order = request.GET.get('order', 'desc')
+    
+    sort_fields = {
+        'username': 'user__username',
+        'nombre': 'user__first_name',
+        'email': 'user__email',
+        'rol': 'rol__nombre',
+        'estado': 'estado',
+        'created_at': 'created_at',
+    }
+    
+    if sort_by in sort_fields:
+        order_field = sort_fields[sort_by]
+        if sort_order == 'desc':
+            order_field = f'-{order_field}'
+        usuarios = usuarios.order_by(order_field)
+    
+    # Crear workbook de Excel
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Usuarios"
+    
+    # Estilos
+    header_fill = PatternFill(start_color="0066CC", end_color="0066CC", fill_type="solid")
+    header_font = Font(bold=True, color="FFFFFF", size=12)
+    border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+    
+    # Encabezados
+    headers = ['Usuario', 'Nombre Completo', 'Email', 'Teléfono', 'Rol', 'Área/Unidad', 'Estado', 'Fecha Creación']
+    ws.append(headers)
+    
+    # Aplicar estilos a encabezados
+    for cell in ws[1]:
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+        cell.border = border
+    
+    # Ajustar ancho de columnas
+    column_widths = [15, 30, 35, 15, 20, 25, 12, 20]
+    for i, width in enumerate(column_widths, 1):
+        ws.column_dimensions[ws.cell(1, i).column_letter].width = width
+    
+    # Agregar datos
+    for usuario in usuarios:
+        row = [
+            usuario.user.username,
+            usuario.user.get_full_name() or '-',
+            usuario.user.email or '-',
+            usuario.telefono or '-',
+            usuario.rol.nombre if usuario.rol else '-',
+            usuario.area_unidad or '-',
+            'Activo' if usuario.estado == 'ACTIVO' else 'Inactivo',
+            usuario.created_at.strftime('%d/%m/%Y %H:%M') if usuario.created_at else '-'
+        ]
+        ws.append(row)
+        
+        # Aplicar bordes y alineación a las celdas de datos
+        for cell in ws[ws.max_row]:
+            cell.border = border
+            cell.alignment = Alignment(vertical='center')
+    
+    # Configurar la respuesta HTTP
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    
+    # Nombre del archivo con fecha y hora
+    filename = f'usuarios_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+    
+    # Guardar el workbook en la respuesta
+    wb.save(response)
+    
+    return response

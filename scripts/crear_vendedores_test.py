@@ -3,11 +3,16 @@ Script para crear 100 usuarios vendedores de prueba
 Dulcería Lilis - Sistema de Gestión
 
 Uso:
-    python crear_vendedores_test.py
+    python scripts/crear_vendedores_test.py
 """
 
 import os
+import sys
 import django
+
+# Agregar el directorio raíz del proyecto al PATH
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, BASE_DIR)
 
 # Configurar Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LiliProject.settings')

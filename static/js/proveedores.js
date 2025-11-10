@@ -1,28 +1,26 @@
 /* ===================================
-   MÓDULO DE USUARIOS - JAVASCRIPT
-   Funcionalidad para gestión de usuarios
+   MÓDULO DE PROVEEDORES - JAVASCRIPT
+   Funcionalidad para gestión de proveedores
    =================================== */
 
 let editMode = false;
-let currentUsuarioId = null;
+let currentProveedorId = null;
 let formChanged = false;
 
 // Validar formulario antes de enviar
 function validateForm(formData, isEdit = false) {
     const errors = [];
     
-    // Validar username
-    const username = formData.get('username');
-    if (!username || username.trim().length < 3) {
-        errors.push('El nombre de usuario debe tener al menos 3 caracteres');
+    // Validar RUT/NIF
+    const rut_nif = formData.get('rut_nif');
+    if (!rut_nif || rut_nif.trim().length < 3) {
+        errors.push('El RUT/NIF debe tener al menos 3 caracteres');
     }
     
-    // Validar password (solo en creación o si se proporciona en edición)
-    const password = formData.get('password');
-    if (!isEdit && (!password || password.length < 8)) {
-        errors.push('La contraseña debe tener al menos 8 caracteres');
-    } else if (isEdit && password && password.length > 0 && password.length < 8) {
-        errors.push('La contraseña debe tener al menos 8 caracteres');
+    // Validar razón social
+    const razon_social = formData.get('razon_social');
+    if (!razon_social || razon_social.trim().length < 3) {
+        errors.push('La razón social debe tener al menos 3 caracteres');
     }
     
     // Validar email
@@ -31,21 +29,10 @@ function validateForm(formData, isEdit = false) {
         errors.push('El email no es válido');
     }
     
-    // Validar nombres
-    const firstName = formData.get('first_name');
-    if (!firstName || firstName.trim().length < 2) {
-        errors.push('El nombre debe tener al menos 2 caracteres');
-    }
-    
-    const lastName = formData.get('last_name');
-    if (!lastName || lastName.trim().length < 2) {
-        errors.push('El apellido debe tener al menos 2 caracteres');
-    }
-    
-    // Validar rol
-    const rol = formData.get('rol');
-    if (!rol) {
-        errors.push('Debe seleccionar un rol');
+    // Validar condiciones de pago
+    const condiciones_pago = formData.get('condiciones_pago');
+    if (!condiciones_pago) {
+        errors.push('Debe seleccionar las condiciones de pago');
     }
     
     return errors;
@@ -54,28 +41,40 @@ function validateForm(formData, isEdit = false) {
 // Abrir modal para crear
 function openCreateModal() {
     editMode = false;
-    document.getElementById('modalTitle').textContent = 'Agregar Nuevo Usuario';
-    document.getElementById('btnSaveText').textContent = 'Guardar Usuario';
-    document.getElementById('usuarioForm').reset();
-    document.getElementById('usuarioId').value = '';
-    document.getElementById('username').readOnly = false;
-    document.getElementById('password').required = true;
-    document.getElementById('passwordRequired').style.display = 'inline';
-    document.getElementById('passwordHelp').textContent = 'Mínimo 8 caracteres';
+    document.getElementById('modalTitle').textContent = 'Agregar Nuevo Proveedor';
+    document.getElementById('btnSaveText').textContent = 'Guardar Proveedor';
+    document.getElementById('proveedorForm').reset();
+    document.getElementById('proveedorId').value = '';
+    document.getElementById('rut_nif').readOnly = false;
     
-    // Limpiar preview de foto
-    document.getElementById('fotoPreview').style.display = 'none';
+    // Mostrar/ocultar campo detalle condiciones
+    toggleCondicionesDetalle();
 }
 
-// Editar usuario
-function editUsuario(id) {
+// Mostrar/ocultar campo de detalle de condiciones de pago
+function toggleCondicionesDetalle() {
+    const condicionesPago = document.getElementById('condiciones_pago').value;
+    const detalleGroup = document.getElementById('condicionesDetalleGroup');
+    
+    if (condicionesPago === 'OTRO') {
+        detalleGroup.style.display = 'block';
+        document.getElementById('condiciones_pago_detalle').required = true;
+    } else {
+        detalleGroup.style.display = 'none';
+        document.getElementById('condiciones_pago_detalle').required = false;
+        document.getElementById('condiciones_pago_detalle').value = '';
+    }
+}
+
+// Editar proveedor
+function editProveedor(id) {
     editMode = true;
-    currentUsuarioId = id;
+    currentProveedorId = id;
     
     // Mostrar loading
     Swal.fire({
         title: 'Cargando...',
-        html: 'Obteniendo datos del usuario',
+        html: 'Obteniendo datos del proveedor',
         allowOutsideClick: false,
         allowEscapeKey: false,
         didOpen: () => {
@@ -83,46 +82,44 @@ function editUsuario(id) {
         }
     });
     
-    fetch(`/usuarios/${id}/edit/`)
+    fetch(`/proveedores/${id}/edit/`)
         .then(response => response.json())
         .then(data => {
-            // Cerrar loading
             Swal.close();
             
-            document.getElementById('modalTitle').textContent = 'Editar Usuario';
-            document.getElementById('btnSaveText').textContent = 'Actualizar Usuario';
+            document.getElementById('modalTitle').textContent = 'Editar Proveedor';
+            document.getElementById('btnSaveText').textContent = 'Actualizar Proveedor';
             
-            document.getElementById('usuarioId').value = data.id;
-            document.getElementById('username').value = data.username;
-            document.getElementById('username').readOnly = true;
-            document.getElementById('first_name').value = data.first_name;
-            document.getElementById('last_name').value = data.last_name;
+            document.getElementById('proveedorId').value = data.id;
+            document.getElementById('rut_nif').value = data.rut_nif;
+            document.getElementById('rut_nif').readOnly = true;
+            document.getElementById('razon_social').value = data.razon_social;
+            document.getElementById('nombre_fantasia').value = data.nombre_fantasia;
             document.getElementById('email').value = data.email;
             document.getElementById('telefono').value = data.telefono;
-            document.getElementById('rol').value = data.rol_id;
-            document.getElementById('area_unidad').value = data.area_unidad;
+            document.getElementById('sitio_web').value = data.sitio_web;
+            document.getElementById('direccion').value = data.direccion;
+            document.getElementById('ciudad').value = data.ciudad;
+            document.getElementById('pais').value = data.pais;
+            document.getElementById('condiciones_pago').value = data.condiciones_pago;
+            document.getElementById('condiciones_pago_detalle').value = data.condiciones_pago_detalle;
+            document.getElementById('moneda').value = data.moneda;
+            document.getElementById('contacto_principal_nombre').value = data.contacto_principal_nombre;
+            document.getElementById('contacto_principal_email').value = data.contacto_principal_email;
+            document.getElementById('contacto_principal_telefono').value = data.contacto_principal_telefono;
             document.getElementById('estado').value = data.estado;
+            document.getElementById('observaciones').value = data.observaciones;
             
-            // Mostrar foto de perfil actual si existe
-            if (data.foto_perfil_url) {
-                document.getElementById('fotoPreviewImg').src = data.foto_perfil_url;
-                document.getElementById('fotoPreview').style.display = 'block';
-            } else {
-                document.getElementById('fotoPreview').style.display = 'none';
-            }
+            // Mostrar/ocultar campo detalle condiciones
+            toggleCondicionesDetalle();
             
-            document.getElementById('password').required = false;
-            document.getElementById('password').value = '';
-            document.getElementById('passwordRequired').style.display = 'none';
-            document.getElementById('passwordHelp').textContent = 'Dejar en blanco para mantener la actual';
-            
-            const modal = new bootstrap.Modal(document.getElementById('modalUsuario'));
+            const modal = new bootstrap.Modal(document.getElementById('modalProveedor'));
             modal.show();
         })
         .catch(error => {
             Swal.fire({
                 title: 'Error',
-                text: 'Error al cargar los datos del usuario',
+                text: 'Error al cargar los datos del proveedor',
                 icon: 'error',
                 confirmButtonColor: '#dc3545'
             });
@@ -131,13 +128,13 @@ function editUsuario(id) {
 }
 
 // Ver detalles
-function viewUsuario(id) {
-    editUsuario(id);
+function viewProveedor(id) {
+    editProveedor(id);
 }
 
-// Guardar usuario (crear o actualizar)
-function saveUsuario() {
-    const form = document.getElementById('usuarioForm');
+// Guardar proveedor (crear o actualizar)
+function saveProveedor() {
+    const form = document.getElementById('proveedorForm');
     const formData = new FormData(form);
     
     // Validar campos del lado del cliente
@@ -154,13 +151,13 @@ function saveUsuario() {
         return;
     }
     
-    let url = editMode ? `/usuarios/${currentUsuarioId}/edit/` : '/usuarios/create/';
+    let url = editMode ? `/proveedores/${currentProveedorId}/edit/` : '/proveedores/create/';
     let action = editMode ? 'Actualizando' : 'Guardando';
     
     // Mostrar loading
     Swal.fire({
         title: `${action}...`,
-        html: '<i class="fas fa-user-edit fa-2x mb-3"></i><br>Por favor espere',
+        html: '<i class="fas fa-truck fa-2x mb-3"></i><br>Por favor espere',
         allowOutsideClick: false,
         allowEscapeKey: false,
         didOpen: () => {
@@ -178,7 +175,6 @@ function saveUsuario() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Resetear flag de cambios antes de cerrar
             formChanged = false;
             
             Swal.fire({
@@ -189,8 +185,7 @@ function saveUsuario() {
                 timer: 2000,
                 timerProgressBar: true
             }).then(() => {
-                // Cerrar modal y recargar
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalUsuario'));
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalProveedor'));
                 if (modal) modal.hide();
                 window.location.reload();
             });
@@ -206,7 +201,7 @@ function saveUsuario() {
     .catch(error => {
         Swal.fire({
             title: 'Error',
-            text: 'Error al guardar el usuario',
+            text: 'Error al guardar el proveedor',
             icon: 'error',
             confirmButtonColor: '#dc3545'
         });
@@ -214,24 +209,23 @@ function saveUsuario() {
     });
 }
 
-// Desactivar usuario
-function deleteUsuario(id, username) {
+// Bloquear proveedor
+function deleteProveedor(id, razon_social) {
     Swal.fire({
-        title: '¿Desactivar Usuario?',
-        html: `¿Está seguro de desactivar al usuario <strong>"${username}"</strong>?<br><br>El usuario no podrá acceder al sistema.`,
+        title: '¿Bloquear Proveedor?',
+        html: `¿Está seguro de bloquear al proveedor <strong>"${razon_social}"</strong>?<br><br>El proveedor no podrá ser usado en nuevas compras.`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc3545',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: '<i class="fas fa-user-slash me-2"></i>Sí, desactivar',
+        confirmButtonText: '<i class="fas fa-ban me-2"></i>Sí, bloquear',
         cancelButtonText: '<i class="fas fa-times me-2"></i>Cancelar',
         reverseButtons: true,
         focusCancel: true
     }).then((result) => {
         if (result.isConfirmed) {
-            // Mostrar loading
             Swal.fire({
-                title: 'Desactivando...',
+                title: 'Bloqueando...',
                 html: 'Por favor espere',
                 allowOutsideClick: false,
                 allowEscapeKey: false,
@@ -240,7 +234,7 @@ function deleteUsuario(id, username) {
                 }
             });
             
-            fetch(`/usuarios/${id}/delete/`, {
+            fetch(`/proveedores/${id}/delete/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -251,7 +245,7 @@ function deleteUsuario(id, username) {
             .then(data => {
                 if (data.success) {
                     Swal.fire({
-                        title: '¡Desactivado!',
+                        title: '¡Bloqueado!',
                         text: data.message,
                         icon: 'success',
                         confirmButtonColor: '#198754',
@@ -272,7 +266,7 @@ function deleteUsuario(id, username) {
             .catch(error => {
                 Swal.fire({
                     title: 'Error',
-                    text: 'Error al desactivar el usuario',
+                    text: 'Error al bloquear el proveedor',
                     icon: 'error',
                     confirmButtonColor: '#dc3545'
                 });
@@ -292,11 +286,9 @@ function changePerPage(value) {
 
 // Exportar a Excel
 function exportarExcel() {
-    // Obtener parámetros actuales de la URL (filtros, búsqueda, orden)
     const url = new URL(window.location.href);
     const params = url.searchParams.toString();
     
-    // Mostrar mensaje de exportación
     Swal.fire({
         title: 'Exportando...',
         html: 'Generando archivo Excel<br>Por favor espere',
@@ -308,13 +300,9 @@ function exportarExcel() {
         }
     });
     
-    // Construir URL de exportación con los mismos filtros
-    const exportUrl = `/usuarios/exportar-excel/${params ? '?' + params : ''}`;
-    
-    // Descargar archivo
+    const exportUrl = `/proveedores/exportar-excel/${params ? '?' + params : ''}`;
     window.location.href = exportUrl;
     
-    // Cerrar mensaje después de un momento
     setTimeout(() => {
         Swal.fire({
             title: '¡Exportado!',
@@ -327,37 +315,27 @@ function exportarExcel() {
     }, 1500);
 }
 
-// Exportar a PDF
-function exportarPDF() {
-    alert('Exportando a PDF... (función pendiente de implementación)');
-    // Aquí se puede implementar la exportación real
-}
-
 // Función para ordenar tabla
 function sortTable(field) {
     const url = new URL(window.location.href);
     const currentSort = url.searchParams.get('sort');
     const currentOrder = url.searchParams.get('order') || 'desc';
     
-    // Si es el mismo campo, alternar orden
     if (currentSort === field) {
         url.searchParams.set('order', currentOrder === 'asc' ? 'desc' : 'asc');
     } else {
-        // Si es campo nuevo, ordenar ascendente
         url.searchParams.set('sort', field);
         url.searchParams.set('order', 'asc');
     }
     
-    // Resetear a página 1 al ordenar
     url.searchParams.set('page', 1);
-    
     window.location.href = url.toString();
 }
 
-// Event delegation para botones de acción
+// Event delegation
 document.addEventListener('DOMContentLoaded', function() {
     // Detectar cambios en el formulario
-    const form = document.getElementById('usuarioForm');
+    const form = document.getElementById('proveedorForm');
     if (form) {
         form.addEventListener('input', function() {
             formChanged = true;
@@ -369,7 +347,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Al abrir modal, resetear flag
-    const modalElement = document.getElementById('modalUsuario');
+    const modalElement = document.getElementById('modalProveedor');
     if (modalElement) {
         modalElement.addEventListener('show.bs.modal', function() {
             formChanged = false;
@@ -400,6 +378,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Event listener para condiciones de pago
+    const condicionesPagoSelect = document.getElementById('condiciones_pago');
+    if (condicionesPagoSelect) {
+        condicionesPagoSelect.addEventListener('change', toggleCondicionesDetalle);
+    }
+    
     // Delegar eventos a los botones de acción
     document.body.addEventListener('click', function(e) {
         const button = e.target.closest('.btn-action-solid');
@@ -407,17 +391,17 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const action = button.dataset.action;
         const id = button.dataset.id;
-        const username = button.dataset.username;
+        const razon_social = button.dataset.razonsocial;
         
         switch(action) {
             case 'view':
-                viewUsuario(id);
+                viewProveedor(id);
                 break;
             case 'edit':
-                editUsuario(id);
+                editProveedor(id);
                 break;
             case 'delete':
-                deleteUsuario(id, username);
+                deleteProveedor(id, razon_social);
                 break;
         }
     });
@@ -439,10 +423,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.sortable').forEach(function(th) {
             const icon = th.querySelector('.sort-icon');
             if (th.dataset.sort === currentSort) {
-                // Marcar columna activa
                 th.classList.add('active');
-                
-                // Actualizar icono según orden
                 icon.classList.remove('fa-sort');
                 if (currentOrder === 'asc') {
                     icon.classList.add('fa-sort-up');
@@ -450,60 +431,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     icon.classList.add('fa-sort-down');
                 }
             } else {
-                // Columnas no activas
                 th.classList.remove('active');
-            }
-        });
-    }
-    
-    // Vista previa de foto de perfil
-    const fotoInput = document.getElementById('foto_perfil');
-    if (fotoInput) {
-        fotoInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                // Validar tamaño (2MB)
-                if (file.size > 2 * 1024 * 1024) {
-                    Swal.fire({
-                        title: 'Archivo muy grande',
-                        html: 'El archivo es demasiado grande.<br>Tamaño máximo: <strong>2MB</strong>',
-                        icon: 'warning',
-                        confirmButtonColor: '#ffc107'
-                    });
-                    e.target.value = '';
-                    return;
-                }
-                
-                // Validar tipo
-                if (!file.type.startsWith('image/')) {
-                    Swal.fire({
-                        title: 'Formato no válido',
-                        html: 'Por favor selecciona un archivo de imagen válido.<br>Formatos aceptados: <strong>JPG, PNG, GIF</strong>',
-                        icon: 'warning',
-                        confirmButtonColor: '#ffc107'
-                    });
-                    e.target.value = '';
-                    return;
-                }
-                
-                // Mostrar vista previa
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    document.getElementById('fotoPreviewImg').src = event.target.result;
-                    document.getElementById('fotoPreview').style.display = 'block';
-                    
-                    // Mostrar notificación de éxito
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'Imagen cargada',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
-                    });
-                };
-                reader.readAsDataURL(file);
             }
         });
     }

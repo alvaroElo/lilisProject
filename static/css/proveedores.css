@@ -1,6 +1,6 @@
 /* ===================================
-   MÓDULO DE USUARIOS - ESTILOS
-   Estilos específicos para el módulo de gestión de usuarios
+   MÓDULO DE PROVEEDORES - ESTILOS
+   Estilos específicos para el módulo de gestión de proveedores
    =================================== */
 
 /* === BOTONES DE ACCIÓN === */
@@ -46,7 +46,7 @@
     box-shadow: none;
 }
 
-/* Botón Desactivar (Rojo) - Sólido por defecto, outline en hover */
+/* Botón Bloquear (Rojo) - Sólido por defecto, outline en hover */
 .btn-danger.btn-action-solid {
     background-color: #dc3545;
     background-image: none;
@@ -66,7 +66,6 @@
 }
 
 /* === TABLA ORDENABLE === */
-/* Estilos para los encabezados de columnas ordenables */
 .sortable {
     cursor: pointer;
     user-select: none;
@@ -89,7 +88,6 @@
     opacity: 1;
 }
 
-/* Indicador visual para la columna actualmente ordenada */
 .sortable.active {
     background-color: rgba(13, 110, 253, 0.15);
     font-weight: 600;

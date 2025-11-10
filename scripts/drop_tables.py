@@ -3,7 +3,12 @@
 Script para eliminar todas las tablas de MySQL y hacer reset completo
 """
 import os
+import sys
 import django
+
+# Agregar el directorio raíz del proyecto al PATH
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, BASE_DIR)
 
 # Configurar Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LiliProject.settings')
