@@ -1,0 +1,110 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Dulcería Lilis{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block content %}
+            <!-- Dashboard Content -->
+            <div class="dashboard-stats">
+                <!-- Bootstrap Grid para Stats -->
+                <div class="row g-4 mb-4">
+                    <!-- Card Productos -->
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body d-flex align-items-center gap-3">
+                                <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
+                                     style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(210, 10, 17, 0.1) 0%, rgba(139, 0, 0, 0.1) 100%);">
+                                    <i class="fas fa-box fs-2 text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="text-muted small mb-1">Productos Activos</div>
+                                    <div class="fs-2 fw-bold">{{ productos_count|default:10 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Alertas -->
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body d-flex align-items-center gap-3">
+                                <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
+                                     style="width: 60px; height: 60px; background: rgba(220, 53, 69, 0.1);">
+                                    <i class="fas fa-exclamation-triangle fs-2 text-danger"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="text-muted small mb-1">Alertas Activas</div>
+                                    <div class="fs-2 fw-bold">{{ alertas_count|default:5 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Órdenes -->
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body d-flex align-items-center gap-3">
+                                <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
+                                     style="width: 60px; height: 60px; background: linear-gradient(135deg, rgba(196, 167, 91, 0.15) 0%, rgba(163, 137, 68, 0.15) 100%);">
+                                    <i class="fas fa-shopping-cart fs-2 text-secondary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="text-muted small mb-1">Órdenes Pendientes</div>
+                                    <div class="fs-2 fw-bold">{{ ordenes_count|default:3 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Card Bodegas -->
+                    <div class="col-12 col-sm-6 col-lg-3">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body d-flex align-items-center gap-3">
+                                <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
+                                     style="width: 60px; height: 60px; background: rgba(40, 167, 69, 0.1);">
+                                    <i class="fas fa-warehouse fs-2 text-success"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="text-muted small mb-1">Bodegas Activas</div>
+                                    <div class="fs-2 fw-bold">{{ bodegas_count|default:3 }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Sección de Bienvenida -->
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-gradient-primary text-white">
+                        <i class="fas fa-home me-2"></i> Bienvenido al Sistema de Gestión - Dulcería Lilis
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-3">
+                            Hola <strong>{{ user.get_full_name|default:user.username }}</strong>, 
+                            bienvenido al sistema de gestión de inventario de Dulcería Lilis.
+                        </p>
+                        <p class="mb-3">
+                            Usa el menú lateral para navegar entre los diferentes módulos del sistema:
+                        </p>
+                        <ul class="list-unstyled ms-3">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                <strong>Productos:</strong> Gestiona el catálogo de productos, categorías y marcas
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                <strong>Inventario:</strong> Controla el stock, movimientos y alertas
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                <strong>Compras:</strong> Administra las órdenes de compra y proveedores
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-primary me-2"></i>
+                                <strong>Sistema:</strong> Configura usuarios y permisos
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+{% endblock %}

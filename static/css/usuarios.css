@@ -1,0 +1,101 @@
+/* ===================================
+   MÓDULO DE USUARIOS - ESTILOS
+   Estilos específicos para el módulo de gestión de usuarios
+   =================================== */
+
+/* === BOTONES DE ACCIÓN === */
+.btn-action-solid {
+    transition: all 0.3s ease;
+}
+
+/* Botón Ver (Azul) - Sólido por defecto, outline en hover */
+.btn-primary.btn-action-solid {
+    background-color: #0d6efd;
+    background-image: none;
+    border: 1px solid #0d6efd;
+    color: white;
+    box-shadow: none;
+}
+
+.btn-primary.btn-action-solid:hover,
+.btn-primary.btn-action-solid:focus,
+.btn-primary.btn-action-solid:active {
+    background-color: white;
+    background-image: none;
+    border: 1px solid #0d6efd;
+    color: #0d6efd;
+    box-shadow: none;
+}
+
+/* Botón Editar (Amarillo) - Sólido por defecto, outline en hover */
+.btn-warning.btn-action-solid {
+    background-color: #ffc107;
+    background-image: none;
+    border: 1px solid #ffc107;
+    color: #000;
+    box-shadow: none;
+}
+
+.btn-warning.btn-action-solid:hover,
+.btn-warning.btn-action-solid:focus,
+.btn-warning.btn-action-solid:active {
+    background-color: white;
+    background-image: none;
+    border: 1px solid #ffc107;
+    color: #ffc107;
+    box-shadow: none;
+}
+
+/* Botón Desactivar (Rojo) - Sólido por defecto, outline en hover */
+.btn-danger.btn-action-solid {
+    background-color: #dc3545;
+    background-image: none;
+    border: 1px solid #dc3545;
+    color: white;
+    box-shadow: none;
+}
+
+.btn-danger.btn-action-solid:hover,
+.btn-danger.btn-action-solid:focus,
+.btn-danger.btn-action-solid:active {
+    background-color: white;
+    background-image: none;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    box-shadow: none;
+}
+
+/* === TABLA ORDENABLE === */
+/* Estilos para los encabezados de columnas ordenables */
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    position: relative;
+}
+
+.sortable:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+}
+
+.sortable .sort-icon {
+    font-size: 0.75em;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.sortable:hover .sort-icon {
+    opacity: 1;
+}
+
+/* Indicador visual para la columna actualmente ordenada */
+.sortable.active {
+    background-color: rgba(13, 110, 253, 0.15);
+    font-weight: 600;
+}
+
+.sortable.active .sort-icon {
+    opacity: 1;
+    color: #0d6efd;
+}

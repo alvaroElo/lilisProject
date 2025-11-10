@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Iniciar Sesión - Dulcería Lilis{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+{% endblock %}
+
+{% block body %}
+<div class="login-container">
+    <div class="login-box">
+        <!-- Panel Izquierdo - Bienvenida -->
+        <div class="login-left">
+            <div class="login-logo">
+                <img src="{% static 'img/Logo-lilis.png' %}" alt="Dulcería Lilis Logo">
+            </div>
+            <div class="login-welcome">
+                <h1 class="login-title">Bienvenido</h1>
+                <p class="login-subtitle">Sistema de Gestión de Inventario</p>
+                <div class="login-security">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Acceso seguro y confiable</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Panel Derecho - Formulario -->
+        <div class="login-right">
+            <!-- Header del Formulario -->
+            <div class="login-form-header">
+                <h2 class="login-form-title">Iniciar Sesión</h2>
+                <p class="login-form-subtitle">Ingresa tus credenciales para continuar</p>
+            </div>
+            
+            <!-- Mensajes de Django -->
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Formulario de Login -->
+            <form method="post" action="{% url 'login' %}" id="loginForm" class="login-form">
+                {% csrf_token %}
+                
+                <!-- Usuario -->
+                <div class="form-group has-label">
+                    <label for="username" class="form-label"><i class="fas fa-user"></i> Usuario o Email</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        class="form-control" 
+                        placeholder="Ingresa tu usuario o email"
+                        autocomplete="username"
+                        required
+                        autofocus
+                    >
+                    <i class="fas fa-user input-icon"></i>
+                </div>
+                
+                <!-- Contraseña -->
+                <div class="form-group has-label">
+                    <label for="password" class="form-label"><i class="fas fa-lock"></i> Contraseña</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-control" 
+                        placeholder="Ingresa tu contraseña"
+                        autocomplete="current-password"
+                        required
+                    >
+                    <i class="fas fa-lock input-icon"></i>
+                </div>
+                
+                <!-- Remember & Forgot -->
+                <div class="remember-forgot">
+                    <div class="remember-me">
+                        <input type="checkbox" id="remember" name="remember">
+                        <label for="remember">Recordarme</label>
+                    </div>
+                    <a href="{% url 'password_reset' %}" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                </div>
+                
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Ingresar
+                </button>
+            </form>
+            
+            <!-- Footer -->
+            <div class="login-footer">
+                <p>¿Necesitas ayuda? <a href="#">Contacta al administrador</a></p>
+                <p class="login-copyright">© 2025 Dulcería Lilis. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/login.js' %}"></script>
+{% endblock %}

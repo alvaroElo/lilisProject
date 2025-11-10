@@ -1,0 +1,274 @@
+/* ===================================
+   DULCERÍA LILIS - BOOTSTRAP CUSTOM
+   Overrides y personalizaciones de Bootstrap 5
+   =================================== */
+
+/* === RESET GLOBAL === */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* === VARIABLES BOOTSTRAP OVERRIDE === */
+:root {
+    /* Colores Principales */
+    --bs-primary: #D20A11;
+    --bs-primary-rgb: 210, 10, 17;
+    --bs-secondary: #c4a75b;
+    --bs-secondary-rgb: 196, 167, 91;
+    --bs-success: #28a745;
+    --bs-danger: #dc3545;
+    --bs-warning: #ffc107;
+    --bs-info: #17a2b8;
+    
+    /* Colores Empresariales Personalizados */
+    --color-primary: #D20A11;
+    --color-primary-dark: #8B0000;
+    --color-secondary: #c4a75b;
+    --color-cafe: #6B4423;
+    --color-cafe-dark: #230E00;
+    
+    /* Gradientes */
+    --gradient-primary: linear-gradient(135deg, #D20A11 0%, #8B0000 100%);
+    --gradient-secondary: linear-gradient(135deg, #c4a75b 0%, #a38944 100%);
+    --gradient-header: linear-gradient(135deg, #D20A11 0%, #a80810 100%);
+    
+    /* Fuentes */
+    --bs-body-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --bs-body-font-size: 14px;
+    
+    /* Bordes */
+    --bs-border-radius: 6px;
+    --bs-border-radius-sm: 4px;
+    --bs-border-radius-lg: 8px;
+}
+
+/* === BOTONES CON GRADIENTES === */
+.btn-primary {
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: linear-gradient(135deg, #a80810 0%, #6B0000 100%);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(210, 10, 17, 0.3);
+}
+
+.btn-secondary {
+    background: var(--gradient-secondary);
+    border: none;
+    color: white;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+    background: linear-gradient(135deg, #a38944 0%, #8b7436 100%);
+    border: none;
+    color: white;
+}
+
+/* === BADGES CON GRADIENTES === */
+.badge.bg-primary {
+    background: var(--gradient-primary) !important;
+}
+
+.badge.bg-secondary {
+    background: var(--gradient-secondary) !important;
+}
+
+/* === NAVBAR / HEADER === */
+.bg-primary {
+    background: var(--gradient-primary) !important;
+}
+
+.bg-secondary {
+    background: var(--gradient-secondary) !important;
+}
+
+/* === CARDS === */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: var(--bs-border-radius);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+/* === FORMS === */
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 0.25rem rgba(196, 167, 91, 0.15);
+}
+
+/* === TABLES === */
+.table thead th {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(196, 167, 91, 0.05);
+}
+
+/* === ALERTS === */
+.alert-primary {
+    background-color: rgba(210, 10, 17, 0.1);
+    border-color: var(--color-primary);
+    color: #721c24;
+}
+
+.alert-secondary {
+    background-color: rgba(196, 167, 91, 0.1);
+    border-color: var(--color-secondary);
+    color: #6B4423;
+}
+
+/* === PROGRESS BARS === */
+.progress-bar {
+    background: var(--gradient-primary);
+}
+
+/* === LINKS === */
+a {
+    color: var(--color-secondary);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--color-cafe);
+    text-decoration: underline;
+}
+
+/* === DROPDOWN === */
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background-color: rgba(196, 167, 91, 0.1);
+    color: var(--color-primary);
+}
+
+/* === PAGINATION === */
+.pagination .page-link {
+    color: var(--color-secondary);
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--gradient-primary);
+    border-color: var(--color-primary);
+}
+
+.pagination .page-link:hover {
+    background-color: rgba(196, 167, 91, 0.1);
+    color: var(--color-cafe);
+}
+
+/* === MODALS === */
+.modal-header {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.modal-header .btn-close {
+    filter: brightness(0) invert(1);
+}
+
+/* === OFFCANVAS === */
+.offcanvas-header {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+/* === TOOLTIPS & POPOVERS === */
+.tooltip-inner {
+    background: var(--color-cafe-dark);
+}
+
+.popover-header {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+/* === LIST GROUP === */
+.list-group-item.active {
+    background: var(--gradient-primary);
+    border-color: var(--color-primary);
+}
+
+.list-group-item:hover {
+    background-color: rgba(196, 167, 91, 0.05);
+}
+
+/* === BREADCRUMB === */
+.breadcrumb-item.active {
+    color: var(--color-secondary);
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    color: var(--color-secondary);
+}
+
+/* === SPINNERS === */
+.spinner-border-primary,
+.spinner-grow-primary {
+    color: var(--color-primary) !important;
+}
+
+/* === NAV TABS === */
+.nav-tabs .nav-link.active {
+    color: var(--color-primary);
+    border-bottom: 2px solid var(--color-secondary);
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--color-secondary);
+}
+
+/* === NAV PILLS === */
+.nav-pills .nav-link.active {
+    background: var(--gradient-primary);
+}
+
+/* === ACCORDION === */
+.accordion-button:not(.collapsed) {
+    background-color: rgba(196, 167, 91, 0.1);
+    color: var(--color-primary);
+}
+
+.accordion-button:focus {
+    border-color: var(--color-secondary);
+    box-shadow: 0 0 0 0.25rem rgba(196, 167, 91, 0.15);
+}
+
+/* === UTILITIES PERSONALIZADAS === */
+.text-primary {
+    color: var(--color-primary) !important;
+}
+
+.text-secondary {
+    color: var(--color-secondary) !important;
+}
+
+.bg-gradient-primary {
+    background: var(--gradient-primary) !important;
+}
+
+.bg-gradient-secondary {
+    background: var(--gradient-secondary) !important;
+}
+
+.border-primary {
+    border-color: var(--color-primary) !important;
+}
+
+.border-secondary {
+    border-color: var(--color-secondary) !important;
+}
