@@ -18,7 +18,10 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from autenticacion.views import login_view, dashboard_view, logout_view
+from autenticacion.views import (
+    login_view, dashboard_view, logout_view,
+    usuarios_list, usuario_create, usuario_edit, usuario_delete
+)
 
 urlpatterns = [
     # Admin de Django
@@ -29,6 +32,12 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('dashboard/', dashboard_view, name='dashboard'),
     path('logout/', logout_view, name='logout'),
+    
+    # Gestión de Usuarios
+    path('usuarios/', usuarios_list, name='usuarios_list'),
+    path('usuarios/create/', usuario_create, name='usuario_create'),
+    path('usuarios/<int:usuario_id>/edit/', usuario_edit, name='usuario_edit'),
+    path('usuarios/<int:usuario_id>/delete/', usuario_delete, name='usuario_delete'),
 ]
 
 # Servir archivos estáticos en desarrollo

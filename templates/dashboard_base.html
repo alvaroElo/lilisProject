@@ -41,6 +41,12 @@
                 <div class="sidebar-section-title">Gestión</div>
                 <ul class="sidebar-menu">
                     <li class="sidebar-menu-item">
+                        <a href="{% url 'usuarios_list' %}" class="sidebar-menu-link {% if active_menu == 'usuarios' %}active{% endif %}">
+                            <i class="fas fa-users sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Usuarios</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-menu-item">
                         <a href="/admin/maestros/producto/" class="sidebar-menu-link {% if active_menu == 'productos' %}active{% endif %}">
                             <i class="fas fa-box sidebar-menu-icon"></i>
                             <span class="sidebar-menu-text">Productos</span>
@@ -115,12 +121,6 @@
             <div class="sidebar-section">
                 <div class="sidebar-section-title">Sistema</div>
                 <ul class="sidebar-menu">
-                    <li class="sidebar-menu-item">
-                        <a href="/admin/autenticacion/usuario/" class="sidebar-menu-link {% if active_menu == 'usuarios' %}active{% endif %}">
-                            <i class="fas fa-users sidebar-menu-icon"></i>
-                            <span class="sidebar-menu-text">Usuarios</span>
-                        </a>
-                    </li>
                     <li class="sidebar-menu-item">
                         <a href="/admin/" class="sidebar-menu-link {% if active_menu == 'configuracion' %}active{% endif %}">
                             <i class="fas fa-cog sidebar-menu-icon"></i>

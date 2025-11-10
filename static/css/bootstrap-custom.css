@@ -3,6 +3,12 @@
    Overrides y personalizaciones de Bootstrap 5
    =================================== */
 
+/* === RESET GLOBAL === */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
 /* === VARIABLES BOOTSTRAP OVERRIDE === */
 :root {
     /* Colores Principales */
