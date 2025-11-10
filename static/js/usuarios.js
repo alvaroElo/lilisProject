@@ -41,6 +41,14 @@ function editUsuario(id) {
             document.getElementById('area_unidad').value = data.area_unidad;
             document.getElementById('estado').value = data.estado;
             
+            // Mostrar foto de perfil actual si existe
+            if (data.foto_perfil_url) {
+                document.getElementById('fotoPreviewImg').src = data.foto_perfil_url;
+                document.getElementById('fotoPreview').style.display = 'block';
+            } else {
+                document.getElementById('fotoPreview').style.display = 'none';
+            }
+            
             document.getElementById('password').required = false;
             document.getElementById('password').value = '';
             document.getElementById('passwordRequired').style.display = 'none';
@@ -158,4 +166,35 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
         }
     });
+    
+    // Vista previa de foto de perfil
+    const fotoInput = document.getElementById('foto_perfil');
+    if (fotoInput) {
+        fotoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Validar tamaño (2MB)
+                if (file.size > 2 * 1024 * 1024) {
+                    alert('El archivo es demasiado grande. Máximo 2MB.');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Validar tipo
+                if (!file.type.startsWith('image/')) {
+                    alert('Por favor selecciona un archivo de imagen válido.');
+                    e.target.value = '';
+                    return;
+                }
+                
+                // Mostrar vista previa
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('fotoPreviewImg').src = event.target.result;
+                    document.getElementById('fotoPreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 });

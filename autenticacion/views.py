@@ -151,6 +151,7 @@ def usuario_create(request):
             telefono = request.POST.get('telefono', '')
             area_unidad = request.POST.get('area_unidad', '')
             estado = request.POST.get('estado', 'ACTIVO')
+            foto_perfil = request.FILES.get('foto_perfil')
             
             # Validaciones básicas
             if not username or not email or not password or not rol_id:
@@ -189,7 +190,8 @@ def usuario_create(request):
                 rol=rol,
                 telefono=telefono,
                 area_unidad=area_unidad,
-                estado=estado
+                estado=estado,
+                foto_perfil=foto_perfil if foto_perfil else None
             )
             
             return JsonResponse({
@@ -240,6 +242,12 @@ def usuario_edit(request, usuario_id):
             usuario.telefono = request.POST.get('telefono', '')
             usuario.area_unidad = request.POST.get('area_unidad', '')
             usuario.estado = request.POST.get('estado', 'ACTIVO')
+            
+            # Actualizar foto de perfil si se proporciona
+            foto_perfil = request.FILES.get('foto_perfil')
+            if foto_perfil:
+                usuario.foto_perfil = foto_perfil
+            
             usuario.save()
             
             return JsonResponse({
@@ -270,6 +278,7 @@ def usuario_edit(request, usuario_id):
         'telefono': usuario.telefono or '',
         'area_unidad': usuario.area_unidad or '',
         'estado': usuario.estado,
+        'foto_perfil_url': usuario.foto_perfil.url if usuario.foto_perfil else None,
     })
 
 

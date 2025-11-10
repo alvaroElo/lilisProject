@@ -45,6 +45,7 @@ urlpatterns = [
     path('usuarios/<int:usuario_id>/delete/', usuario_delete, name='usuario_delete'),
 ]
 
-# Servir archivos estáticos en desarrollo
+# Servir archivos estáticos y media en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -37,6 +37,7 @@ class Usuario(models.Model):
     telefono = models.CharField(max_length=30, null=True, blank=True)
     rol = models.ForeignKey(Rol, on_delete=models.PROTECT)
     estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='ACTIVO')
+    foto_perfil = models.ImageField(upload_to='usuarios/fotos/', null=True, blank=True, help_text='Foto de perfil del usuario')
     ultimo_acceso = models.DateTimeField(null=True, blank=True)
     area_unidad = models.CharField(max_length=100, null=True, blank=True)
     observaciones = models.TextField(null=True, blank=True)
