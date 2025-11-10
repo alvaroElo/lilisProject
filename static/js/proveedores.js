@@ -40,12 +40,37 @@ function validateForm(formData, isEdit = false) {
 
 // Abrir modal para crear
 function openCreateModal() {
+    // Verificar permisos
+    if (typeof PERMISOS !== 'undefined' && !PERMISOS.crear) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: 'No tienes permisos para crear proveedores',
+            confirmButtonColor: '#D20A11'
+        });
+        return;
+    }
+    
     editMode = false;
     document.getElementById('modalTitle').textContent = 'Agregar Nuevo Proveedor';
     document.getElementById('btnSaveText').textContent = 'Guardar Proveedor';
     document.getElementById('proveedorForm').reset();
     document.getElementById('proveedorId').value = '';
+    
+    // Habilitar todos los campos
+    const formElements = document.querySelectorAll('#proveedorForm input, #proveedorForm select, #proveedorForm textarea');
+    formElements.forEach(element => {
+        element.readOnly = false;
+        if (element.tagName === 'SELECT') {
+            element.disabled = false;
+        }
+    });
     document.getElementById('rut_nif').readOnly = false;
+    
+    // Mostrar botones de Guardar y Cancelar, ocultar Cerrar
+    document.getElementById('btnGuardar').style.display = 'inline-block';
+    document.getElementById('btnCancelar').style.display = 'inline-block';
+    document.getElementById('btnCerrar').style.display = 'none';
     
     // Mostrar/ocultar campo detalle condiciones
     toggleCondicionesDetalle();
@@ -68,6 +93,17 @@ function toggleCondicionesDetalle() {
 
 // Editar proveedor
 function editProveedor(id) {
+    // Verificar permisos
+    if (typeof PERMISOS !== 'undefined' && !PERMISOS.editar) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: 'No tienes permisos para editar proveedores',
+            confirmButtonColor: '#D20A11'
+        });
+        return;
+    }
+    
     editMode = true;
     currentProveedorId = id;
     
@@ -92,7 +128,81 @@ function editProveedor(id) {
             
             document.getElementById('proveedorId').value = data.id;
             document.getElementById('rut_nif').value = data.rut_nif;
-            document.getElementById('rut_nif').readOnly = true;
+            document.getElementById('razon_social').value = data.razon_social;
+            document.getElementById('nombre_fantasia').value = data.nombre_fantasia;
+            document.getElementById('email').value = data.email;
+            document.getElementById('telefono').value = data.telefono;
+            document.getElementById('sitio_web').value = data.sitio_web;
+            document.getElementById('direccion').value = data.direccion;
+            document.getElementById('ciudad').value = data.ciudad;
+            document.getElementById('pais').value = data.pais;
+            document.getElementById('condiciones_pago').value = data.condiciones_pago;
+            document.getElementById('condiciones_pago_detalle').value = data.condiciones_pago_detalle;
+            document.getElementById('moneda').value = data.moneda;
+            document.getElementById('contacto_principal_nombre').value = data.contacto_principal_nombre;
+            document.getElementById('contacto_principal_email').value = data.contacto_principal_email;
+            document.getElementById('contacto_principal_telefono').value = data.contacto_principal_telefono;
+            document.getElementById('estado').value = data.estado;
+            document.getElementById('observaciones').value = data.observaciones;
+            
+            // Habilitar todos los campos excepto RUT/NIF
+            const formElements = document.querySelectorAll('#proveedorForm input, #proveedorForm select, #proveedorForm textarea');
+            formElements.forEach(element => {
+                element.readOnly = false;
+                if (element.tagName === 'SELECT') {
+                    element.disabled = false;
+                }
+            });
+            document.getElementById('rut_nif').readOnly = true; // RUT/NIF no se puede editar
+            
+            // Mostrar botones de Guardar y Cancelar, ocultar Cerrar
+            document.getElementById('btnGuardar').style.display = 'inline-block';
+            document.getElementById('btnCancelar').style.display = 'inline-block';
+            document.getElementById('btnCerrar').style.display = 'none';
+            
+            // Mostrar/ocultar campo detalle condiciones
+            toggleCondicionesDetalle();
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalProveedor'));
+            modal.show();
+        })
+        .catch(error => {
+            Swal.fire({
+                title: 'Error',
+                text: 'Error al cargar los datos del proveedor',
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
+            });
+            console.error(error);
+        });
+}
+
+// Ver detalles (solo lectura)
+function viewProveedor(id) {
+    editMode = false;
+    currentProveedorId = id;
+    
+    // Mostrar loading
+    Swal.fire({
+        title: 'Cargando...',
+        html: 'Obteniendo datos del proveedor',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    fetch(`/proveedores/${id}/edit/`)
+        .then(response => response.json())
+        .then(data => {
+            Swal.close();
+            
+            document.getElementById('modalTitle').textContent = 'Detalle del Proveedor';
+            
+            // Llenar el formulario con los datos
+            document.getElementById('proveedorId').value = data.id;
+            document.getElementById('rut_nif').value = data.rut_nif;
             document.getElementById('razon_social').value = data.razon_social;
             document.getElementById('nombre_fantasia').value = data.nombre_fantasia;
             document.getElementById('email').value = data.email;
@@ -113,6 +223,20 @@ function editProveedor(id) {
             // Mostrar/ocultar campo detalle condiciones
             toggleCondicionesDetalle();
             
+            // MODO SOLO LECTURA: Deshabilitar todos los campos
+            const formElements = document.querySelectorAll('#proveedorForm input, #proveedorForm select, #proveedorForm textarea');
+            formElements.forEach(element => {
+                element.readOnly = true;
+                if (element.tagName === 'SELECT') {
+                    element.disabled = true;
+                }
+            });
+            
+            // Ocultar botones de Guardar y Cancelar, mostrar solo Cerrar
+            document.getElementById('btnGuardar').style.display = 'none';
+            document.getElementById('btnCancelar').style.display = 'none';
+            document.getElementById('btnCerrar').style.display = 'inline-block';
+            
             const modal = new bootstrap.Modal(document.getElementById('modalProveedor'));
             modal.show();
         })
@@ -125,11 +249,6 @@ function editProveedor(id) {
             });
             console.error(error);
         });
-}
-
-// Ver detalles
-function viewProveedor(id) {
-    editProveedor(id);
 }
 
 // Guardar proveedor (crear o actualizar)
@@ -211,6 +330,17 @@ function saveProveedor() {
 
 // Bloquear proveedor
 function deleteProveedor(id, razon_social) {
+    // Verificar permisos
+    if (typeof PERMISOS !== 'undefined' && !PERMISOS.eliminar) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: 'No tienes permisos para bloquear proveedores',
+            confirmButtonColor: '#D20A11'
+        });
+        return;
+    }
+    
     Swal.fire({
         title: '¿Bloquear Proveedor?',
         html: `¿Está seguro de bloquear al proveedor <strong>"${razon_social}"</strong>?<br><br>El proveedor no podrá ser usado en nuevas compras.`,
@@ -286,6 +416,17 @@ function changePerPage(value) {
 
 // Exportar a Excel
 function exportarExcel() {
+    // Verificar permisos
+    if (typeof PERMISOS !== 'undefined' && !PERMISOS.exportar) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Acceso Denegado',
+            text: 'No tienes permisos para exportar datos',
+            confirmButtonColor: '#D20A11'
+        });
+        return;
+    }
+    
     const url = new URL(window.location.href);
     const params = url.searchParams.toString();
     

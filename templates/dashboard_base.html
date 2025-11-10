@@ -37,15 +37,19 @@
             </div>
             
             <!-- Gestión -->
+            {% if permisos_modulos.usuarios.ver or permisos_modulos.productos.ver or permisos_modulos.proveedores.ver %}
             <div class="sidebar-section">
                 <div class="sidebar-section-title">Gestión</div>
                 <ul class="sidebar-menu">
+                    {% if permisos_modulos.usuarios.ver %}
                     <li class="sidebar-menu-item">
                         <a href="{% url 'usuarios_list' %}" class="sidebar-menu-link {% if active_menu == 'usuarios' %}active{% endif %}">
                             <i class="fas fa-users sidebar-menu-icon"></i>
                             <span class="sidebar-menu-text">Usuarios</span>
                         </a>
                     </li>
+                    {% endif %}
+                    {% if permisos_modulos.productos.ver %}
                     <li class="sidebar-menu-item">
                         <a href="/admin/maestros/producto/" class="sidebar-menu-link {% if active_menu == 'productos' %}active{% endif %}">
                             <i class="fas fa-box sidebar-menu-icon"></i>
@@ -64,16 +68,21 @@
                             <span class="sidebar-menu-text">Marcas</span>
                         </a>
                     </li>
+                    {% endif %}
+                    {% if permisos_modulos.proveedores.ver %}
                     <li class="sidebar-menu-item">
                         <a href="{% url 'proveedores_list' %}" class="sidebar-menu-link {% if active_menu == 'proveedores' %}active{% endif %}">
                             <i class="fas fa-truck sidebar-menu-icon"></i>
                             <span class="sidebar-menu-text">Proveedores</span>
                         </a>
                     </li>
+                    {% endif %}
                 </ul>
             </div>
+            {% endif %}
             
             <!-- Inventario -->
+            {% if permisos_modulos.inventario.ver %}
             <div class="sidebar-section">
                 <div class="sidebar-section-title">Inventario</div>
                 <ul class="sidebar-menu">
@@ -103,32 +112,37 @@
                     </li>
                 </ul>
             </div>
+            {% endif %}
             
             <!-- Compras -->
+            {% if permisos_modulos.compras.ver %}
             <div class="sidebar-section">
                 <div class="sidebar-section-title">Compras</div>
                 <ul class="sidebar-menu">
                     <li class="sidebar-menu-item">
                         <a href="/admin/compras/ordencompra/" class="sidebar-menu-link {% if active_menu == 'ordenes' %}active{% endif %}">
-                            <i class="fas fa-shopping-cart sidebar-menu-icon"></i>
+                            <i class="fas fa-file-invoice-dollar sidebar-menu-icon"></i>
                             <span class="sidebar-menu-text">Órdenes de Compra</span>
                         </a>
                     </li>
                 </ul>
             </div>
+            {% endif %}
             
             <!-- Sistema -->
+            {% if user.is_superuser %}
             <div class="sidebar-section">
                 <div class="sidebar-section-title">Sistema</div>
                 <ul class="sidebar-menu">
                     <li class="sidebar-menu-item">
-                        <a href="/admin/" class="sidebar-menu-link {% if active_menu == 'configuracion' %}active{% endif %}">
-                            <i class="fas fa-cog sidebar-menu-icon"></i>
-                            <span class="sidebar-menu-text">Configuración</span>
+                        <a href="/admin/" class="sidebar-menu-link {% if active_menu == 'admin' %}active{% endif %}">
+                            <i class="fas fa-tools sidebar-menu-icon"></i>
+                            <span class="sidebar-menu-text">Administración</span>
                         </a>
                     </li>
                 </ul>
             </div>
+            {% endif %}
         </div>
         
         <!-- Sidebar Footer -->

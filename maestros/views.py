@@ -75,6 +75,22 @@ def proveedores_list(request):
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
     
+    # Obtener permisos del usuario actual
+    permisos = {
+        'ver': True,
+        'crear': True,
+        'editar': True,
+        'eliminar': True,
+        'exportar': True
+    }
+    
+    if hasattr(request.user, 'usuario_profile'):
+        usuario = request.user.usuario_profile
+        if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
+            rol_permisos = usuario.rol.permisos.get('proveedores', {})
+            if rol_permisos:
+                permisos = rol_permisos
+    
     context = {
         'active_menu': 'proveedores',
         'proveedores': page_obj,
@@ -92,6 +108,8 @@ def proveedores_list(request):
         'proveedores_activos': proveedores_activos,
         'proveedores_bloqueados': proveedores_bloqueados,
         'proveedores_30_dias': proveedores_30_dias,
+        # Permisos
+        'permisos': permisos,
     }
     
     return render(request, 'proveedores/proveedores_list.html', context)
@@ -100,6 +118,17 @@ def proveedores_list(request):
 @login_required(login_url='login')
 def proveedor_create(request):
     """Crear nuevo proveedor"""
+    
+    # Verificar permisos
+    if hasattr(request.user, 'usuario_profile'):
+        usuario = request.user.usuario_profile
+        if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
+            permisos = usuario.rol.permisos.get('proveedores', {})
+            if not permisos.get('crear', True):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No tienes permisos para crear proveedores'
+                }, status=403)
     
     if request.method == 'POST':
         try:
@@ -151,6 +180,18 @@ def proveedor_edit(request, proveedor_id):
     """Editar proveedor existente"""
     
     proveedor = get_object_or_404(Proveedor, id=proveedor_id)
+    
+    # Verificar permisos para edición
+    if request.method == 'POST':
+        if hasattr(request.user, 'usuario_profile'):
+            usuario = request.user.usuario_profile
+            if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
+                permisos = usuario.rol.permisos.get('proveedores', {})
+                if not permisos.get('editar', True):
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'No tienes permisos para editar proveedores'
+                    }, status=403)
     
     if request.method == 'GET':
         # Retornar datos del proveedor
@@ -222,6 +263,17 @@ def proveedor_edit(request, proveedor_id):
 @login_required(login_url='login')
 def proveedor_delete(request, proveedor_id):
     """Bloquear proveedor"""
+    
+    # Verificar permisos
+    if hasattr(request.user, 'usuario_profile'):
+        usuario = request.user.usuario_profile
+        if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
+            permisos = usuario.rol.permisos.get('proveedores', {})
+            if not permisos.get('eliminar', True):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No tienes permisos para bloquear proveedores'
+                }, status=403)
     
     if request.method == 'POST':
         try:

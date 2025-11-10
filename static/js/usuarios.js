@@ -58,10 +58,25 @@ function openCreateModal() {
     document.getElementById('btnSaveText').textContent = 'Guardar Usuario';
     document.getElementById('usuarioForm').reset();
     document.getElementById('usuarioId').value = '';
+    
+    // Habilitar todos los campos
+    const formElements = document.querySelectorAll('#usuarioForm input, #usuarioForm select, #usuarioForm textarea');
+    formElements.forEach(element => {
+        element.readOnly = false;
+        if (element.tagName === 'SELECT') {
+            element.disabled = false;
+        }
+    });
+    
     document.getElementById('username').readOnly = false;
     document.getElementById('password').required = true;
     document.getElementById('passwordRequired').style.display = 'inline';
     document.getElementById('passwordHelp').textContent = 'Mínimo 8 caracteres';
+    
+    // Mostrar botones de Guardar y Cancelar, ocultar Cerrar
+    document.getElementById('btnGuardar').style.display = 'inline-block';
+    document.getElementById('btnCancelar').style.display = 'inline-block';
+    document.getElementById('btnCerrar').style.display = 'none';
     
     // Limpiar preview de foto
     document.getElementById('fotoPreview').style.display = 'none';
@@ -116,6 +131,21 @@ function editUsuario(id) {
             document.getElementById('passwordRequired').style.display = 'none';
             document.getElementById('passwordHelp').textContent = 'Dejar en blanco para mantener la actual';
             
+            // Habilitar todos los campos excepto username
+            const formElements = document.querySelectorAll('#usuarioForm input, #usuarioForm select, #usuarioForm textarea');
+            formElements.forEach(element => {
+                element.readOnly = false;
+                if (element.tagName === 'SELECT') {
+                    element.disabled = false;
+                }
+            });
+            document.getElementById('username').readOnly = true; // Username no se puede editar
+            
+            // Mostrar botones de Guardar y Cancelar, ocultar Cerrar
+            document.getElementById('btnGuardar').style.display = 'inline-block';
+            document.getElementById('btnCancelar').style.display = 'inline-block';
+            document.getElementById('btnCerrar').style.display = 'none';
+            
             const modal = new bootstrap.Modal(document.getElementById('modalUsuario'));
             modal.show();
         })
@@ -130,9 +160,77 @@ function editUsuario(id) {
         });
 }
 
-// Ver detalles
+// Ver detalles (solo lectura)
 function viewUsuario(id) {
-    editUsuario(id);
+    editMode = false;
+    currentUsuarioId = id;
+    
+    // Mostrar loading
+    Swal.fire({
+        title: 'Cargando...',
+        html: 'Obteniendo datos del usuario',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+    
+    fetch(`/usuarios/${id}/edit/`)
+        .then(response => response.json())
+        .then(data => {
+            Swal.close();
+            
+            document.getElementById('modalTitle').textContent = 'Detalle del Usuario';
+            
+            document.getElementById('usuarioId').value = data.id;
+            document.getElementById('username').value = data.username;
+            document.getElementById('first_name').value = data.first_name;
+            document.getElementById('last_name').value = data.last_name;
+            document.getElementById('email').value = data.email;
+            document.getElementById('telefono').value = data.telefono;
+            document.getElementById('rol').value = data.rol_id;
+            document.getElementById('area_unidad').value = data.area_unidad;
+            document.getElementById('estado').value = data.estado;
+            
+            // Mostrar foto de perfil actual si existe
+            if (data.foto_perfil_url) {
+                document.getElementById('fotoPreviewImg').src = data.foto_perfil_url;
+                document.getElementById('fotoPreview').style.display = 'block';
+            } else {
+                document.getElementById('fotoPreview').style.display = 'none';
+            }
+            
+            document.getElementById('password').required = false;
+            document.getElementById('password').value = '';
+            document.getElementById('passwordRequired').style.display = 'none';
+            
+            // MODO SOLO LECTURA: Deshabilitar todos los campos
+            const formElements = document.querySelectorAll('#usuarioForm input, #usuarioForm select, #usuarioForm textarea');
+            formElements.forEach(element => {
+                element.readOnly = true;
+                if (element.tagName === 'SELECT') {
+                    element.disabled = true;
+                }
+            });
+            
+            // Ocultar botones de Guardar y Cancelar, mostrar solo Cerrar
+            document.getElementById('btnGuardar').style.display = 'none';
+            document.getElementById('btnCancelar').style.display = 'none';
+            document.getElementById('btnCerrar').style.display = 'inline-block';
+            
+            const modal = new bootstrap.Modal(document.getElementById('modalUsuario'));
+            modal.show();
+        })
+        .catch(error => {
+            Swal.fire({
+                title: 'Error',
+                text: 'Error al cargar los datos del usuario',
+                icon: 'error',
+                confirmButtonColor: '#dc3545'
+            });
+            console.error(error);
+        });
 }
 
 // Guardar usuario (crear o actualizar)

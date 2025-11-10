@@ -70,6 +70,15 @@ def logout_view(request):
 def usuarios_list(request):
     """Vista de listado de usuarios con filtros y paginación"""
     
+    # Verificar permisos de acceso al módulo
+    if hasattr(request.user, 'usuario_profile'):
+        usuario = request.user.usuario_profile
+        if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
+            permisos_usuarios = usuario.rol.permisos.get('usuarios', {})
+            if not permisos_usuarios.get('ver', True):
+                messages.error(request, 'No tienes permisos para acceder al módulo de usuarios')
+                return redirect('dashboard')
+    
     # Obtener parámetros de búsqueda y filtros
     search = request.GET.get('search', '')
     rol_filter = request.GET.get('rol', '')
@@ -138,6 +147,22 @@ def usuarios_list(request):
     # Obtener todos los roles para el filtro
     roles = Rol.objects.all()
     
+    # Obtener permisos del usuario actual
+    permisos = {
+        'ver': True,
+        'crear': True,
+        'editar': True,
+        'eliminar': True,
+        'exportar': True
+    }
+    
+    if hasattr(request.user, 'usuario_profile'):
+        usuario = request.user.usuario_profile
+        if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
+            rol_permisos = usuario.rol.permisos.get('usuarios', {})
+            if rol_permisos:
+                permisos = rol_permisos
+    
     context = {
         'active_menu': 'usuarios',
         'page_obj': page_obj,
@@ -153,6 +178,7 @@ def usuarios_list(request):
         'per_page': per_page,
         'sort_by': sort_by,
         'sort_order': sort_order,
+        'permisos': permisos,
     }
     
     return render(request, 'usuarios/usuarios_list.html', context)
@@ -161,6 +187,17 @@ def usuarios_list(request):
 @login_required(login_url='login')
 def usuario_create(request):
     """Vista para crear un nuevo usuario (AJAX)"""
+    
+    # Verificar permisos
+    if hasattr(request.user, 'usuario_profile'):
+        usuario = request.user.usuario_profile
+        if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
+            permisos = usuario.rol.permisos.get('usuarios', {})
+            if not permisos.get('crear', True):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No tienes permisos para crear usuarios'
+                }, status=403)
     
     if request.method == 'POST':
         try:
@@ -245,6 +282,18 @@ def usuario_edit(request, usuario_id):
     
     usuario = get_object_or_404(Usuario, id=usuario_id)
     
+    # Verificar permisos para edición
+    if request.method == 'POST':
+        if hasattr(request.user, 'usuario_profile'):
+            user_profile = request.user.usuario_profile
+            if user_profile.rol and user_profile.rol.permisos and isinstance(user_profile.rol.permisos, dict):
+                permisos = user_profile.rol.permisos.get('usuarios', {})
+                if not permisos.get('editar', True):
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'No tienes permisos para editar usuarios'
+                    }, status=403)
+    
     if request.method == 'POST':
         try:
             # Actualizar datos del User de Django
@@ -309,7 +358,18 @@ def usuario_edit(request, usuario_id):
 
 @login_required(login_url='login')
 def usuario_delete(request, usuario_id):
-    """Vista para desactivar un usuario (soft delete)"""
+    """Vista para desactivar un usuario (AJAX)"""
+    
+    # Verificar permisos
+    if hasattr(request.user, 'usuario_profile'):
+        user_profile = request.user.usuario_profile
+        if user_profile.rol and user_profile.rol.permisos and isinstance(user_profile.rol.permisos, dict):
+            permisos = user_profile.rol.permisos.get('usuarios', {})
+            if not permisos.get('eliminar', True):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No tienes permisos para desactivar usuarios'
+                }, status=403)
     
     if request.method == 'POST':
         try:

@@ -14,11 +14,13 @@
     <div>
         <p class="text-muted mb-0">Administración de proveedores del sistema</p>
     </div>
+    {% if permisos.crear %}
     <div>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProveedor" onclick="openCreateModal()">
             <i class="fas fa-truck me-2"></i>Agregar Proveedor
         </button>
     </div>
+    {% endif %}
 </div>
 
 <!-- Estadísticas -->
@@ -150,11 +152,13 @@
                 <i class="fas fa-table me-2"></i>Listado de Proveedores
                 <span class="badge bg-secondary ms-2">{{ page_obj.paginator.count }}</span>
             </h5>
+            {% if permisos.exportar %}
             <div class="d-flex gap-2">
                 <button class="btn btn-outline-success" onclick="exportarExcel()" title="Exportar a Excel">
                     <i class="fas fa-file-excel me-2"></i>Excel
                 </button>
             </div>
+            {% endif %}
         </div>
     </div>
     <div class="card-body p-0">
@@ -250,18 +254,23 @@
                         </td>
                         <td class="text-center">
                             <div class="btn-group btn-group-sm" role="group">
+                                {% if permisos.ver %}
                                 <button class="btn btn-primary btn-action-solid" 
                                         title="Ver detalles" 
                                         data-action="view"
                                         data-id="{{ proveedor.id }}">
                                     <i class="fas fa-eye"></i>
                                 </button>
+                                {% endif %}
+                                {% if permisos.editar %}
                                 <button class="btn btn-warning btn-action-solid" 
                                         title="Editar" 
                                         data-action="edit"
                                         data-id="{{ proveedor.id }}">
                                     <i class="fas fa-edit"></i>
                                 </button>
+                                {% endif %}
+                                {% if permisos.eliminar %}
                                 <button class="btn btn-danger btn-action-solid" 
                                         title="Bloquear" 
                                         data-action="delete"
@@ -269,6 +278,7 @@
                                         data-razonsocial="{{ proveedor.razon_social }}">
                                     <i class="fas fa-ban"></i>
                                 </button>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -517,12 +527,15 @@
                 </form>
             </div>
             <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btnCancelar">
                     <i class="fas fa-times me-2"></i>Cancelar
                 </button>
-                <button type="button" class="btn btn-primary" onclick="saveProveedor()">
+                <button type="button" class="btn btn-primary" onclick="saveProveedor()" id="btnGuardar">
                     <i class="fas fa-save me-2"></i>
                     <span id="btnSaveText">Guardar Proveedor</span>
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btnCerrar" style="display: none;">
+                    <i class="fas fa-times me-2"></i>Cerrar
                 </button>
             </div>
         </div>
@@ -531,5 +544,15 @@
 {% endblock %}
 
 {% block module_js %}
+<script>
+    // Permisos del usuario
+    const PERMISOS = {
+        ver: {{ permisos.ver|yesno:"true,false" }},
+        crear: {{ permisos.crear|yesno:"true,false" }},
+        editar: {{ permisos.editar|yesno:"true,false" }},
+        eliminar: {{ permisos.eliminar|yesno:"true,false" }},
+        exportar: {{ permisos.exportar|yesno:"true,false" }}
+    };
+</script>
 <script src="{% static 'js/proveedores.js' %}"></script>
 {% endblock %}
