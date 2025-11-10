@@ -28,6 +28,7 @@ from maestros.views import (
     proveedores_list, proveedor_create, proveedor_edit, proveedor_delete,
     exportar_proveedores_excel
 )
+from LiliProject.views import error_404, error_500
 
 urlpatterns = [
     # Admin de Django
@@ -56,9 +57,23 @@ urlpatterns = [
     path('proveedores/<int:proveedor_id>/edit/', proveedor_edit, name='proveedor_edit'),
     path('proveedores/<int:proveedor_id>/delete/', proveedor_delete, name='proveedor_delete'),
     path('proveedores/exportar-excel/', exportar_proveedores_excel, name='exportar_proveedores_excel'),
+    
+    # Rutas de prueba para páginas de error (SOLO PARA DESARROLLO)
+    path('test-404/', error_404, name='test_404'),
+    path('test-500/', error_500, name='test_500'),
 ]
 
 # Servir archivos estáticos y media en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    
+    # Agregar una ruta catch-all al final para páginas 404 personalizadas en DEBUG mode
+    from django.urls import re_path
+    urlpatterns += [
+        re_path(r'^.*$', error_404),
+    ]
+
+# Handlers de errores personalizados (funcionan cuando DEBUG=False)
+handler404 = 'LiliProject.views.error_404'
+handler500 = 'LiliProject.views.error_500'
