@@ -20,7 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from autenticacion.views import (
     login_view, dashboard_view, logout_view,
-    usuarios_list, usuario_create, usuario_edit, usuario_delete
+    usuarios_list, usuario_create, usuario_edit, usuario_delete,
+    password_reset_request, password_reset_confirm
 )
 
 urlpatterns = [
@@ -32,6 +33,10 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('dashboard/', dashboard_view, name='dashboard'),
     path('logout/', logout_view, name='logout'),
+    
+    # Recuperación de Contraseña
+    path('password-reset/', password_reset_request, name='password_reset'),
+    path('password-reset-confirm/<uidb64>/<token>/', password_reset_confirm, name='password_reset_confirm'),
     
     # Gestión de Usuarios
     path('usuarios/', usuarios_list, name='usuarios_list'),

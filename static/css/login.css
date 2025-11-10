@@ -153,15 +153,16 @@
 .input-icon {
     position: absolute;
     left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
     color: var(--color-submenu);
     font-size: 18px;
     pointer-events: none;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
+/* Ajustar posición cuando hay label - bajar el ícono */
 .form-group.has-label .input-icon {
-    top: calc(50% + 10px);
+    top: calc(50% + 12px);
 }
 
 .login-form .form-control:focus ~ .input-icon {

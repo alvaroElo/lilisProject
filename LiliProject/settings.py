@@ -163,3 +163,9 @@ LOGOUT_REDIRECT_URL = 'login'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Resend Email Configuration
+RESEND_API_KEY = 're_U7GLhZyZ_9GCv9DF3aVgDepLzuA9NNjyS'
+RESEND_FROM_EMAIL = 'onboarding@resend.dev'
+RESEND_TEST_EMAIL = 'alvaro.elo@alumnos.ucn.cl'  # Email verificado en Resend para pruebas
+COMPANY_NAME = 'Dulcería Lilis'
