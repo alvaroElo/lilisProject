@@ -52,6 +52,11 @@ python manage.py migrate
 
 # 7. Cargar datos de ejemplo
 python scripts/cargar_datos.py
+python scripts/crear_proveedores_test.py
+python scripts/crear_vendedores_test.py
+python scripts/crear_usuario_solo_lectura_proveedores.py
+python scripts/crear_usuario_editor.py
+python scripts/migrar_permisos_roles.py
 
 # 8. Ejecutar servidor
 python manage.py runserver
