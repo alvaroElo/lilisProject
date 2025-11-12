@@ -47,6 +47,8 @@ SHOW TABLES;
 ### 6. Cargar datos de ejemplo
 ```powershell
 python scripts\cargar_datos.py
+
+python scripts/cargar_datos.py
 ```
 
 ### 7. Crear carpeta media para fotos de perfil
