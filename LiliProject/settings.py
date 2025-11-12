@@ -11,7 +11,7 @@ load_dotenv(BASE_DIR / ".env")
 # Seguridad
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-dev-key")
 DEBUG = os.getenv("DJANGO_DEBUG", "False") == "True"
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*'] # Dejamos el wildcard que pusiste para debugging
 
 # Aplicaciones
 INSTALLED_APPS = [
@@ -79,7 +79,6 @@ if ENGINE == "mysql":
             "OPTIONS": {
                 "charset": "utf8mb4",
                 "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-                # --- LÍNEA AGREGADA PARA REQUERIR SSL ---
                 "ssl_mode": "REQUIRED",
             },
         }
@@ -115,6 +114,10 @@ USE_S3 = os.getenv('USE_S3', 'False') == 'True'
 if USE_S3:
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    
+    # --- ¡LÍNEA CRÍTICA AÑADIDA PARA AWS LABS! ---
+    AWS_SESSION_TOKEN = os.getenv('AWS_SESSION_TOKEN')
+    
     AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
     AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'us-east-1')
     AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
@@ -135,7 +138,7 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = 'django.models.BigAutoField'
 
 # Email - Resend
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")

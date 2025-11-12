@@ -37,12 +37,22 @@ python manage.py makemigrations
 ```powershell
 python manage.py migrate
 ```
-
+#### revisa la bd pas ADMIN.aws
 mysql  --ssl  --ssl-ca=/etc/ssl/certs/aws-rds/rds-combined-ca-bundle.pem  --ssl-verify-server-cert  -h dulceria-lilis.chf1shttozye.us-east-1.rds.amazonaws.com  -u admin -p
-
+###
 USE dulceria_lilis_db;
-
+###
 SHOW TABLES;
+
+
+# 1. Recarga systemd para que lea el archivo .service modificado
+sudo systemctl daemon-reload
+
+# 2. Reinicia Gunicorn (para que use el nuevo comando)
+sudo systemctl restart lilisProject
+
+# 3. Reinicia Nginx (para asegurar la conexión)
+sudo systemctl restart nginx
 
 ### 6. Cargar datos de ejemplo
 ```powershell
