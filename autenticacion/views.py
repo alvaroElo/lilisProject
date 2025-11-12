@@ -282,6 +282,16 @@ def usuario_edit(request, usuario_id):
     
     usuario = get_object_or_404(Usuario, id=usuario_id)
     
+    # No permitir editar usuarios administradores (excepto por otros administradores)
+    if usuario.user.is_superuser or (usuario.rol and usuario.rol.nombre == 'ADMINISTRADOR'):
+        if hasattr(request.user, 'usuario_profile'):
+            user_profile = request.user.usuario_profile
+            if not (request.user.is_superuser or (user_profile.rol and user_profile.rol.nombre == 'ADMINISTRADOR')):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No tienes permisos para editar usuarios administradores.'
+                }, status=403)
+    
     # Verificar permisos para edición
     if request.method == 'POST':
         if hasattr(request.user, 'usuario_profile'):
@@ -381,6 +391,13 @@ def usuario_delete(request, usuario_id):
                     'success': False,
                     'message': 'No puedes desactivar tu propio usuario.'
                 }, status=400)
+            
+            # No permitir eliminar usuarios superadmin o con rol ADMINISTRADOR
+            if usuario.user.is_superuser or (usuario.rol and usuario.rol.nombre == 'ADMINISTRADOR'):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No puedes desactivar usuarios administradores.'
+                }, status=403)
             
             # Desactivar usuario (soft delete)
             usuario.estado = 'INACTIVO'

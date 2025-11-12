@@ -15,12 +15,18 @@ Ctrl+C (si está corriendo)
 ### 2. Eliminar todas las tablas
 ```powershell
 venv\Scripts\python.exe scripts\drop_tables.py
+python scripts/drop_tables.py
 ```
 
 ### 3. Eliminar archivos de migración
 ```powershell
 Remove-Item "autenticacion\migrations\0001_initial.py" -ErrorAction SilentlyContinue; Remove-Item "autenticacion\migrations\0002_usuario_foto_perfil.py" -ErrorAction SilentlyContinue; Remove-Item "maestros\migrations\0001_initial.py" -ErrorAction SilentlyContinue; Remove-Item "inventario\migrations\0001_initial.py" -ErrorAction SilentlyContinue; Remove-Item "compras\migrations\0001_initial.py" -ErrorAction SilentlyContinue
 ```
+
+#linux
+find autenticacion maestros inventario compras -path "*/migrations/*.py" -not -name "__init__.py" -delete
+
+
 
 ### 4. Generar nuevas migraciones
 ```powershell
@@ -31,6 +37,12 @@ python manage.py makemigrations
 ```powershell
 python manage.py migrate
 ```
+
+mysql  --ssl  --ssl-ca=/etc/ssl/certs/aws-rds/rds-combined-ca-bundle.pem  --ssl-verify-server-cert  -h dulceria-lilis.chf1shttozye.us-east-1.rds.amazonaws.com  -u admin -p
+
+USE dulceria_lilis_db;
+
+SHOW TABLES;
 
 ### 6. Cargar datos de ejemplo
 ```powershell
