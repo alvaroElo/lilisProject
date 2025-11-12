@@ -42,6 +42,7 @@ EXIT;
 ```bash
 # 5. Variables de entorno
 copy .env.example .env         # Windows
+# cp .env.production.example .env
 # cp .env.example .env         # Mac/Linux
 # Editar .env con tu configuración MySQL
 
