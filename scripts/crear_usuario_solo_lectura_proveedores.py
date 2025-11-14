@@ -63,18 +63,40 @@ def crear_usuario_solo_lectura():
                         'ver': True,
                         'crear': False,
                         'editar': False,
-                        'eliminar': False
+                        'eliminar': False,
+                        'exportar': False
                     },
                     'reportes': {
                         'ver': True,
                         'exportar': True
+                    },
+                    'usuarios': {
+                        'ver': False,
+                        'crear': False,
+                        'editar': False,
+                        'eliminar': False,
+                        'exportar': False
+                    },
+                    'productos': {
+                        'ver': False,
+                        'crear': False,
+                        'editar': False,
+                        'eliminar': False,
+                        'exportar': False
+                    },
+                    'inventario': {
+                        'ver': False,
+                        'crear': False,
+                        'editar': False,
+                        'eliminar': False,
+                        'exportar': False
                     }
                 }
             )
             print(f"✓ Rol 'FINANZAS' creado con permisos limitados")
         
-        # Si el rol ya existe pero no tiene permisos definidos, actualizarlos
-        if not rol.permisos:
+        # Si el rol ya existe pero no tiene permisos completos, actualizarlos
+        if not rol.permisos or 'usuarios' not in rol.permisos:
             rol.permisos = {
                 'proveedores': {
                     'ver': True,
@@ -87,15 +109,37 @@ def crear_usuario_solo_lectura():
                     'ver': True,
                     'crear': False,
                     'editar': False,
-                    'eliminar': False
+                    'eliminar': False,
+                    'exportar': False
                 },
                 'reportes': {
                     'ver': True,
                     'exportar': True
+                },
+                'usuarios': {
+                    'ver': False,
+                    'crear': False,
+                    'editar': False,
+                    'eliminar': False,
+                    'exportar': False
+                },
+                'productos': {
+                    'ver': False,
+                    'crear': False,
+                    'editar': False,
+                    'eliminar': False,
+                    'exportar': False
+                },
+                'inventario': {
+                    'ver': False,
+                    'crear': False,
+                    'editar': False,
+                    'eliminar': False,
+                    'exportar': False
                 }
             }
             rol.save()
-            print(f"✓ Permisos del rol 'FINANZAS' actualizados")
+            print(f"✓ Permisos del rol 'FINANZAS' actualizados con estructura completa")
         
         # Crear el User de Django
         print(f"\n  Creando usuario '{username}'...")
@@ -132,11 +176,25 @@ def crear_usuario_solo_lectura():
         print(f"   Área:         {usuario.area_unidad}")
         
         print(f"\n🔒 PERMISOS ASIGNADOS:")
+        print(f"\n✅ PROVEEDORES:")
         print(f"   ✓ Ver proveedores")
         print(f"   ✓ Exportar a Excel")
         print(f"   ✗ Crear proveedores")
         print(f"   ✗ Editar proveedores")
-        print(f"   ✗ Eliminar/Bloquear proveedores")
+        print(f"   ✗ Eliminar proveedores")
+        
+        print(f"\n✅ COMPRAS:")
+        print(f"   ✓ Ver compras")
+        print(f"   ✗ Crear/Editar/Eliminar compras")
+        print(f"   ✗ Exportar compras")
+        
+        print(f"\n✅ REPORTES:")
+        print(f"   ✓ Ver reportes")
+        print(f"   ✓ Exportar reportes")
+        
+        print(f"\n❌ USUARIOS: Sin acceso")
+        print(f"❌ PRODUCTOS: Sin acceso")
+        print(f"❌ INVENTARIO: Sin acceso")
         
         print(f"\n💡 NOTA:")
         print(f"   Este usuario solo puede visualizar información y exportar datos.")
