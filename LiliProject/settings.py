@@ -138,7 +138,7 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
-DEFAULT_AUTO_FIELD = 'django.models.BigAutoField'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Email - Resend
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
