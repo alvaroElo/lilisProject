@@ -67,13 +67,13 @@ python manage.py runserver
 - **Usuario**: `admin` / `admin123`
 
 ## Usuarios de Prueba
-| Usuario | Contraseña | Rol |
-|---------|-----------|-----|
-| admin | admin123 | Administrador |
-| vendedor1 | vendedor123 | Vendedor |
-| bodeguero1 | bodega123 | Bodeguero |
-| finanzas1 | finanzas123 | Finanzas |
-| jefe_ventas | jefe123 | Jefe Ventas |
+| Usuario     | Contraseña  | Rol           |
+|-------------|-------------|---------------|
+| admin       | admin123    | Administrador |
+| vendedor1   | vendedor123 | Vendedor      |
+| bodeguero1  | bodega123   | Bodeguero     |
+| finanzas1   | finanzas123 | Finanzas      |
+| jefe_ventas | jefe123     | Jefe Ventas   |
 
 ## Comandos Útiles
 
