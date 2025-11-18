@@ -2,7 +2,8 @@ from django.db import models
 from django.utils import timezone
 from decimal import Decimal
 from autenticacion.models import Usuario
-from maestros.models import Proveedor, Producto, UnidadMedida
+from productos.models import Producto
+from maestros.models import Proveedor, UnidadMedida
 
 
 class OrdenCompra(models.Model):

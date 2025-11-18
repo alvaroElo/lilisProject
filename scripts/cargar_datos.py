@@ -18,7 +18,8 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import Permission
 from autenticacion.models import Rol, Usuario
-from maestros.models import Categoria, Marca, UnidadMedida, Proveedor, Producto
+from maestros.models import Categoria, Marca, UnidadMedida, Proveedor
+from productos.models import Producto
 from inventario.models import Bodega
 from decimal import Decimal
 
@@ -36,8 +37,9 @@ def asignar_permisos_por_rol():
     grupo_finanzas = Group.objects.create(name='Finanzas')
     grupo_jefe_ventas = Group.objects.create(name='Jefe_Ventas')
     
-    # Obtener content types de maestros
-    from maestros.models import Producto, Categoria, Marca, UnidadMedida, Proveedor
+    # Obtener content types de maestros y productos
+    from maestros.models import Categoria, Marca, UnidadMedida, Proveedor
+    from productos.models import Producto
     
     # Obtener content types de inventario y compras
     try:
@@ -518,7 +520,7 @@ def main():
             'categoria': choc_cat,
             'uom_compra': und_unidad,
             'uom_venta': und_unidad,
-            'uom_stock': und_unidad,
+            'factor_conversion': Decimal('1'),
             'precio_venta': Decimal('2000.00'),
             'costo_estandar': Decimal('1500.00'),
             'stock_minimo': Decimal('50'),
@@ -533,7 +535,7 @@ def main():
             'categoria': choc_cat,
             'uom_compra': cj_unidad,
             'uom_venta': cj_unidad,
-            'uom_stock': cj_unidad,
+            'factor_conversion': Decimal('1'),
             'precio_venta': Decimal('35000.00'),
             'costo_estandar': Decimal('25000.00'),
             'stock_minimo': Decimal('20'),
@@ -548,7 +550,7 @@ def main():
             'categoria': choc_cat,
             'uom_compra': pq_unidad,
             'uom_venta': pq_unidad,
-            'uom_stock': pq_unidad,
+            'factor_conversion': Decimal('1'),
             'precio_venta': Decimal('6500.00'),
             'costo_estandar': Decimal('4500.00'),
             'stock_minimo': Decimal('30'),
@@ -564,7 +566,7 @@ def main():
             'categoria': dulces_cat,
             'uom_compra': kg_unidad,
             'uom_venta': kg_unidad,
-            'uom_stock': kg_unidad,
+            'factor_conversion': Decimal('1'),
             'precio_venta': Decimal('12000.00'),
             'costo_estandar': Decimal('8000.00'),
             'stock_minimo': Decimal('10'),
@@ -579,7 +581,7 @@ def main():
             'categoria': caramelos_cat,
             'uom_compra': pq_unidad,
             'uom_venta': pq_unidad,
-            'uom_stock': pq_unidad,
+            'factor_conversion': Decimal('1'),
             'precio_venta': Decimal('3500.00'),
             'costo_estandar': Decimal('2500.00'),
             'stock_minimo': Decimal('40'),
@@ -594,7 +596,7 @@ def main():
             'categoria': caramelos_cat,
             'uom_compra': cj_unidad,
             'uom_venta': cj_unidad,
-            'uom_stock': cj_unidad,
+            'factor_conversion': Decimal('1'),
             'precio_venta': Decimal('18000.00'),
             'costo_estandar': Decimal('12000.00'),
             'stock_minimo': Decimal('15'),
@@ -610,7 +612,7 @@ def main():
             'categoria': galletas_cat,
             'uom_compra': pq_unidad,
             'uom_venta': pq_unidad,
-            'uom_stock': pq_unidad,
+            'factor_conversion': Decimal('1'),
             'precio_venta': Decimal('4500.00'),
             'costo_estandar': Decimal('3200.00'),
             'stock_minimo': Decimal('25'),
@@ -625,7 +627,7 @@ def main():
             'categoria': galletas_cat,
             'uom_compra': pq_unidad,
             'uom_venta': pq_unidad,
-            'uom_stock': pq_unidad,
+            'factor_conversion': Decimal('1'),
             'precio_venta': Decimal('7800.00'),
             'costo_estandar': Decimal('5500.00'),
             'stock_minimo': Decimal('20'),
@@ -641,7 +643,7 @@ def main():
             'categoria': chicles_cat,
             'uom_compra': pq_unidad,
             'uom_venta': pq_unidad,
-            'uom_stock': pq_unidad,
+            'factor_conversion': Decimal('1'),
             'precio_venta': Decimal('2500.00'),
             'costo_estandar': Decimal('1800.00'),
             'stock_minimo': Decimal('60'),
@@ -656,7 +658,7 @@ def main():
             'categoria': chicles_cat,
             'uom_compra': cj_unidad,
             'uom_venta': cj_unidad,
-            'uom_stock': cj_unidad,
+            'factor_conversion': Decimal('1'),
             'precio_venta': Decimal('12500.00'),
             'costo_estandar': Decimal('8500.00'),
             'stock_minimo': Decimal('12'),

@@ -51,7 +51,7 @@
                     {% endif %}
                     {% if permisos_modulos.productos.ver %}
                     <li class="sidebar-menu-item">
-                        <a href="/admin/maestros/producto/" class="sidebar-menu-link {% if active_menu == 'productos' %}active{% endif %}">
+                        <a href="{% url 'productos_list' %}" class="sidebar-menu-link {% if active_menu == 'productos' %}active{% endif %}">
                             <i class="fas fa-box sidebar-menu-icon"></i>
                             <span class="sidebar-menu-text">Productos</span>
                         </a>

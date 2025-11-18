@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
-from maestros.models import Producto
+from productos.models import Producto
 from inventario.models import AlertaStock, Bodega
 from compras.models import OrdenCompra
 from .models import Usuario, Rol

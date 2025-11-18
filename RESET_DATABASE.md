@@ -19,12 +19,21 @@ python scripts/drop_tables.py
 ```
 
 ### 3. Eliminar archivos de migración
+
+#### Windows PowerShell:
 ```powershell
-Remove-Item "autenticacion\migrations\0001_initial.py" -ErrorAction SilentlyContinue; Remove-Item "autenticacion\migrations\0002_usuario_foto_perfil.py" -ErrorAction SilentlyContinue; Remove-Item "maestros\migrations\0001_initial.py" -ErrorAction SilentlyContinue; Remove-Item "inventario\migrations\0001_initial.py" -ErrorAction SilentlyContinue; Remove-Item "compras\migrations\0001_initial.py" -ErrorAction SilentlyContinue
+Get-ChildItem -Path "autenticacion\migrations","maestros\migrations","productos\migrations","inventario\migrations","compras\migrations" -Filter "*.py" -Exclude "__init__.py" | Remove-Item -Force
 ```
 
-#linux
-find autenticacion maestros inventario compras -path "*/migrations/*.py" -not -name "__init__.py" -delete
+#### Linux/Mac:
+```bash
+find autenticacion maestros productos inventario compras -path "*/migrations/*.py" -not -name "__init__.py" -delete
+```
+
+#### Verificar que solo queden archivos __init__.py:
+```powershell
+Get-ChildItem -Path "autenticacion\migrations","maestros\migrations","productos\migrations","inventario\migrations","compras\migrations" -Filter "*.py" | Select-Object Name,DirectoryName
+```
 
 
 

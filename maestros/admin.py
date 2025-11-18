@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Categoria, Marca, UnidadMedida, Proveedor, Producto, ProductoProveedor
+from .models import Categoria, Marca, UnidadMedida, Proveedor, ProductoProveedor
+from productos.models import Producto
 
 
 @admin.register(Categoria)
@@ -75,61 +76,6 @@ class ProveedorAdmin(admin.ModelAdmin):
             'fields': ('estado', 'observaciones')
         }),
     )
-
-
-class ProductoProveedorInline(admin.TabularInline):
-    model = ProductoProveedor
-    extra = 1
-    fields = ['proveedor', 'costo', 'lead_time_dias', 'min_lote', 'descuento_pct', 'preferente', 'activo']
-
-
-@admin.register(Producto)
-class ProductoAdmin(admin.ModelAdmin):
-    list_display = ['sku', 'nombre', 'categoria', 'marca', 'precio_venta', 'stock_minimo', 'estado', 'created_at']
-    list_filter = ['categoria', 'marca', 'estado', 'perishable', 'control_por_lote', 'control_por_serie', 'created_at']
-    search_fields = ['sku', 'nombre', 'descripcion', 'ean_upc']
-    ordering = ['sku']
-    list_select_related = ['categoria', 'marca', 'uom_compra', 'uom_venta', 'uom_stock']
-    inlines = [ProductoProveedorInline]
-    
-    fieldsets = (
-        ('Información Básica', {
-            'fields': ('sku', 'ean_upc', 'nombre', 'descripcion', 'categoria', 'marca', 'modelo')
-        }),
-        ('Unidades de Medida', {
-            'fields': ('uom_compra', 'uom_venta', 'uom_stock', 'factor_conversion')
-        }),
-        ('Costos y Precios', {
-            'fields': ('costo_estandar', 'costo_promedio', 'precio_venta', 'impuesto_iva')
-        }),
-        ('Control de Stock', {
-            'fields': ('stock_minimo', 'stock_maximo', 'punto_reorden')
-        }),
-        ('Control Especial', {
-            'fields': ('perishable', 'control_por_lote', 'control_por_serie')
-        }),
-        ('Archivos', {
-            'fields': ('imagen_url', 'ficha_tecnica_url'),
-            'classes': ('collapse',)
-        }),
-        ('Estado', {
-            'fields': ('estado',)
-        }),
-    )
-    
-    # Acción personalizada para activar productos
-    def activar_productos(self, request, queryset):
-        updated = queryset.update(estado='ACTIVO')
-        self.message_user(request, f'{updated} productos activados correctamente.')
-    activar_productos.short_description = "Activar productos seleccionados"
-    
-    # Acción personalizada para descontinuar productos
-    def descontinuar_productos(self, request, queryset):
-        updated = queryset.update(estado='DESCONTINUADO')
-        self.message_user(request, f'{updated} productos descontinuados correctamente.')
-    descontinuar_productos.short_description = "Descontinuar productos seleccionados"
-    
-    actions = ['activar_productos', 'descontinuar_productos']
 
 
 @admin.register(ProductoProveedor)

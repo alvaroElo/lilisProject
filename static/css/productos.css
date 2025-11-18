@@ -1,0 +1,486 @@
+/* ===========================================
+   ESTILOS PARA MÓDULO DE PRODUCTOS
+   Dulcería Lilis - Sistema de Gestión
+   =========================================== */
+
+/* Tarjetas de Estadísticas - Mismo estilo que usuarios */
+.stat-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stat-card-primary {
+    border-left-color: #0d6efd;
+}
+
+.stat-card-primary .stat-icon {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+.stat-card-success {
+    border-left-color: #28a745;
+}
+
+.stat-card-success .stat-icon {
+    background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
+}
+
+.stat-card-warning {
+    border-left-color: #ffc107;
+}
+
+.stat-card-warning .stat-icon {
+    background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);
+}
+
+.stat-card-info {
+    border-left-color: #17a2b8;
+}
+
+.stat-card-info .stat-icon {
+    background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    color: white;
+    flex-shrink: 0;
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Tabla de Productos - Estilos adicionales */
+
+/* Badge de estado */
+.badge-producto {
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.badge-activo {
+    background-color: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+}
+
+.badge-inactivo {
+    background-color: rgba(108, 117, 125, 0.15);
+    color: #6c757d;
+}
+
+.badge-descontinuado {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+}
+
+/* Badge de categoría */
+.badge-categoria {
+    background: rgba(13, 110, 253, 0.15);
+    color: #0d6efd;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+/* Badge de marca */
+.badge-marca {
+    background: rgba(196, 167, 91, 0.15);
+    color: #c4a75b;
+    padding: 0.4em 0.8em;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+/* Alerta de bajo stock */
+.alerta-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3em 0.6em;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.alerta-stock.bajo {
+    background-color: rgba(255, 193, 7, 0.15);
+    color: #ffc107;
+}
+
+.alerta-stock.critico {
+    background-color: rgba(220, 53, 69, 0.15);
+    color: #dc3545;
+}
+
+.alerta-stock.ok {
+    background-color: rgba(40, 167, 69, 0.15);
+    color: #28a745;
+}
+
+/* Imagen de producto */
+.producto-imagen {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+}
+
+.producto-sin-imagen {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 1.5rem;
+}
+
+/* === BOTONES DE ACCIÓN === */
+.btn-action-solid {
+    transition: all 0.3s ease;
+}
+
+/* Botón Ver (Azul) - Sólido por defecto, outline en hover */
+.btn-primary.btn-action-solid {
+    background-color: #0d6efd;
+    background-image: none;
+    border: 1px solid #0d6efd;
+    color: white;
+    box-shadow: none;
+}
+
+.btn-primary.btn-action-solid:hover,
+.btn-primary.btn-action-solid:focus,
+.btn-primary.btn-action-solid:active {
+    background-color: white;
+    background-image: none;
+    border: 1px solid #0d6efd;
+    color: #0d6efd;
+    box-shadow: none;
+}
+
+/* Botón Editar (Amarillo) - Sólido por defecto, outline en hover */
+.btn-warning.btn-action-solid {
+    background-color: #ffc107;
+    background-image: none;
+    border: 1px solid #ffc107;
+    color: #000;
+    box-shadow: none;
+}
+
+.btn-warning.btn-action-solid:hover,
+.btn-warning.btn-action-solid:focus,
+.btn-warning.btn-action-solid:active {
+    background-color: white;
+    background-image: none;
+    border: 1px solid #ffc107;
+    color: #ffc107;
+    box-shadow: none;
+}
+
+/* Botón Desactivar (Rojo) - Sólido por defecto, outline en hover */
+.btn-danger.btn-action-solid {
+    background-color: #dc3545;
+    background-image: none;
+    border: 1px solid #dc3545;
+    color: white;
+    box-shadow: none;
+}
+
+.btn-danger.btn-action-solid:hover,
+.btn-danger.btn-action-solid:focus,
+.btn-danger.btn-action-solid:active {
+    background-color: white;
+    background-image: none;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    box-shadow: none;
+}
+
+/* Modal */
+.modal-header {
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.modal-footer {
+    border-top: 2px solid #f0f0f0;
+}
+
+.modal-content {
+    border-radius: 12px;
+    border: none;
+}
+
+/* Secciones del formulario */
+.form-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.form-section h6 {
+    color: #495057;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.form-section .form-label {
+    font-weight: 500;
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+}
+
+.form-section .form-control,
+.form-section .form-select {
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 0.6rem 0.75rem;
+    font-size: 0.95rem;
+}
+
+.form-section .form-control:focus,
+.form-section .form-select:focus {
+    border-color: #D20A11;
+    box-shadow: 0 0 0 0.2rem rgba(210, 10, 17, 0.15);
+}
+
+/* Checkboxes personalizados */
+.form-check-input {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-top: 0.15rem;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: #D20A11;
+    border-color: #D20A11;
+}
+
+.form-check-input:focus {
+    border-color: #D20A11;
+    box-shadow: 0 0 0 0.2rem rgba(210, 10, 17, 0.15);
+}
+
+.form-check-label {
+    font-weight: 500;
+    color: #495057;
+    cursor: pointer;
+}
+
+/* Paginación */
+.pagination {
+    margin-top: 1rem;
+}
+
+.page-link {
+    color: #D20A11;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    margin: 0 0.2rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.page-link:hover {
+    color: #8B0000;
+    background-color: #f8f9fa;
+    border-color: #D20A11;
+}
+
+.page-item.active .page-link {
+    background-color: #D20A11;
+    border-color: #D20A11;
+}
+
+/* Loading spinner */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Tooltips personalizados */
+[data-bs-toggle="tooltip"] {
+    cursor: help;
+}
+
+/* Campos requeridos */
+.form-label .text-danger {
+    color: #dc3545 !important;
+}
+
+/* Help text */
+.form-text {
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .table-responsive {
+        border-radius: 8px;
+    }
+    
+    .stats-card {
+        margin-bottom: 1rem;
+    }
+    
+    .filter-section {
+        padding: 1rem;
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.3rem 0.6rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Stock indicator */
+.stock-indicator {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 0.3rem;
+}
+
+.stock-indicator.ok {
+    background-color: #28a745;
+}
+
+.stock-indicator.bajo {
+    background-color: #ffc107;
+}
+
+.stock-indicator.critico {
+    background-color: #dc3545;
+}
+
+/* Valores monetarios */
+.valor-monetario {
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    color: #28a745;
+}
+
+/* Enlaces de archivos */
+.archivo-link {
+    color: #0d6efd;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.archivo-link:hover {
+    color: #0a58ca;
+    text-decoration: underline;
+}
+
+.archivo-link i {
+    margin-right: 0.3rem;
+}
+
+/* Empty state */
+.empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 1rem;
+}
+
+.empty-state h6 {
+    color: #495057;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #6c757d;
+    font-size: 0.9rem;
+}

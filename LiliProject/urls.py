@@ -28,6 +28,10 @@ from maestros.views import (
     proveedores_list, proveedor_create, proveedor_edit, proveedor_delete,
     exportar_proveedores_excel
 )
+from productos.views import (
+    productos_list, producto_create, producto_edit, producto_delete,
+    exportar_productos_excel
+)
 from LiliProject.views import error_404, error_500
 
 urlpatterns = [
@@ -57,6 +61,13 @@ urlpatterns = [
     path('proveedores/<int:proveedor_id>/edit/', proveedor_edit, name='proveedor_edit'),
     path('proveedores/<int:proveedor_id>/delete/', proveedor_delete, name='proveedor_delete'),
     path('proveedores/exportar-excel/', exportar_proveedores_excel, name='exportar_proveedores_excel'),
+    
+    # Gestión de Productos
+    path('productos/', productos_list, name='productos_list'),
+    path('productos/create/', producto_create, name='producto_create'),
+    path('productos/<int:producto_id>/edit/', producto_edit, name='producto_edit'),
+    path('productos/<int:producto_id>/delete/', producto_delete, name='producto_delete'),
+    path('productos/exportar-excel/', exportar_productos_excel, name='exportar_productos_excel'),
     
     # Rutas de prueba para páginas de error (SOLO PARA DESARROLLO)
     path('test-404/', error_404, name='test_404'),

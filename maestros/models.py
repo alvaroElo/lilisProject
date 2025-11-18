@@ -114,66 +114,9 @@ class Proveedor(models.Model):
         return f"{self.razon_social} ({self.rut_nif})"
 
 
-class Producto(models.Model):
-    ESTADO_CHOICES = [
-        ('ACTIVO', 'Activo'),
-        ('INACTIVO', 'Inactivo'),
-        ('DESCONTINUADO', 'Descontinuado'),
-    ]
-    
-    sku = models.CharField(max_length=50, unique=True, help_text='Código SKU único')
-    ean_upc = models.CharField(max_length=20, unique=True, null=True, blank=True, 
-                              help_text='Código de barras EAN/UPC')
-    nombre = models.CharField(max_length=255)
-    descripcion = models.TextField(null=True, blank=True)
-    categoria = models.ForeignKey(Categoria, on_delete=models.PROTECT)
-    marca = models.ForeignKey(Marca, on_delete=models.PROTECT, null=True, blank=True)
-    modelo = models.CharField(max_length=100, null=True, blank=True)
-    uom_compra = models.ForeignKey(UnidadMedida, on_delete=models.PROTECT, 
-                                 related_name='productos_compra',
-                                 help_text='Unidad de medida para compra')
-    uom_venta = models.ForeignKey(UnidadMedida, on_delete=models.PROTECT, 
-                                related_name='productos_venta',
-                                help_text='Unidad de medida para venta')
-    uom_stock = models.ForeignKey(UnidadMedida, on_delete=models.PROTECT, 
-                                related_name='productos_stock',
-                                help_text='Unidad de medida para inventario')
-    factor_conversion = models.DecimalField(max_digits=10, decimal_places=4, default=Decimal('1'), 
-                                          help_text='Factor conversión compra/venta')
-    costo_estandar = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True)
-    costo_promedio = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True, 
-                                       help_text='Calculado automáticamente')
-    precio_venta = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True)
-    impuesto_iva = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('19'), 
-                                     help_text='Porcentaje IVA')
-    stock_minimo = models.DecimalField(max_digits=18, decimal_places=6, default=Decimal('0'))
-    stock_maximo = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True)
-    punto_reorden = models.DecimalField(max_digits=18, decimal_places=6, null=True, blank=True)
-    perishable = models.BooleanField(default=False, help_text='Es perecedero')
-    control_por_lote = models.BooleanField(default=False)
-    control_por_serie = models.BooleanField(default=False)
-    imagen_url = models.URLField(null=True, blank=True)
-    ficha_tecnica_url = models.URLField(null=True, blank=True)
-    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='ACTIVO')
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = 'productos'
-        verbose_name = 'Producto'
-        verbose_name_plural = 'Productos'
-        indexes = [
-            models.Index(fields=['sku']),
-            models.Index(fields=['categoria']),
-            models.Index(fields=['estado']),
-        ]
-
-    def __str__(self):
-        return f"{self.sku} - {self.nombre}"
-
-
 class ProductoProveedor(models.Model):
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    # Importación diferida para evitar dependencias circulares
+    producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     costo = models.DecimalField(max_digits=18, decimal_places=6, 
                               help_text='Costo del producto con este proveedor')

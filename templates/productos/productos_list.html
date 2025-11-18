@@ -1,0 +1,660 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Productos - Dulcería Lilis{% endblock %}
+{% block page_title %}Gestión de Productos 📦{% endblock %}
+
+{% block module_css %}
+<link rel="stylesheet" href="{% static 'css/productos.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Toolbar de Acciones -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <div>
+            <p class="text-muted mb-0">Administra el catálogo de productos</p>
+        </div>
+        {% if permisos.crear %}
+        <div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalProducto" onclick="openCreateModal()">
+                <i class="fas fa-plus me-2"></i>Agregar Producto
+            </button>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-primary">
+                <div class="stat-icon">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ total_productos }}</div>
+                    <div class="stat-label">Total Productos</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-success">
+                <div class="stat-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ productos_activos }}</div>
+                    <div class="stat-label">Activos</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-warning">
+                <div class="stat-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ productos_bajo_stock }}</div>
+                    <div class="stat-label">Bajo Stock</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card stat-card-info">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">${{ valor_inventario|floatformat:0 }}</div>
+                    <div class="stat-label">Valor Inventario</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros y Búsqueda -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <form method="get" action="{% url 'productos_list' %}" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-search me-1"></i>Buscar
+                        </label>
+                        <input type="text" 
+                               name="search" 
+                               id="searchInput"
+                               class="form-control" 
+                               placeholder="Buscar por SKU, nombre..." 
+                               value="{{ search }}"
+                               autocomplete="off">
+                    </div>
+                    <div class="col-12 col-md-2">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-tags me-1"></i>Categoría
+                        </label>
+                        <select name="categoria" class="form-select">
+                            <option value="">Todas las Categorías</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if categoria_filter == categoria.id|stringformat:"s" %}selected{% endif %}>
+                                {{ categoria.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-copyright me-1"></i>Marca
+                        </label>
+                        <select name="marca" class="form-select">
+                            <option value="">Todas las Marcas</option>
+                            {% for marca in marcas %}
+                            <option value="{{ marca.id }}" {% if marca_filter == marca.id|stringformat:"s" %}selected{% endif %}>
+                                {{ marca.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2">
+                        <label class="form-label small text-muted mb-1">
+                            <i class="fas fa-toggle-on me-1"></i>Estado
+                        </label>
+                        <select name="estado" class="form-select">
+                            <option value="">Todos</option>
+                            <option value="ACTIVO" {% if estado_filter == 'ACTIVO' %}selected{% endif %}>Activo</option>
+                            <option value="INACTIVO" {% if estado_filter == 'INACTIVO' %}selected{% endif %}>Inactivo</option>
+                            <option value="DESCONTINUADO" {% if estado_filter == 'DESCONTINUADO' %}selected{% endif %}>Descontinuado</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-secondary flex-grow-1">
+                            <i class="fas fa-filter me-2"></i>Filtrar
+                        </button>
+                        <a href="{% url 'productos_list' %}" class="btn btn-outline-secondary" title="Limpiar filtros">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-12">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" name="bajo_stock" id="bajoStock" 
+                                   {% if bajo_stock %}checked{% endif %}>
+                            <label class="form-check-label small text-muted" for="bajoStock">
+                                <i class="fas fa-exclamation-triangle text-warning me-1"></i>Solo mostrar productos con bajo stock
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Productos -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>Listado de Productos
+                    <span class="badge bg-secondary ms-2">{{ page_obj.paginator.count }}</span>
+                </h5>
+                {% if permisos.exportar %}
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-success" onclick="exportarExcel()" title="Exportar a Excel">
+                        <i class="fas fa-file-excel me-2"></i>Excel
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body p-0">
+            {% if productos %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" style="min-width: 1100px;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #D20A11 0%, #8B0000 100%) !important;">
+                            <th class="ps-4" style="color: white !important; border: none !important; background: transparent !important; width: 60px;">Imagen</th>
+                            <th style="color: white !important; border: none !important; background: transparent !important; width: 100px;">SKU</th>
+                            <th style="color: white !important; border: none !important; background: transparent !important; width: 180px;">Producto</th>
+                            <th style="color: white !important; border: none !important; background: transparent !important; width: 130px;">Categoría</th>
+                            <th style="color: white !important; border: none !important; background: transparent !important; width: 120px;">Marca</th>
+                            <th class="text-end" style="color: white !important; border: none !important; background: transparent !important; width: 90px;">Stock</th>
+                            <th class="text-end" style="color: white !important; border: none !important; background: transparent !important; width: 100px;">Precio</th>
+                            <th class="text-center" style="color: white !important; border: none !important; background: transparent !important; width: 90px;">Estado</th>
+                            <th class="text-center" style="color: white !important; border: none !important; background: transparent !important; width: 120px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for producto in productos %}
+                        <tr>
+                            <td class="ps-4">
+                                {% if producto.imagen_url %}
+                                <img src="{{ producto.imagen_url }}" alt="{{ producto.nombre }}" class="producto-imagen">
+                                {% else %}
+                                <div class="producto-sin-imagen">
+                                    <i class="fas fa-box-open"></i>
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-nowrap">{{ producto.sku }}</div>
+                                {% if producto.ean_upc %}
+                                <small class="text-muted">EAN: {{ producto.ean_upc }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="fw-medium">{{ producto.nombre }}</div>
+                                {% if producto.descripcion %}
+                                <small class="text-muted">{{ producto.descripcion|truncatewords:10 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge rounded-pill" style="background: rgba(210, 10, 17, 0.15); color: #D20A11; padding: 0.4em 0.8em;">
+                                    <i class="fas fa-tag me-1"></i>{{ producto.categoria.nombre }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if producto.marca %}
+                                <span class="badge rounded-pill" style="background: rgba(13, 110, 253, 0.15); color: #0d6efd; padding: 0.4em 0.8em;">
+                                    <i class="fas fa-copyright me-1"></i>{{ producto.marca.nombre }}
+                                </span>
+                                {% else %}
+                                <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="fw-semibold">{{ producto.stock_actual }} {{ producto.uom_venta.abreviatura }}</div>
+                                {% if producto.alerta_bajo_stock %}
+                                    {% if producto.stock_actual <= 0 %}
+                                    <small class="text-danger">
+                                        <i class="fas fa-times-circle me-1"></i>Sin Stock
+                                    </small>
+                                    {% else %}
+                                    <small class="text-warning">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Bajo Stock
+                                    </small>
+                                    {% endif %}
+                                {% else %}
+                                <small class="text-success">
+                                    <i class="fas fa-check-circle me-1"></i>OK
+                                </small>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="fw-semibold text-success">${{ producto.precio_venta|floatformat:0 }}</div>
+                                {% if producto.margen_utilidad %}
+                                <small class="text-muted">{{ producto.margen_utilidad|floatformat:1 }}% margen</small>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                {% if producto.estado == 'ACTIVO' %}
+                                <span class="badge rounded-pill bg-success">
+                                    <i class="fas fa-check-circle me-1"></i>Activo
+                                </span>
+                                {% elif producto.estado == 'INACTIVO' %}
+                                <span class="badge rounded-pill bg-secondary">
+                                    <i class="fas fa-ban me-1"></i>Inactivo
+                                </span>
+                                {% else %}
+                                <span class="badge rounded-pill bg-danger">
+                                    <i class="fas fa-times-circle me-1"></i>Descontinuado
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-primary btn-action-solid" 
+                                            title="Ver detalles" 
+                                            data-action="view"
+                                            data-id="{{ producto.id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    {% if permisos.editar %}
+                                    <button class="btn btn-warning btn-action-solid" 
+                                            title="Editar" 
+                                            data-action="edit"
+                                            data-id="{{ producto.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% if permisos.eliminar and producto.estado == 'ACTIVO' %}
+                                    <button class="btn btn-danger btn-action-solid" 
+                                            title="Desactivar" 
+                                            data-action="delete"
+                                            data-id="{{ producto.id }}"
+                                            data-sku="{{ producto.sku }}">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-5">
+                                <div class="d-flex flex-column align-items-center gap-3">
+                                    <i class="fas fa-box-open" style="font-size: 4rem; color: #dee2e6;"></i>
+                                    <div>
+                                        <h6 class="text-muted mb-1">No se encontraron productos</h6>
+                                        <p class="text-muted small mb-0">Intenta ajustar los filtros de búsqueda o agrega un nuevo producto</p>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            {% if productos.has_other_pages %}
+            <div class="d-flex justify-content-between align-items-center p-3 border-top">
+                <div class="text-muted">
+                    Mostrando {{ productos.start_index }} - {{ productos.end_index }} de {{ productos.paginator.count }} productos
+                </div>
+                <div class="d-flex align-items-center">
+                    <label class="me-2 mb-0 text-muted">Por página:</label>
+                    <select class="form-select form-select-sm" style="width: 70px;" onchange="changePerPage(this.value)">
+                        <option value="10" {% if request.GET.per_page == '10' %}selected{% endif %}>10</option>
+                        <option value="25" {% if request.GET.per_page == '25' or not request.GET.per_page %}selected{% endif %}>25</option>
+                        <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>50</option>
+                        <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>100</option>
+                    </select>
+                    <nav class="ms-3">
+                        <ul class="pagination pagination-sm mb-0">
+                            {% if productos.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}{% if request.GET.marca %}&marca={{ request.GET.marca }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}{% if request.GET.bajo_stock %}&bajo_stock=on{% endif %}{% if request.GET.per_page %}&per_page={{ request.GET.per_page }}{% endif %}">
+                                    <i class="fas fa-angle-double-left"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ productos.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}{% if request.GET.marca %}&marca={{ request.GET.marca }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}{% if request.GET.bajo_stock %}&bajo_stock=on{% endif %}{% if request.GET.per_page %}&per_page={{ request.GET.per_page }}{% endif %}">
+                                    <i class="fas fa-angle-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for num in productos.paginator.page_range %}
+                                {% if productos.number == num %}
+                                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                {% elif num > productos.number|add:'-3' and num < productos.number|add:'3' %}
+                                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}{% if request.GET.marca %}&marca={{ request.GET.marca }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}{% if request.GET.bajo_stock %}&bajo_stock=on{% endif %}{% if request.GET.per_page %}&per_page={{ request.GET.per_page }}{% endif %}">{{ num }}</a></li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if productos.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ productos.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}{% if request.GET.marca %}&marca={{ request.GET.marca }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}{% if request.GET.bajo_stock %}&bajo_stock=on{% endif %}{% if request.GET.per_page %}&per_page={{ request.GET.per_page }}{% endif %}">
+                                    <i class="fas fa-angle-right"></i>
+                                </a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ productos.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.categoria %}&categoria={{ request.GET.categoria }}{% endif %}{% if request.GET.marca %}&marca={{ request.GET.marca }}{% endif %}{% if request.GET.estado %}&estado={{ request.GET.estado }}{% endif %}{% if request.GET.bajo_stock %}&bajo_stock=on{% endif %}{% if request.GET.per_page %}&per_page={{ request.GET.per_page }}{% endif %}">
+                                    <i class="fas fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+            {% endif %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal Crear/Editar Producto -->
+<div class="modal fade" id="modalProducto" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Agregar Nuevo Producto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="productoForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="productoId" name="producto_id">
+                    
+                    <!-- Sección: Información Básica -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-info-circle me-2"></i>Información Básica
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="sku" class="form-label">SKU <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="sku" name="sku" required maxlength="50">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="ean_upc" class="form-label">EAN/UPC</label>
+                                <input type="text" class="form-control" id="ean_upc" name="ean_upc" maxlength="20">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label">Nombre del Producto <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" required maxlength="255">
+                            </div>
+                            <div class="col-12">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="descripcion" name="descripcion" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Clasificación -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-tags me-2"></i>Clasificación
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="categoria" class="form-label">Categoría <span class="text-danger">*</span></label>
+                                <select class="form-select" id="categoria" name="categoria" required>
+                                    <option value="">Seleccione...</option>
+                                    {% for categoria in categorias %}
+                                    <option value="{{ categoria.id }}">{{ categoria.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="marca" class="form-label">Marca</label>
+                                <select class="form-select" id="marca" name="marca">
+                                    <option value="">Seleccione...</option>
+                                    {% for marca in marcas %}
+                                    <option value="{{ marca.id }}">{{ marca.nombre }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="modelo" class="form-label">Modelo</label>
+                                <input type="text" class="form-control" id="modelo" name="modelo" maxlength="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Unidades de Medida -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-balance-scale me-2"></i>Unidades de Medida
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="uom_compra" class="form-label">Unidad de Compra <span class="text-danger">*</span></label>
+                                <select class="form-select" id="uom_compra" name="uom_compra" required>
+                                    <option value="">Seleccione...</option>
+                                    {% for uom in unidades_medida %}
+                                    <option value="{{ uom.id }}">{{ uom.nombre }} ({{ uom.abreviatura }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="uom_venta" class="form-label">Unidad de Venta <span class="text-danger">*</span></label>
+                                <select class="form-select" id="uom_venta" name="uom_venta" required>
+                                    <option value="">Seleccione...</option>
+                                    {% for uom in unidades_medida %}
+                                    <option value="{{ uom.id }}">{{ uom.nombre }} ({{ uom.abreviatura }})</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="factor_conversion" class="form-label">Factor de Conversión <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="factor_conversion" name="factor_conversion" 
+                                       value="1" min="0.0001" step="0.0001" required>
+                                <small class="text-muted">1 unidad de compra = X unidades de venta</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Costos y Precios -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-dollar-sign me-2"></i>Costos y Precios
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="costo_estandar" class="form-label">Costo Estándar</label>
+                                <input type="number" class="form-control" id="costo_estandar" name="costo_estandar" 
+                                       min="0" step="0.01">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="costo_promedio" class="form-label">Costo Promedio</label>
+                                <input type="number" class="form-control" id="costo_promedio" name="costo_promedio" 
+                                       min="0" step="0.01" readonly>
+                                <small class="text-muted">Calculado automáticamente</small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="precio_venta" class="form-label">Precio de Venta</label>
+                                <input type="number" class="form-control" id="precio_venta" name="precio_venta" 
+                                       min="0" step="0.01">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="impuesto_iva" class="form-label">IVA (%) <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="impuesto_iva" name="impuesto_iva" 
+                                       value="19" min="0" max="100" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Control de Stock -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-warehouse me-2"></i>Control de Stock
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="stock_actual" class="form-label">Stock Actual</label>
+                                <input type="number" class="form-control" id="stock_actual" name="stock_actual" 
+                                       value="0" min="0" step="0.01" readonly>
+                                <small class="text-muted">Actualizado por movimientos</small>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="stock_minimo" class="form-label">Stock Mínimo <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="stock_minimo" name="stock_minimo" 
+                                       value="0" min="0" step="0.01" required>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="stock_maximo" class="form-label">Stock Máximo</label>
+                                <input type="number" class="form-control" id="stock_maximo" name="stock_maximo" 
+                                       min="0" step="0.01">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="punto_reorden" class="form-label">Punto de Reorden</label>
+                                <input type="number" class="form-control" id="punto_reorden" name="punto_reorden" 
+                                       min="0" step="0.01">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Control Especial -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-cogs me-2"></i>Control Especial
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="perecible" name="perecible">
+                                    <label class="form-check-label" for="perecible">
+                                        <i class="fas fa-clock text-warning me-1"></i>Producto Perecible
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="control_por_lote" name="control_por_lote">
+                                    <label class="form-check-label" for="control_por_lote">
+                                        <i class="fas fa-layer-group text-info me-1"></i>Control por Lote
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="control_por_serie" name="control_por_serie">
+                                    <label class="form-check-label" for="control_por_serie">
+                                        <i class="fas fa-barcode text-primary me-1"></i>Control por Serie
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Archivos y URLs -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-image me-2"></i>Archivos y URLs
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="imagen_url" class="form-label">URL de Imagen</label>
+                                <input type="url" class="form-control" id="imagen_url" name="imagen_url" maxlength="500">
+                                <small class="text-muted">URL de la imagen del producto</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="ficha_tecnica_url" class="form-label">URL de Ficha Técnica</label>
+                                <input type="url" class="form-control" id="ficha_tecnica_url" name="ficha_tecnica_url" maxlength="500">
+                                <small class="text-muted">URL del PDF o documento técnico</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sección: Estado -->
+                    <div class="form-section">
+                        <h6 class="section-title">
+                            <i class="fas fa-toggle-on me-2"></i>Estado
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-12">
+                                <select class="form-select" id="estado" name="estado">
+                                    <option value="ACTIVO" selected>Activo</option>
+                                    <option value="INACTIVO">Inactivo</option>
+                                    <option value="DESCONTINUADO">Descontinuado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btnCancelar">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btnCerrar" style="display: none;">
+                    <i class="fas fa-times me-2"></i>Cerrar
+                </button>
+                <button type="button" class="btn btn-danger" onclick="saveProducto()" id="btnGuardar">
+                    <i class="fas fa-save me-2"></i><span id="btnSaveText">Guardar Producto</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script de búsqueda en tiempo real -->
+<script>
+let searchTimeout = null;
+const searchInput = document.getElementById('searchInput');
+
+if (searchInput) {
+    // Restaurar foco si estaba activo
+    if (sessionStorage.getItem('searchInputFocus') === 'true') {
+        searchInput.focus();
+        const cursorPos = sessionStorage.getItem('searchCursorPos');
+        if (cursorPos) {
+            searchInput.setSelectionRange(cursorPos, cursorPos);
+        }
+        sessionStorage.removeItem('searchInputFocus');
+        sessionStorage.removeItem('searchCursorPos');
+    }
+    
+    // Búsqueda en tiempo real
+    searchInput.addEventListener('input', function(e) {
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        searchTimeout = setTimeout(() => {
+            const cursorPos = searchInput.selectionStart;
+            sessionStorage.setItem('searchInputFocus', 'true');
+            sessionStorage.setItem('searchCursorPos', cursorPos);
+            document.getElementById('filterForm').submit();
+        }, 300);
+    });
+}
+
+// Variable global de permisos
+const PERMISOS = {
+    ver: {{ permisos.ver|yesno:"true,false" }},
+    crear: {{ permisos.crear|yesno:"true,false" }},
+    editar: {{ permisos.editar|yesno:"true,false" }},
+    eliminar: {{ permisos.eliminar|yesno:"true,false" }},
+    exportar: {{ permisos.exportar|yesno:"true,false" }}
+};
+</script>
+
+{% endblock %}
+
+{% block module_js %}
+<script src="{% static 'js/productos.js' %}"></script>
+{% endblock %}
