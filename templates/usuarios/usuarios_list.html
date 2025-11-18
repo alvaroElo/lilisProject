@@ -536,6 +536,13 @@
     const searchInput = document.getElementById('searchInput');
     
     if (searchInput) {
+        // Restaurar el foco si había una búsqueda activa
+        if (searchInput.value.length > 0) {
+            searchInput.focus();
+            // Mover el cursor al final del texto
+            searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+        }
+        
         searchInput.addEventListener('input', function(e) {
             // Cancelar timeout anterior si existe
             if (searchTimeout) {
@@ -544,9 +551,23 @@
             
             // Esperar 300ms después de que el usuario deje de escribir
             searchTimeout = setTimeout(() => {
+                // Guardar la posición del cursor
+                const cursorPos = searchInput.selectionStart;
+                // Guardar que estábamos escribiendo
+                sessionStorage.setItem('searchInputFocus', 'true');
+                sessionStorage.setItem('searchCursorPos', cursorPos);
                 document.getElementById('filterForm').submit();
             }, 300);
         });
+        
+        // Si acabamos de recargar después de una búsqueda, restaurar el foco
+        if (sessionStorage.getItem('searchInputFocus') === 'true') {
+            searchInput.focus();
+            const cursorPos = parseInt(sessionStorage.getItem('searchCursorPos')) || searchInput.value.length;
+            searchInput.setSelectionRange(cursorPos, cursorPos);
+            sessionStorage.removeItem('searchInputFocus');
+            sessionStorage.removeItem('searchCursorPos');
+        }
     }
 </script>
 <script src="{% static 'js/usuarios.js' %}"></script>
