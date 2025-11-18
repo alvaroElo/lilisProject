@@ -101,9 +101,11 @@
                     </label>
                     <input type="text" 
                            name="search" 
+                           id="searchInput"
                            class="form-control" 
                            placeholder="Nombre o email..." 
-                           value="{{ search }}">
+                           value="{{ search }}"
+                           autocomplete="off">
                 </div>
                 <div class="col-12 col-md-3">
                     <label class="form-label small text-muted mb-1">
@@ -528,6 +530,24 @@
         eliminar: {{ permisos.eliminar|yesno:"true,false" }},
         exportar: {{ permisos.exportar|yesno:"true,false" }}
     };
+
+    // Búsqueda en tiempo real
+    let searchTimeout = null;
+    const searchInput = document.getElementById('searchInput');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            // Cancelar timeout anterior si existe
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // Esperar 300ms después de que el usuario deje de escribir
+            searchTimeout = setTimeout(() => {
+                document.getElementById('filterForm').submit();
+            }, 300);
+        });
+    }
 </script>
 <script src="{% static 'js/usuarios.js' %}"></script>
 {% endblock %}
