@@ -700,6 +700,37 @@ const PERMISOS = {
     eliminar: {{ permisos.eliminar|yesno:"true,false" }},
     exportar: {{ permisos.exportar|yesno:"true,false" }}
 };
+
+// Mantener foco en el buscador después de la búsqueda
+let searchTimeout = null;
+const searchInput = document.getElementById('searchInput');
+
+if (searchInput) {
+    // Restaurar foco si estaba activo
+    if (sessionStorage.getItem('searchInputFocus') === 'true') {
+        searchInput.focus();
+        const cursorPos = sessionStorage.getItem('searchCursorPos');
+        if (cursorPos) {
+            searchInput.setSelectionRange(cursorPos, cursorPos);
+        }
+        sessionStorage.removeItem('searchInputFocus');
+        sessionStorage.removeItem('searchCursorPos');
+    }
+    
+    // Búsqueda en tiempo real
+    searchInput.addEventListener('input', function(e) {
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+        
+        searchTimeout = setTimeout(() => {
+            const cursorPos = searchInput.selectionStart;
+            sessionStorage.setItem('searchInputFocus', 'true');
+            sessionStorage.setItem('searchCursorPos', cursorPos);
+            document.getElementById('filterForm').submit();
+        }, 300);
+    });
+}
 </script>
 
 {% endblock %}

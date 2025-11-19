@@ -75,19 +75,10 @@ function setupWizardNavigation() {
     document.getElementById('btnSave').addEventListener('click', saveMovimiento);
 }
 
-// Búsqueda en tiempo real
+// Búsqueda en tiempo real (ahora manejado en el template)
 function setupRealTimeSearch() {
-    const searchInput = document.getElementById('searchInput');
-    let searchTimeout;
-    
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                document.getElementById('filterForm').submit();
-            }, 500);
-        });
-    }
+    // La búsqueda en tiempo real ahora se maneja directamente en el template
+    // para mantener el foco y posición del cursor
 }
 
 // Abrir modal para crear movimiento
