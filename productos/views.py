@@ -48,7 +48,9 @@ def productos_list(request):
     marca_filter = request.GET.get('marca', '')
     estado_filter = request.GET.get('estado', '')
     bajo_stock = request.GET.get('bajo_stock', '')
-    per_page = int(request.GET.get('per_page', 20))
+    per_page = request.GET.get('per_page', '25')
+    sort_by = request.GET.get('sort', 'created_at')
+    sort_order = request.GET.get('order', 'desc')
     
     # Base queryset
     productos = Producto.objects.select_related('categoria', 'marca', 'uom_compra', 'uom_venta').all()
@@ -74,6 +76,29 @@ def productos_list(request):
     if bajo_stock == 'true':
         productos = productos.filter(alerta_bajo_stock=True)
     
+    # Mapeo de campos permitidos para ordenar
+    sort_fields = {
+        'sku': 'sku',
+        'nombre': 'nombre',
+        'categoria': 'categoria__nombre',
+        'marca': 'marca__nombre',
+        'stock_actual': 'stock_actual',
+        'precio_venta': 'precio_venta',
+        'estado': 'estado',
+        'created_at': 'created_at',
+    }
+    
+    # Validar y aplicar ordenamiento
+    if sort_by in sort_fields:
+        order_field = sort_fields[sort_by]
+        if sort_order == 'asc':
+            productos = productos.order_by(order_field)
+        else:
+            productos = productos.order_by(f'-{order_field}')
+    else:
+        # Ordenamiento por defecto
+        productos = productos.order_by('-created_at')
+    
     # Estadísticas
     total_productos = productos.count()
     productos_activos = productos.filter(estado='ACTIVO').count()
@@ -87,6 +112,13 @@ def productos_list(request):
     ])
     
     # Paginación
+    try:
+        per_page = int(per_page)
+        if per_page not in [10, 25, 50, 100]:
+            per_page = 25
+    except ValueError:
+        per_page = 25
+    
     paginator = Paginator(productos, per_page)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -110,6 +142,8 @@ def productos_list(request):
         'estado_filter': estado_filter,
         'bajo_stock': bajo_stock,
         'per_page': per_page,
+        'sort_by': sort_by,
+        'sort_order': sort_order,
         'categorias': categorias,
         'marcas': marcas,
         'unidades_medida': unidades_medida,

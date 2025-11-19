@@ -61,7 +61,7 @@ def movimientos_list(request):
         if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
             rol_permisos = usuario.rol.permisos.get('inventario', {})
             if rol_permisos:
-                permisos = rol_permisos
+                permisos.update(rol_permisos)  # Actualizar solo los permisos que existan en el rol
     
     if not permisos.get('ver'):
         return render(request, '403.html', status=403)
@@ -73,6 +73,9 @@ def movimientos_list(request):
     bodega_id = request.GET.get('bodega', '')
     fecha_desde = request.GET.get('fecha_desde', '')
     fecha_hasta = request.GET.get('fecha_hasta', '')
+    per_page = request.GET.get('per_page', '25')
+    sort_by = request.GET.get('sort', 'fecha_movimiento')
+    sort_order = request.GET.get('order', 'desc')
     
     # Query base
     movimientos = MovimientoInventario.objects.select_related(
@@ -107,8 +110,29 @@ def movimientos_list(request):
     if fecha_hasta:
         movimientos = movimientos.filter(fecha_movimiento__lte=fecha_hasta + ' 23:59:59')
     
-    # Ordenar por fecha más reciente
-    movimientos = movimientos.order_by('-fecha_movimiento', '-created_at')
+    # Mapeo de campos permitidos para ordenar
+    sort_fields = {
+        'fecha_movimiento': 'fecha_movimiento',
+        'tipo_movimiento': 'tipo_movimiento',
+        'producto': 'producto__nombre',
+        'cantidad': 'cantidad',
+        'estado': 'estado',
+        'bodega_origen': 'bodega_origen__nombre',
+        'bodega_destino': 'bodega_destino__nombre',
+        'usuario': 'usuario__user__username',
+        'created_at': 'created_at',
+    }
+    
+    # Validar y aplicar ordenamiento
+    if sort_by in sort_fields:
+        order_field = sort_fields[sort_by]
+        if sort_order == 'asc':
+            movimientos = movimientos.order_by(order_field)
+        else:
+            movimientos = movimientos.order_by(f'-{order_field}')
+    else:
+        # Ordenamiento por defecto
+        movimientos = movimientos.order_by('-fecha_movimiento', '-created_at')
     
     # Estadísticas (sin filtros para mostrar totales globales)
     total_movimientos = MovimientoInventario.objects.count()
@@ -147,7 +171,13 @@ def movimientos_list(request):
     ).count()
     
     # Paginación
-    per_page = request.GET.get('per_page', 15)
+    try:
+        per_page = int(per_page)
+        if per_page not in [10, 25, 50, 100]:
+            per_page = 25
+    except ValueError:
+        per_page = 25
+    
     paginator = Paginator(movimientos, per_page)
     page_number = request.GET.get('page', 1)
     movimientos_page = paginator.get_page(page_number)
@@ -157,6 +187,7 @@ def movimientos_list(request):
     
     context = {
         'movimientos': movimientos_page,
+        'page_obj': movimientos_page,
         'total_movimientos': total_movimientos,
         'movimientos_hoy': movimientos_hoy,
         'movimientos_pendientes': movimientos_pendientes,
@@ -165,6 +196,9 @@ def movimientos_list(request):
         'bodegas': bodegas,
         'permisos': permisos,
         'search': search,
+        'per_page': per_page,
+        'sort_by': sort_by,
+        'sort_order': sort_order,
         'tipo_movimiento': tipo_movimiento,
         'estado': estado,
         'bodega_id': bodega_id,
@@ -437,16 +471,15 @@ def exportar_movimientos_excel(request):
     """Exportar movimientos a Excel"""
     
     # Verificar permisos
-    permisos = {'exportar': True}
     if hasattr(request.user, 'usuario_profile'):
-        usuario = request.user.usuario_profile
-        if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
-            rol_permisos = usuario.rol.permisos.get('inventario', {})
-            if rol_permisos:
-                permisos = rol_permisos
-    
-    if not permisos.get('exportar'):
-        return HttpResponse('No tienes permisos para exportar', status=403)
+        user_profile = request.user.usuario_profile
+        if user_profile.rol and user_profile.rol.permisos and isinstance(user_profile.rol.permisos, dict):
+            permisos = user_profile.rol.permisos.get('inventario', {})
+            if not permisos.get('exportar', True):
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No tienes permisos para exportar movimientos'
+                }, status=403)
     
     # Obtener los mismos filtros que la vista principal
     search = request.GET.get('search', '').strip()
@@ -491,15 +524,14 @@ def exportar_movimientos_excel(request):
     
     movimientos = movimientos.order_by('-fecha_movimiento')
     
-    # Crear libro de Excel
+    # Crear workbook
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Movimientos Inventario"
     
     # Estilos
-    header_font = Font(bold=True, color="FFFFFF", size=12)
     header_fill = PatternFill(start_color="D20A11", end_color="D20A11", fill_type="solid")
-    header_alignment = Alignment(horizontal="center", vertical="center")
+    header_font = Font(bold=True, color="FFFFFF", size=12)
     border = Border(
         left=Side(style='thin'),
         right=Side(style='thin'),
@@ -518,51 +550,46 @@ def exportar_movimientos_excel(request):
     for col_num, header in enumerate(headers, 1):
         cell = ws.cell(row=1, column=col_num)
         cell.value = header
-        cell.font = header_font
         cell.fill = header_fill
-        cell.alignment = header_alignment
+        cell.font = header_font
         cell.border = border
+        cell.alignment = Alignment(horizontal='center', vertical='center')
     
     # Datos
     for row_num, mov in enumerate(movimientos, 2):
-        ws.cell(row=row_num, column=1, value=mov.id).border = border
-        ws.cell(row=row_num, column=2, value=mov.fecha_movimiento.strftime('%d/%m/%Y %H:%M')).border = border
-        ws.cell(row=row_num, column=3, value=mov.get_tipo_movimiento_display()).border = border
-        ws.cell(row=row_num, column=4, value=mov.get_estado_display()).border = border
-        ws.cell(row=row_num, column=5, value=mov.producto.sku).border = border
-        ws.cell(row=row_num, column=6, value=mov.producto.nombre).border = border
-        ws.cell(row=row_num, column=7, value=float(mov.cantidad)).border = border
-        ws.cell(row=row_num, column=8, value=mov.unidad_medida.codigo).border = border
-        ws.cell(row=row_num, column=9, value=f"{mov.bodega_origen.codigo} - {mov.bodega_origen.nombre}" if mov.bodega_origen else '').border = border
-        ws.cell(row=row_num, column=10, value=f"{mov.bodega_destino.codigo} - {mov.bodega_destino.nombre}" if mov.bodega_destino else '').border = border
-        ws.cell(row=row_num, column=11, value=mov.proveedor.razon_social if mov.proveedor else '').border = border
-        ws.cell(row=row_num, column=12, value=mov.lote.codigo_lote if mov.lote else '').border = border
-        ws.cell(row=row_num, column=13, value=mov.serie or '').border = border
-        ws.cell(row=row_num, column=14, value=float(mov.costo_unitario) if mov.costo_unitario else '').border = border
-        ws.cell(row=row_num, column=15, value=float(mov.costo_total) if mov.costo_total else '').border = border
-        ws.cell(row=row_num, column=16, value=mov.documento_referencia or '').border = border
-        ws.cell(row=row_num, column=17, value=mov.motivo_ajuste or mov.observaciones or '').border = border
-        ws.cell(row=row_num, column=18, value=mov.usuario.user.username).border = border
-        ws.cell(row=row_num, column=19, value=mov.created_at.strftime('%d/%m/%Y %H:%M')).border = border
+        ws.cell(row=row_num, column=1).value = mov.id
+        ws.cell(row=row_num, column=2).value = mov.fecha_movimiento.strftime('%d/%m/%Y %H:%M')
+        ws.cell(row=row_num, column=3).value = mov.get_tipo_movimiento_display()
+        ws.cell(row=row_num, column=4).value = mov.get_estado_display()
+        ws.cell(row=row_num, column=5).value = mov.producto.sku
+        ws.cell(row=row_num, column=6).value = mov.producto.nombre
+        ws.cell(row=row_num, column=7).value = float(mov.cantidad)
+        ws.cell(row=row_num, column=8).value = mov.unidad_medida.codigo
+        ws.cell(row=row_num, column=9).value = f"{mov.bodega_origen.codigo} - {mov.bodega_origen.nombre}" if mov.bodega_origen else ''
+        ws.cell(row=row_num, column=10).value = f"{mov.bodega_destino.codigo} - {mov.bodega_destino.nombre}" if mov.bodega_destino else ''
+        ws.cell(row=row_num, column=11).value = mov.proveedor.razon_social if mov.proveedor else ''
+        ws.cell(row=row_num, column=12).value = mov.lote.codigo_lote if mov.lote else ''
+        ws.cell(row=row_num, column=13).value = mov.serie or ''
+        ws.cell(row=row_num, column=14).value = float(mov.costo_unitario) if mov.costo_unitario else None
+        ws.cell(row=row_num, column=15).value = float(mov.costo_total) if mov.costo_total else None
+        ws.cell(row=row_num, column=16).value = mov.documento_referencia or ''
+        ws.cell(row=row_num, column=17).value = mov.motivo_ajuste or mov.observaciones or ''
+        ws.cell(row=row_num, column=18).value = mov.usuario.user.username
+        ws.cell(row=row_num, column=19).value = mov.created_at.strftime('%d/%m/%Y %H:%M')
+        
+        # Aplicar bordes
+        for col_num in range(1, len(headers) + 1):
+            ws.cell(row=row_num, column=col_num).border = border
     
-    # Ajustar anchos de columna
-    for column in ws.columns:
-        max_length = 0
-        column_letter = get_column_letter(column[0].column)
-        for cell in column:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        adjusted_width = min(max_length + 2, 50)
-        ws.column_dimensions[column_letter].width = adjusted_width
+    # Ajustar ancho de columnas
+    for col_num in range(1, len(headers) + 1):
+        ws.column_dimensions[get_column_letter(col_num)].width = 15
     
     # Preparar respuesta
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
-    response['Content-Disposition'] = f'attachment; filename=movimientos_inventario_{timezone.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
-    
+    response['Content-Disposition'] = 'attachment; filename=movimientos_inventario_dulceria_lilis.xlsx'
     wb.save(response)
+    
     return response

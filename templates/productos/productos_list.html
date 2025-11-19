@@ -174,13 +174,83 @@
                     <thead>
                         <tr style="background: linear-gradient(135deg, #D20A11 0%, #8B0000 100%) !important;">
                             <th class="ps-4" style="color: white !important; border: none !important; background: transparent !important; width: 60px;">Imagen</th>
-                            <th style="color: white !important; border: none !important; background: transparent !important; width: 100px;">SKU</th>
-                            <th style="color: white !important; border: none !important; background: transparent !important; width: 180px;">Producto</th>
-                            <th style="color: white !important; border: none !important; background: transparent !important; width: 130px;">Categoría</th>
-                            <th style="color: white !important; border: none !important; background: transparent !important; width: 120px;">Marca</th>
-                            <th class="text-end" style="color: white !important; border: none !important; background: transparent !important; width: 90px;">Stock</th>
-                            <th class="text-end" style="color: white !important; border: none !important; background: transparent !important; width: 100px;">Precio</th>
-                            <th class="text-center" style="color: white !important; border: none !important; background: transparent !important; width: 90px;">Estado</th>
+                            <th style="color: white !important; border: none !important; background: transparent !important; width: 100px;">
+                                <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.categoria %}categoria={{ request.GET.categoria }}&{% endif %}{% if request.GET.marca %}marca={{ request.GET.marca }}&{% endif %}{% if request.GET.estado %}estado={{ request.GET.estado }}&{% endif %}{% if request.GET.bajo_stock %}bajo_stock=on&{% endif %}{% if request.GET.per_page %}per_page={{ request.GET.per_page }}&{% endif %}sort=sku&order={% if sort_by == 'sku' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                   class="text-white text-decoration-none d-flex align-items-center gap-1">
+                                    SKU
+                                    {% if sort_by == 'sku' %}
+                                        <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="fas fa-sort text-white-50"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th style="color: white !important; border: none !important; background: transparent !important; width: 180px;">
+                                <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.categoria %}categoria={{ request.GET.categoria }}&{% endif %}{% if request.GET.marca %}marca={{ request.GET.marca }}&{% endif %}{% if request.GET.estado %}estado={{ request.GET.estado }}&{% endif %}{% if request.GET.bajo_stock %}bajo_stock=on&{% endif %}{% if request.GET.per_page %}per_page={{ request.GET.per_page }}&{% endif %}sort=nombre&order={% if sort_by == 'nombre' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                   class="text-white text-decoration-none d-flex align-items-center gap-1">
+                                    Producto
+                                    {% if sort_by == 'nombre' %}
+                                        <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="fas fa-sort text-white-50"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th style="color: white !important; border: none !important; background: transparent !important; width: 130px;">
+                                <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.categoria %}categoria={{ request.GET.categoria }}&{% endif %}{% if request.GET.marca %}marca={{ request.GET.marca }}&{% endif %}{% if request.GET.estado %}estado={{ request.GET.estado }}&{% endif %}{% if request.GET.bajo_stock %}bajo_stock=on&{% endif %}{% if request.GET.per_page %}per_page={{ request.GET.per_page }}&{% endif %}sort=categoria&order={% if sort_by == 'categoria' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                   class="text-white text-decoration-none d-flex align-items-center gap-1">
+                                    Categoría
+                                    {% if sort_by == 'categoria' %}
+                                        <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="fas fa-sort text-white-50"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th style="color: white !important; border: none !important; background: transparent !important; width: 120px;">
+                                <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.categoria %}categoria={{ request.GET.categoria }}&{% endif %}{% if request.GET.marca %}marca={{ request.GET.marca }}&{% endif %}{% if request.GET.estado %}estado={{ request.GET.estado }}&{% endif %}{% if request.GET.bajo_stock %}bajo_stock=on&{% endif %}{% if request.GET.per_page %}per_page={{ request.GET.per_page }}&{% endif %}sort=marca&order={% if sort_by == 'marca' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                   class="text-white text-decoration-none d-flex align-items-center gap-1">
+                                    Marca
+                                    {% if sort_by == 'marca' %}
+                                        <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="fas fa-sort text-white-50"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th class="text-end" style="color: white !important; border: none !important; background: transparent !important; width: 90px;">
+                                <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.categoria %}categoria={{ request.GET.categoria }}&{% endif %}{% if request.GET.marca %}marca={{ request.GET.marca }}&{% endif %}{% if request.GET.estado %}estado={{ request.GET.estado }}&{% endif %}{% if request.GET.bajo_stock %}bajo_stock=on&{% endif %}{% if request.GET.per_page %}per_page={{ request.GET.per_page }}&{% endif %}sort=stock_actual&order={% if sort_by == 'stock_actual' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                   class="text-white text-decoration-none d-flex align-items-center justify-content-end gap-1">
+                                    Stock
+                                    {% if sort_by == 'stock_actual' %}
+                                        <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="fas fa-sort text-white-50"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th class="text-end" style="color: white !important; border: none !important; background: transparent !important; width: 100px;">
+                                <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.categoria %}categoria={{ request.GET.categoria }}&{% endif %}{% if request.GET.marca %}marca={{ request.GET.marca }}&{% endif %}{% if request.GET.estado %}estado={{ request.GET.estado }}&{% endif %}{% if request.GET.bajo_stock %}bajo_stock=on&{% endif %}{% if request.GET.per_page %}per_page={{ request.GET.per_page }}&{% endif %}sort=precio_venta&order={% if sort_by == 'precio_venta' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                   class="text-white text-decoration-none d-flex align-items-center justify-content-end gap-1">
+                                    Precio
+                                    {% if sort_by == 'precio_venta' %}
+                                        <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="fas fa-sort text-white-50"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th class="text-center" style="color: white !important; border: none !important; background: transparent !important; width: 90px;">
+                                <a href="?{% if request.GET.search %}search={{ request.GET.search }}&{% endif %}{% if request.GET.categoria %}categoria={{ request.GET.categoria }}&{% endif %}{% if request.GET.marca %}marca={{ request.GET.marca }}&{% endif %}{% if request.GET.estado %}estado={{ request.GET.estado }}&{% endif %}{% if request.GET.bajo_stock %}bajo_stock=on&{% endif %}{% if request.GET.per_page %}per_page={{ request.GET.per_page }}&{% endif %}sort=estado&order={% if sort_by == 'estado' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                                   class="text-white text-decoration-none d-flex align-items-center justify-content-center gap-1">
+                                    Estado
+                                    {% if sort_by == 'estado' %}
+                                        <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="fas fa-sort text-white-50"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
                             <th class="text-center" style="color: white !important; border: none !important; background: transparent !important; width: 120px;">Acciones</th>
                         </tr>
                     </thead>
@@ -307,19 +377,19 @@
             </div>
 
             <!-- Paginación -->
-            {% if productos.has_other_pages %}
             <div class="d-flex justify-content-between align-items-center p-3 border-top">
-                <div class="text-muted">
-                    Mostrando {{ productos.start_index }} - {{ productos.end_index }} de {{ productos.paginator.count }} productos
-                </div>
-                <div class="d-flex align-items-center">
-                    <label class="me-2 mb-0 text-muted">Por página:</label>
-                    <select class="form-select form-select-sm" style="width: 70px;" onchange="changePerPage(this.value)">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small">Mostrar:</span>
+                    <select class="form-select form-select-sm" style="width: auto;" onchange="changePerPage(this.value)">
                         <option value="10" {% if request.GET.per_page == '10' %}selected{% endif %}>10</option>
                         <option value="25" {% if request.GET.per_page == '25' or not request.GET.per_page %}selected{% endif %}>25</option>
                         <option value="50" {% if request.GET.per_page == '50' %}selected{% endif %}>50</option>
                         <option value="100" {% if request.GET.per_page == '100' %}selected{% endif %}>100</option>
                     </select>
+                    <span class="text-muted small">registros ({{ productos.start_index }}-{{ productos.end_index }} de {{ productos.paginator.count }})</span>
+                </div>
+                <div class="d-flex align-items-center">
+                    {% if productos.has_other_pages %}
                     <nav class="ms-3">
                         <ul class="pagination pagination-sm mb-0">
                             {% if productos.has_previous %}
@@ -357,9 +427,9 @@
                             {% endif %}
                         </ul>
                     </nav>
+                    {% endif %}
                 </div>
             </div>
-            {% endif %}
             {% endif %}
         </div>
     </div>

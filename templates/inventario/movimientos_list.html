@@ -184,18 +184,18 @@
 
 <!-- Tabla de Movimientos -->
 <div class="card border-0 shadow-sm">
-    <div class="card-header bg-white border-0 pt-3">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-2">
-                <h5 class="mb-0 fw-semibold">Listado de Movimientos</h5>
-                <span class="badge rounded-pill" style="background: rgba(210,10,17,0.15); color: #D20A11; padding: 0.4em 0.8em;">
-                    {{ total_movimientos }} registro{{ total_movimientos|pluralize }}
-                </span>
-            </div>
+    <div class="card-header bg-white border-bottom">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5 class="mb-0">
+                <i class="fas fa-table me-2"></i>Listado de Movimientos
+                <span class="badge bg-secondary ms-2">{{ total_movimientos }}</span>
+            </h5>
             {% if permisos.exportar %}
-            <button onclick="exportarExcel()" class="btn btn-outline-success btn-sm">
-                <i class="fas fa-file-excel me-2"></i>Exportar Excel
-            </button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-success" onclick="exportarExcel()" title="Exportar a Excel">
+                    <i class="fas fa-file-excel me-2"></i>Excel
+                </button>
+            </div>
             {% endif %}
         </div>
     </div>
@@ -206,15 +206,85 @@
             <table class="table table-hover align-middle mb-0" style="min-width: 1200px;">
                 <thead>
                     <tr style="background: linear-gradient(135deg, #D20A11 0%, #8B0000 100%) !important;">
-                        <th class="ps-4" style="color: white !important; border: none !important; background: transparent !important; width: 80px;">Fecha</th>
-                        <th style="color: white !important; border: none !important; background: transparent !important; width: 100px;">Tipo</th>
-                        <th style="color: white !important; border: none !important; background: transparent !important; width: 120px;">Producto</th>
-                        <th class="text-end" style="color: white !important; border: none !important; background: transparent !important; width: 80px;">Cantidad</th>
-                        <th style="color: white !important; border: none !important; background: transparent !important; width: 140px;">Bodega Origen</th>
-                        <th style="color: white !important; border: none !important; background: transparent !important; width: 140px;">Bodega Destino</th>
+                        <th class="ps-4" style="color: white !important; border: none !important; background: transparent !important; width: 80px;">
+                            <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_movimiento %}tipo_movimiento={{ tipo_movimiento }}&{% endif %}{% if estado %}estado={{ estado }}&{% endif %}{% if bodega_id %}bodega={{ bodega_id }}&{% endif %}{% if fecha_desde %}fecha_desde={{ fecha_desde }}&{% endif %}{% if fecha_hasta %}fecha_hasta={{ fecha_hasta }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}sort=fecha_movimiento&order={% if sort_by == 'fecha_movimiento' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                               class="text-white text-decoration-none d-flex align-items-center gap-1">
+                                Fecha
+                                {% if sort_by == 'fecha_movimiento' %}
+                                    <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                {% else %}
+                                    <i class="fas fa-sort text-white-50"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th style="color: white !important; border: none !important; background: transparent !important; width: 100px;">
+                            <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_movimiento %}tipo_movimiento={{ tipo_movimiento }}&{% endif %}{% if estado %}estado={{ estado }}&{% endif %}{% if bodega_id %}bodega={{ bodega_id }}&{% endif %}{% if fecha_desde %}fecha_desde={{ fecha_desde }}&{% endif %}{% if fecha_hasta %}fecha_hasta={{ fecha_hasta }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}sort=tipo_movimiento&order={% if sort_by == 'tipo_movimiento' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                               class="text-white text-decoration-none d-flex align-items-center gap-1">
+                                Tipo
+                                {% if sort_by == 'tipo_movimiento' %}
+                                    <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                {% else %}
+                                    <i class="fas fa-sort text-white-50"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th style="color: white !important; border: none !important; background: transparent !important; width: 120px;">
+                            <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_movimiento %}tipo_movimiento={{ tipo_movimiento }}&{% endif %}{% if estado %}estado={{ estado }}&{% endif %}{% if bodega_id %}bodega={{ bodega_id }}&{% endif %}{% if fecha_desde %}fecha_desde={{ fecha_desde }}&{% endif %}{% if fecha_hasta %}fecha_hasta={{ fecha_hasta }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}sort=producto&order={% if sort_by == 'producto' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                               class="text-white text-decoration-none d-flex align-items-center gap-1">
+                                Producto
+                                {% if sort_by == 'producto' %}
+                                    <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                {% else %}
+                                    <i class="fas fa-sort text-white-50"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th class="text-end" style="color: white !important; border: none !important; background: transparent !important; width: 80px;">
+                            <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_movimiento %}tipo_movimiento={{ tipo_movimiento }}&{% endif %}{% if estado %}estado={{ estado }}&{% endif %}{% if bodega_id %}bodega={{ bodega_id }}&{% endif %}{% if fecha_desde %}fecha_desde={{ fecha_desde }}&{% endif %}{% if fecha_hasta %}fecha_hasta={{ fecha_hasta }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}sort=cantidad&order={% if sort_by == 'cantidad' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                               class="text-white text-decoration-none d-flex align-items-center justify-content-end gap-1">
+                                Cantidad
+                                {% if sort_by == 'cantidad' %}
+                                    <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                {% else %}
+                                    <i class="fas fa-sort text-white-50"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th style="color: white !important; border: none !important; background: transparent !important; width: 140px;">
+                            <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_movimiento %}tipo_movimiento={{ tipo_movimiento }}&{% endif %}{% if estado %}estado={{ estado }}&{% endif %}{% if bodega_id %}bodega={{ bodega_id }}&{% endif %}{% if fecha_desde %}fecha_desde={{ fecha_desde }}&{% endif %}{% if fecha_hasta %}fecha_hasta={{ fecha_hasta }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}sort=bodega_origen&order={% if sort_by == 'bodega_origen' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                               class="text-white text-decoration-none d-flex align-items-center gap-1">
+                                Bodega Origen
+                                {% if sort_by == 'bodega_origen' %}
+                                    <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                {% else %}
+                                    <i class="fas fa-sort text-white-50"></i>
+                                {% endif %}
+                            </a>
+                        </th>
+                        <th style="color: white !important; border: none !important; background: transparent !important; width: 140px;">
+                            <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_movimiento %}tipo_movimiento={{ tipo_movimiento }}&{% endif %}{% if estado %}estado={{ estado }}&{% endif %}{% if bodega_id %}bodega={{ bodega_id }}&{% endif %}{% if fecha_desde %}fecha_desde={{ fecha_desde }}&{% endif %}{% if fecha_hasta %}fecha_hasta={{ fecha_hasta }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}sort=bodega_destino&order={% if sort_by == 'bodega_destino' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                               class="text-white text-decoration-none d-flex align-items-center gap-1">
+                                Bodega Destino
+                                {% if sort_by == 'bodega_destino' %}
+                                    <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                {% else %}
+                                    <i class="fas fa-sort text-white-50"></i>
+                                {% endif %}
+                            </a>
+                        </th>
                         <th style="color: white !important; border: none !important; background: transparent !important; width: 120px;">Lote/Serie</th>
                         <th style="color: white !important; border: none !important; background: transparent !important; width: 100px;">Doc. Ref.</th>
-                        <th class="text-center" style="color: white !important; border: none !important; background: transparent !important; width: 90px;">Estado</th>
+                        <th class="text-center" style="color: white !important; border: none !important; background: transparent !important; width: 90px;">
+                            <a href="?{% if search %}search={{ search }}&{% endif %}{% if tipo_movimiento %}tipo_movimiento={{ tipo_movimiento }}&{% endif %}{% if estado %}estado={{ estado }}&{% endif %}{% if bodega_id %}bodega={{ bodega_id }}&{% endif %}{% if fecha_desde %}fecha_desde={{ fecha_desde }}&{% endif %}{% if fecha_hasta %}fecha_hasta={{ fecha_hasta }}&{% endif %}{% if per_page %}per_page={{ per_page }}&{% endif %}sort=estado&order={% if sort_by == 'estado' and sort_order == 'asc' %}desc{% else %}asc{% endif %}" 
+                               class="text-white text-decoration-none d-flex align-items-center justify-content-center gap-1">
+                                Estado
+                                {% if sort_by == 'estado' %}
+                                    <i class="fas fa-sort-{% if sort_order == 'asc' %}up{% else %}down{% endif %}"></i>
+                                {% else %}
+                                    <i class="fas fa-sort text-white-50"></i>
+                                {% endif %}
+                            </a>
+                        </th>
                         <th class="text-center" style="color: white !important; border: none !important; background: transparent !important; width: 120px;">Acciones</th>
                     </tr>
                 </thead>
@@ -357,16 +427,24 @@
         </div>
         
         <!-- Paginación -->
-        {% if movimientos.has_other_pages %}
         <div class="d-flex justify-content-between align-items-center p-3 border-top">
-            <div class="text-muted small">
-                Mostrando {{ movimientos.start_index }} - {{ movimientos.end_index }} de {{ total_movimientos }} movimientos
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Mostrando {{ movimientos.start_index }} - {{ movimientos.end_index }} de {{ total_movimientos }}</span>
+                <span class="text-muted small">|</span>
+                <span class="text-muted small">Por página:</span>
+                <select class="form-select form-select-sm" style="width: auto;" onchange="window.location.href='?page=1{% if search %}&search={{ search }}{% endif %}{% if tipo_movimiento %}&tipo_movimiento={{ tipo_movimiento }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}{% if bodega_id %}&bodega={{ bodega_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}&per_page=' + this.value">
+                    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                    <option value="25" {% if per_page == 25 or not request.GET.per_page %}selected{% endif %}>25</option>
+                    <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+                    <option value="100" {% if per_page == 100 %}selected{% endif %}>100</option>
+                </select>
             </div>
+            {% if movimientos.has_other_pages %}
             <nav aria-label="Page navigation">
                 <ul class="pagination pagination-sm mb-0">
                     {% if movimientos.has_previous %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ movimientos.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if tipo_movimiento %}&tipo_movimiento={{ tipo_movimiento }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}{% if bodega_id %}&bodega={{ bodega_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}">Anterior</a>
+                        <a class="page-link" href="?page={{ movimientos.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if tipo_movimiento %}&tipo_movimiento={{ tipo_movimiento }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}{% if bodega_id %}&bodega={{ bodega_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}">Anterior</a>
                     </li>
                     {% endif %}
                     
@@ -374,19 +452,19 @@
                         {% if movimientos.number == num %}
                         <li class="page-item active"><span class="page-link">{{ num }}</span></li>
                         {% elif num > movimientos.number|add:'-3' and num < movimientos.number|add:'3' %}
-                        <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if tipo_movimiento %}&tipo_movimiento={{ tipo_movimiento }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}{% if bodega_id %}&bodega={{ bodega_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}">{{ num }}</a></li>
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if tipo_movimiento %}&tipo_movimiento={{ tipo_movimiento }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}{% if bodega_id %}&bodega={{ bodega_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}">{{ num }}</a></li>
                         {% endif %}
                     {% endfor %}
                     
                     {% if movimientos.has_next %}
                     <li class="page-item">
-                        <a class="page-link" href="?page={{ movimientos.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if tipo_movimiento %}&tipo_movimiento={{ tipo_movimiento }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}{% if bodega_id %}&bodega={{ bodega_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}">Siguiente</a>
+                        <a class="page-link" href="?page={{ movimientos.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if tipo_movimiento %}&tipo_movimiento={{ tipo_movimiento }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}{% if bodega_id %}&bodega={{ bodega_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}{% if per_page %}&per_page={{ per_page }}{% endif %}">Siguiente</a>
                     </li>
                     {% endif %}
                 </ul>
             </nav>
+            {% endif %}
         </div>
-        {% endif %}
         {% else %}
         <div class="text-center py-5">
             <div class="d-flex flex-column align-items-center gap-3">

@@ -632,7 +632,8 @@ async function saveMovimiento() {
 
 // Exportar a Excel
 function exportarExcel() {
-    if (!PERMISOS.exportar) {
+    // Verificar permisos
+    if (typeof PERMISOS !== 'undefined' && !PERMISOS.exportar) {
         Swal.fire({
             icon: 'error',
             title: 'Acceso Denegado',
