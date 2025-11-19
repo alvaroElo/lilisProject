@@ -1,5 +1,5 @@
 """
-Script para crear 100 proveedores de prueba
+Script para crear 5,000 proveedores de prueba
 Dulcería Lilis - Sistema de Gestión
 
 Uso:
@@ -24,37 +24,52 @@ from maestros.models import Proveedor
 # Datos de prueba para generar proveedores variados
 RAZONES_SOCIALES = [
     "Distribuidora", "Comercial", "Importadora", "Exportadora", "Mayorista",
-    "Industrias", "Productos", "Suministros", "Alimentos", "Confitería"
+    "Industrias", "Productos", "Suministros", "Alimentos", "Confitería",
+    "Sociedad", "Empresa", "Corporación", "Compañía", "Grupo",
+    "Trading", "Negocios", "Servicios", "Logística", "Mercado",
+    "Retail", "Abastecimientos", "Provisiones", "Insumos", "Mercancías",
+    "Ventas", "Solutions", "Partners", "Supply", "Global"
 ]
 
 NOMBRES_FANTASIA = [
     "Dulces del Valle", "Golosinas Premium", "Sabor Latino", "Delicias Andinas",
     "Candy World", "Sweet Paradise", "Chocolates Finos", "Tentaciones",
-    "La Esquina Dulce", "Sabores del Sur"
+    "La Esquina Dulce", "Sabores del Sur", "Dulzura Chilena", "Confites Express",
+    "Golosinas Gourmet", "Dulce Manjar", "Caramelos del Norte", "Bombones y Más",
+    "Chocolatería Austral", "Delicias Patagónicas", "Dulces Tradicionales",
+    "Confitería Central", "Golosinas al Por Mayor", "Sabores Internacionales",
+    "Dulces Importados", "Confites Premium", "Tentación Dulce", "Dulce Paraíso",
+    "Golosinas Express", "Confitería Global", "Dulces y Snacks", "Candy Center"
 ]
 
 CIUDADES = [
     "Santiago", "Valparaíso", "Concepción", "La Serena", "Antofagasta",
     "Temuco", "Rancagua", "Talca", "Arica", "Iquique", "Puerto Montt",
-    "Coquimbo", "Osorno", "Valdivia", "Punta Arenas"
+    "Coquimbo", "Osorno", "Valdivia", "Punta Arenas", "Chillán", "Los Ángeles",
+    "Calama", "Copiapó", "Quillota", "Curicó", "Linares", "Ovalle",
+    "San Antonio", "Melipilla", "Viña del Mar", "Quilpué", "Villa Alemana",
+    "Coronel", "San Fernando", "Talcahuano", "Los Andes", "Castro",
+    "Angol", "Chiguayante", "Tomé", "Rengo", "Buin", "Machalí",
+    "Penco", "San Carlos", "Lota", "Ancud", "San Felipe", "Limache"
 ]
 
 CONDICIONES_PAGO = ['CONTADO', '30_DIAS', '60_DIAS', '90_DIAS', 'OTRO']
 
 def crear_proveedores_test():
-    """Crea 100 proveedores de prueba"""
+    """Crea 5,000 proveedores de prueba"""
     
-    print("="*60)
-    print("CREACIÓN DE PROVEEDORES DE PRUEBA")
-    print("="*60)
+    print("="*70)
+    print("🏢 CREACIÓN DE 5,000 PROVEEDORES DE PRUEBA")
+    print("="*70)
     
-    print("\nIniciando creación de proveedores...\n")
+    print("\n⏳ Iniciando creación de proveedores...\n")
+    print("📊 Esto puede tomar varios minutos...\n")
     
     proveedores_creados = 0
     proveedores_existentes = 0
     errores = 0
     
-    for i in range(1, 101):
+    for i in range(1, 5001):
         try:
             # Generar datos del proveedor
             rut_base = 70000000 + (i * 1000)
@@ -88,7 +103,8 @@ def crear_proveedores_test():
             
             # Verificar si el RUT ya existe
             if Proveedor.objects.filter(rut_nif=rut_nif).exists():
-                print(f"⊘ Proveedor {i}/100: RUT {rut_nif} ya existe")
+                if i % 100 == 0:  # Mostrar solo cada 100
+                    print(f"⊘ Proveedor {i}/5000: RUT {rut_nif} ya existe")
                 proveedores_existentes += 1
                 continue
             
@@ -113,22 +129,30 @@ def crear_proveedores_test():
                 observaciones=observaciones
             )
             
-            print(f"✓ Proveedor {i}/100: {razon_social} ({rut_nif}) creado - Estado: {estado}")
+            # Mostrar progreso cada 100 proveedores
+            if i % 100 == 0 or i <= 10:
+                print(f"✓ Proveedor {i}/5000: {razon_social} ({rut_nif}) creado - Estado: {estado}")
+            
             proveedores_creados += 1
             
+            # Mostrar progreso general cada 500
+            if i % 500 == 0:
+                print(f"\n📈 Progreso: {proveedores_creados:,} creados ({(i/5000)*100:.1f}%)\n")
+            
         except Exception as e:
-            print(f"✗ Error al crear proveedor {i}: {str(e)}")
+            if i % 100 == 0:  # Mostrar solo cada 100
+                print(f"✗ Error al crear proveedor {i}: {str(e)}")
             errores += 1
     
     # Resumen
-    print("\n" + "="*60)
-    print("RESUMEN DE CREACIÓN")
-    print("="*60)
-    print(f"✓ Proveedores creados:    {proveedores_creados}")
-    print(f"⊘ Proveedores existentes: {proveedores_existentes}")
-    print(f"✗ Errores:                {errores}")
-    print(f"  Total procesados:       {proveedores_creados + proveedores_existentes + errores}/100")
-    print("="*60)
+    print("\n" + "="*70)
+    print("📋 RESUMEN DE CREACIÓN")
+    print("="*70)
+    print(f"✓ Proveedores creados:    {proveedores_creados:,}")
+    print(f"⊘ Proveedores existentes: {proveedores_existentes:,}")
+    print(f"✗ Errores:                {errores:,}")
+    print(f"  Total procesados:       {proveedores_creados + proveedores_existentes + errores:,}/5,000")
+    print("="*70)
     
     if proveedores_creados > 0:
         # Contar por estado
@@ -136,9 +160,9 @@ def crear_proveedores_test():
         total_bloqueados = Proveedor.objects.filter(estado='BLOQUEADO').count()
         
         print("\n📊 ESTADÍSTICAS:")
-        print(f"   Total proveedores:  {Proveedor.objects.count()}")
-        print(f"   Activos:            {total_activos}")
-        print(f"   Bloqueados:         {total_bloqueados}")
+        print(f"   Total proveedores:  {Proveedor.objects.count():,}")
+        print(f"   Activos:            {total_activos:,}")
+        print(f"   Bloqueados:         {total_bloqueados:,}")
         
         # Contar por condiciones de pago
         print(f"\n💰 CONDICIONES DE PAGO:")
