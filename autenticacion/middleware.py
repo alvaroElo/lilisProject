@@ -7,6 +7,23 @@ from django.utils.deprecation import MiddlewareMixin
 from autenticacion.models import Usuario
 
 
+class NoCacheAfterLogoutMiddleware(MiddlewareMixin):
+    """
+    Middleware para prevenir el acceso a páginas cacheadas después del logout
+    mediante el botón 'Atrás' del navegador
+    """
+    
+    def process_response(self, request, response):
+        # Aplicar headers de no-cache a todas las páginas protegidas
+        if request.user.is_authenticated:
+            # Prevenir cualquier tipo de caché en el navegador
+            response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+            response['Pragma'] = 'no-cache'
+            response['Expires'] = '0'
+        
+        return response
+
+
 class RoleBasedAdminMiddleware(MiddlewareMixin):
     """
     Middleware para controlar el acceso al admin según el rol del usuario

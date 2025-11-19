@@ -29,14 +29,40 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         
         if user is not None:
+            # Login exitoso - limpiar contador de intentos fallidos
+            if 'login_attempts' in request.session:
+                del request.session['login_attempts']
+            
             auth_login(request, user)
-            messages.success(request, f'Bienvenido {user.get_full_name() or user.username}!')
             
             # Redirigir a la página solicitada o al dashboard
             next_url = request.GET.get('next', 'dashboard')
             return redirect(next_url)
         else:
-            messages.error(request, 'Usuario o contraseña incorrectos.')
+            # Login fallido - incrementar contador de intentos
+            if 'login_attempts' not in request.session:
+                request.session['login_attempts'] = {}
+            
+            attempts = request.session['login_attempts']
+            
+            # Incrementar intentos para este usuario
+            if username:
+                attempts[username] = attempts.get(username, 0) + 1
+                request.session['login_attempts'] = attempts
+                request.session.modified = True
+                
+                # Obtener número de intentos
+                num_attempts = attempts[username]
+                
+                # Mensajes según número de intentos
+                if num_attempts == 3:
+                    messages.warning(request, f'⚠️ Has fallado 3 intentos de inicio de sesión con el usuario "{username}". Un error más y la cuenta será bloqueada.')
+                elif num_attempts >= 4:
+                    messages.error(request, f'🔒 La cuenta "{username}" ha sido bloqueada por múltiples intentos fallidos de inicio de sesión. (MODO PRUEBA - No se bloqueó realmente)')
+                else:
+                    messages.error(request, '🔒 Usuario o contraseña incorrectos. Por favor, verifica tus credenciales e intenta nuevamente.')
+            else:
+                messages.error(request, '🔒 Usuario o contraseña incorrectos. Por favor, verifica tus credenciales e intenta nuevamente.')
     
     return render(request, 'login/login.html')
 
@@ -62,8 +88,19 @@ def dashboard_view(request):
 def logout_view(request):
     """Vista de logout"""
     auth_logout(request)
+    
+    # Limpiar toda la sesión
+    request.session.flush()
+    
     messages.info(request, 'Has cerrado sesión correctamente.')
-    return redirect('login')
+    
+    # Crear respuesta con headers anti-cache
+    response = redirect('login')
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    
+    return response
 
 
 @login_required(login_url='login')
@@ -514,7 +551,7 @@ def password_reset_request(request):
                 
                 # En modo de prueba, enviar a email verificado
                 # En producción con dominio verificado, enviar al email del usuario
-                destination_email = settings.RESEND_TEST_EMAIL if hasattr(settings, 'RESEND_TEST_EMAIL') else email
+                destination_email = settings.RESEND_TEST_EMAIL if (hasattr(settings, 'RESEND_TEST_EMAIL') and settings.RESEND_TEST_EMAIL) else email
                 
                 # Enviar email
                 r = resend.Emails.send({
@@ -551,8 +588,7 @@ def password_reset_request(request):
         if reset_link:
             if email_sent:
                 # Email enviado exitosamente
-                from django.conf import settings
-                if hasattr(settings, 'RESEND_TEST_EMAIL') and email != settings.RESEND_TEST_EMAIL:
+                if hasattr(settings, 'RESEND_TEST_EMAIL') and settings.RESEND_TEST_EMAIL and email != settings.RESEND_TEST_EMAIL:
                     # Modo de desarrollo - informar que se envió al email de prueba
                     messages.success(request, f'✅ Correo enviado exitosamente a {settings.RESEND_TEST_EMAIL} (modo prueba)')
                     messages.info(request, f'ℹ️ En producción se enviaría a: {email}')

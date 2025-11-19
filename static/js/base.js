@@ -6,6 +6,40 @@
 // Detectar modo oscuro (opcional para futuro)
 const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
+// Prevenir acceso mediante botón atrás después de logout
+(function() {
+    // Solo aplicar en páginas que requieren autenticación (excluyendo login)
+    const isLoginPage = window.location.pathname.includes('/login') || 
+                        window.location.pathname.includes('/password-reset');
+    
+    if (!isLoginPage) {
+        // Prevenir uso de cache
+        if (window.history && window.history.pushState) {
+            // Detectar navegación hacia atrás
+            window.addEventListener('pageshow', function(event) {
+                // Si la página se cargó desde cache (botón atrás)
+                if (event.persisted || 
+                    (window.performance && window.performance.navigation.type === 2)) {
+                    // Redirigir al login
+                    window.location.href = '/login/';
+                }
+            });
+        }
+        
+        // Prevenir cache del navegador
+        window.onload = function() {
+            // Agregar entrada al historial
+            if (typeof history.pushState === "function") {
+                history.pushState("nohb", null, "");
+                window.onpopstate = function() {
+                    history.pushState('nohb', null, "");
+                    window.location.href = '/login/';
+                };
+            }
+        };
+    }
+})();
+
 // Funciones de utilidad globales
 window.LiliUtils = {
     

@@ -140,6 +140,28 @@ def proveedor_create(request):
                     'message': f'El RUT/NIF "{rut_nif}" ya existe'
                 })
             
+            # Validar campos obligatorios
+            direccion = request.POST.get('direccion', '').strip()
+            if not direccion:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'La dirección es obligatoria'
+                }, status=400)
+            
+            ciudad = request.POST.get('ciudad', '').strip()
+            if not ciudad:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'La ciudad es obligatoria'
+                }, status=400)
+            
+            pais = request.POST.get('pais', '').strip()
+            if not pais:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'El país es obligatorio'
+                }, status=400)
+            
             # Crear proveedor
             proveedor = Proveedor.objects.create(
                 rut_nif=rut_nif,
@@ -148,9 +170,9 @@ def proveedor_create(request):
                 email=request.POST.get('email'),
                 telefono=request.POST.get('telefono', '').strip() or None,
                 sitio_web=request.POST.get('sitio_web', '').strip() or None,
-                direccion=request.POST.get('direccion', '').strip() or None,
-                ciudad=request.POST.get('ciudad', '').strip() or None,
-                pais=request.POST.get('pais', 'Chile'),
+                direccion=direccion,
+                ciudad=ciudad,
+                pais=pais,
                 condiciones_pago=request.POST.get('condiciones_pago'),
                 condiciones_pago_detalle=request.POST.get('condiciones_pago_detalle', '').strip() or None,
                 moneda=request.POST.get('moneda', 'CLP'),
@@ -226,6 +248,28 @@ def proveedor_edit(request, proveedor_id):
                     'message': f'El RUT/NIF "{rut_nif}" ya existe'
                 })
             
+            # Validar campos obligatorios
+            direccion = request.POST.get('direccion', '').strip()
+            if not direccion:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'La dirección es obligatoria'
+                }, status=400)
+            
+            ciudad = request.POST.get('ciudad', '').strip()
+            if not ciudad:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'La ciudad es obligatoria'
+                }, status=400)
+            
+            pais = request.POST.get('pais', '').strip()
+            if not pais:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'El país es obligatorio'
+                }, status=400)
+            
             # Actualizar proveedor
             proveedor.rut_nif = rut_nif
             proveedor.razon_social = request.POST.get('razon_social')
@@ -233,9 +277,9 @@ def proveedor_edit(request, proveedor_id):
             proveedor.email = request.POST.get('email')
             proveedor.telefono = request.POST.get('telefono', '').strip() or None
             proveedor.sitio_web = request.POST.get('sitio_web', '').strip() or None
-            proveedor.direccion = request.POST.get('direccion', '').strip() or None
-            proveedor.ciudad = request.POST.get('ciudad', '').strip() or None
-            proveedor.pais = request.POST.get('pais', 'Chile')
+            proveedor.direccion = direccion
+            proveedor.ciudad = ciudad
+            proveedor.pais = pais
             proveedor.condiciones_pago = request.POST.get('condiciones_pago')
             proveedor.condiciones_pago_detalle = request.POST.get('condiciones_pago_detalle', '').strip() or None
             proveedor.moneda = request.POST.get('moneda', 'CLP')

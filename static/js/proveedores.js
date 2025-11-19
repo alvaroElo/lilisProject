@@ -35,6 +35,24 @@ function validateForm(formData, isEdit = false) {
         errors.push('Debe seleccionar las condiciones de pago');
     }
     
+    // Validar dirección
+    const direccion = formData.get('direccion');
+    if (!direccion || direccion.trim().length === 0) {
+        errors.push('La dirección es obligatoria');
+    }
+    
+    // Validar ciudad
+    const ciudad = formData.get('ciudad');
+    if (!ciudad || ciudad.trim().length === 0) {
+        errors.push('La ciudad es obligatoria');
+    }
+    
+    // Validar país
+    const pais = formData.get('pais');
+    if (!pais || pais.trim().length === 0) {
+        errors.push('El país es obligatorio');
+    }
+    
     return errors;
 }
 

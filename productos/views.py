@@ -153,6 +153,27 @@ def producto_create(request):
                     'message': f'El código EAN/UPC "{ean_upc}" ya existe'
                 }, status=400)
             
+            # Validar stock mínimo
+            stock_minimo_value = request.POST.get('stock_minimo', '').strip()
+            if not stock_minimo_value:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'El campo Stock Mínimo es obligatorio'
+                }, status=400)
+            
+            try:
+                stock_minimo = Decimal(stock_minimo_value)
+                if stock_minimo < 0:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'El Stock Mínimo no puede ser negativo'
+                    }, status=400)
+            except:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'El Stock Mínimo debe ser un número válido'
+                }, status=400)
+            
             # Crear producto
             producto = Producto.objects.create(
                 sku=sku,
@@ -168,9 +189,9 @@ def producto_create(request):
                 costo_estandar=Decimal(request.POST.get('costo_estandar', '0')) if request.POST.get('costo_estandar') else None,
                 precio_venta=Decimal(request.POST.get('precio_venta', '0')) if request.POST.get('precio_venta') else None,
                 impuesto_iva=Decimal(request.POST.get('impuesto_iva', '19')),
-                stock_minimo=Decimal(request.POST.get('stock_minimo', '0')),
-                stock_maximo=Decimal(request.POST.get('stock_maximo', '0')) if request.POST.get('stock_maximo') else None,
-                punto_reorden=Decimal(request.POST.get('punto_reorden', '0')) if request.POST.get('punto_reorden') else None,
+                stock_minimo=stock_minimo,
+                stock_maximo=Decimal(request.POST.get('stock_maximo') or '0') if request.POST.get('stock_maximo') else None,
+                punto_reorden=Decimal(request.POST.get('punto_reorden') or '0') if request.POST.get('punto_reorden') else None,
                 perecible=request.POST.get('perecible') == 'on',
                 control_por_lote=request.POST.get('control_por_lote') == 'on',
                 control_por_serie=request.POST.get('control_por_serie') == 'on',
@@ -230,6 +251,27 @@ def producto_edit(request, producto_id):
                     'message': f'El código EAN/UPC "{ean_upc}" ya existe en otro producto'
                 }, status=400)
             
+            # Validar stock mínimo
+            stock_minimo_value = request.POST.get('stock_minimo', '').strip()
+            if not stock_minimo_value:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'El campo Stock Mínimo es obligatorio'
+                }, status=400)
+            
+            try:
+                stock_minimo = Decimal(stock_minimo_value)
+                if stock_minimo < 0:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'El Stock Mínimo no puede ser negativo'
+                    }, status=400)
+            except:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'El Stock Mínimo debe ser un número válido'
+                }, status=400)
+            
             # Actualizar datos
             producto.sku = sku
             producto.ean_upc = ean_upc if ean_upc else None
@@ -244,9 +286,9 @@ def producto_edit(request, producto_id):
             producto.costo_estandar = Decimal(request.POST.get('costo_estandar', '0')) if request.POST.get('costo_estandar') else None
             producto.precio_venta = Decimal(request.POST.get('precio_venta', '0')) if request.POST.get('precio_venta') else None
             producto.impuesto_iva = Decimal(request.POST.get('impuesto_iva', '19'))
-            producto.stock_minimo = Decimal(request.POST.get('stock_minimo', '0'))
-            producto.stock_maximo = Decimal(request.POST.get('stock_maximo', '0')) if request.POST.get('stock_maximo') else None
-            producto.punto_reorden = Decimal(request.POST.get('punto_reorden', '0')) if request.POST.get('punto_reorden') else None
+            producto.stock_minimo = stock_minimo
+            producto.stock_maximo = Decimal(request.POST.get('stock_maximo') or '0') if request.POST.get('stock_maximo') else None
+            producto.punto_reorden = Decimal(request.POST.get('punto_reorden') or '0') if request.POST.get('punto_reorden') else None
             producto.perecible = request.POST.get('perecible') == 'on'
             producto.control_por_lote = request.POST.get('control_por_lote') == 'on'
             producto.control_por_serie = request.POST.get('control_por_serie') == 'on'

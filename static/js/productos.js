@@ -297,6 +297,21 @@ function validateForm() {
         return false;
     }
     
+    // Validar stock mínimo
+    const stockMinimo = document.getElementById('stock_minimo').value.trim();
+    if (stockMinimo === '') {
+        showAlert('El Stock Mínimo es obligatorio', 'warning');
+        document.getElementById('stock_minimo').focus();
+        return false;
+    }
+    
+    const stockMinimoValue = parseFloat(stockMinimo);
+    if (isNaN(stockMinimoValue) || stockMinimoValue < 0) {
+        showAlert('El Stock Mínimo no puede ser negativo', 'warning');
+        document.getElementById('stock_minimo').focus();
+        return false;
+    }
+    
     return true;
 }
 

@@ -4,6 +4,24 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Prevenir acceso mediante botón atrás después de logout
+    if (window.history && window.history.pushState) {
+        // Detectar si se accedió mediante navegación hacia atrás
+        window.addEventListener('pageshow', function(event) {
+            // Si la página se cargó desde el cache (botón atrás) y el usuario no está autenticado
+            if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+                // Forzar recarga desde el servidor
+                window.location.reload();
+            }
+        });
+        
+        // Agregar entrada al historial para prevenir retroceso
+        window.history.pushState(null, null, window.location.href);
+        window.addEventListener('popstate', function() {
+            window.history.pushState(null, null, window.location.href);
+        });
+    }
+    
     const loginForm = document.getElementById('loginForm');
     
     if (loginForm) {
@@ -57,25 +75,33 @@ document.addEventListener('DOMContentLoaded', function() {
  * Mostrar error en campo específico
  */
 function showFieldError(field, message) {
-    field.classList.add('is-invalid');
+    const formGroup = field.closest('.form-group');
+    formGroup.classList.add('has-error');
     
     // Crear mensaje de error si no existe
-    let errorDiv = field.nextElementSibling;
-    if (!errorDiv || !errorDiv.classList.contains('invalid-feedback')) {
+    let errorDiv = formGroup.querySelector('.error-message');
+    if (!errorDiv) {
         errorDiv = document.createElement('div');
-        errorDiv.className = 'invalid-feedback';
-        field.parentNode.insertBefore(errorDiv, field.nextSibling);
+        errorDiv.className = 'error-message';
+        formGroup.appendChild(errorDiv);
     }
-    errorDiv.textContent = message;
+    errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+    
+    // Shake animation
+    field.style.animation = 'shake 0.4s';
+    setTimeout(() => {
+        field.style.animation = '';
+    }, 400);
 }
 
 /**
  * Limpiar error de campo específico
  */
 function clearFieldError(field) {
-    field.classList.remove('is-invalid');
-    const errorDiv = field.nextElementSibling;
-    if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+    const formGroup = field.closest('.form-group');
+    formGroup.classList.remove('has-error');
+    const errorDiv = formGroup.querySelector('.error-message');
+    if (errorDiv) {
         errorDiv.remove();
     }
 }
@@ -84,9 +110,13 @@ function clearFieldError(field) {
  * Limpiar todos los errores
  */
 function clearErrors() {
-    const invalidFields = document.querySelectorAll('.is-invalid');
-    invalidFields.forEach(field => {
-        clearFieldError(field);
+    const errorGroups = document.querySelectorAll('.form-group.has-error');
+    errorGroups.forEach(group => {
+        group.classList.remove('has-error');
+        const errorDiv = group.querySelector('.error-message');
+        if (errorDiv) {
+            errorDiv.remove();
+        }
     });
 }
 

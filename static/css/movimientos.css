@@ -1,0 +1,344 @@
+/* ===================================
+   MÓDULO DE MOVIMIENTOS - ESTILOS
+   Estilos específicos para el módulo de gestión de movimientos de inventario
+   =================================== */
+
+/* === WIZARD STEPS === */
+.wizard-steps {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 0;
+    position: relative;
+}
+
+.wizard-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    position: relative;
+    z-index: 2;
+}
+
+.wizard-step-number {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #e9ecef;
+    color: #6c757d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    border: 3px solid #e9ecef;
+}
+
+.wizard-step-title {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.wizard-step.active .wizard-step-number {
+    background: linear-gradient(135deg, #D20A11 0%, #8B0000 100%);
+    color: white;
+    border-color: #D20A11;
+    box-shadow: 0 4px 12px rgba(210, 10, 17, 0.3);
+}
+
+.wizard-step.active .wizard-step-title {
+    color: #D20A11;
+    font-weight: 600;
+}
+
+.wizard-step.completed .wizard-step-number {
+    background: #28a745;
+    color: white;
+    border-color: #28a745;
+}
+
+.wizard-step.completed .wizard-step-number::after {
+    content: "\f00c";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
+
+.wizard-step.completed .wizard-step-title {
+    color: #28a745;
+}
+
+.wizard-step-line {
+    flex: 1;
+    height: 3px;
+    background: #e9ecef;
+    margin: 0 -10px;
+    margin-bottom: 35px;
+    position: relative;
+    z-index: 1;
+}
+
+.wizard-step.active ~ .wizard-step-line {
+    background: #e9ecef;
+}
+
+.wizard-step.completed + .wizard-step-line {
+    background: linear-gradient(to right, #28a745, #28a745);
+}
+
+/* === WIZARD CONTENT === */
+.wizard-content {
+    min-height: 350px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+/* === BOTONES DE ACCIÓN === */
+.btn-action-solid {
+    transition: all 0.3s ease;
+}
+
+/* Botón Ver (Azul) - Sólido por defecto, outline en hover */
+.btn-primary.btn-action-solid {
+    background-color: #0d6efd;
+    background-image: none;
+    border: 1px solid #0d6efd;
+    color: white;
+    box-shadow: none;
+}
+
+.btn-primary.btn-action-solid:hover,
+.btn-primary.btn-action-solid:focus,
+.btn-primary.btn-action-solid:active {
+    background-color: white;
+    background-image: none;
+    border: 1px solid #0d6efd;
+    color: #0d6efd;
+    box-shadow: none;
+}
+
+/* Botón Editar (Amarillo) - Sólido por defecto, outline en hover */
+.btn-warning.btn-action-solid {
+    background-color: #ffc107;
+    background-image: none;
+    border: 1px solid #ffc107;
+    color: #000;
+    box-shadow: none;
+}
+
+.btn-warning.btn-action-solid:hover,
+.btn-warning.btn-action-solid:focus,
+.btn-warning.btn-action-solid:active {
+    background-color: white;
+    background-image: none;
+    border: 1px solid #ffc107;
+    color: #ffc107;
+    box-shadow: none;
+}
+
+/* Botón Anular (Rojo) - Sólido por defecto, outline en hover */
+.btn-danger.btn-action-solid {
+    background-color: #dc3545;
+    background-image: none;
+    border: 1px solid #dc3545;
+    color: white;
+    box-shadow: none;
+}
+
+.btn-danger.btn-action-solid:hover,
+.btn-danger.btn-action-solid:focus,
+.btn-danger.btn-action-solid:active {
+    background-color: white;
+    background-image: none;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    box-shadow: none;
+}
+
+/* === BADGES DE TIPO DE MOVIMIENTO === */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* === TABLA === */
+.table {
+    font-size: 0.95rem;
+}
+
+.table thead th {
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 1rem 0.75rem;
+}
+
+.table tbody td {
+    padding: 0.9rem 0.75rem;
+    vertical-align: middle;
+}
+
+/* === FORM SWITCHES === */
+.form-check-input:checked {
+    background-color: #D20A11;
+    border-color: #D20A11;
+}
+
+.form-check-input:focus {
+    border-color: #D20A11;
+    box-shadow: 0 0 0 0.25rem rgba(210, 10, 17, 0.25);
+}
+
+/* === ALERTAS === */
+.alert-info {
+    background-color: rgba(13, 110, 253, 0.1);
+    border-color: rgba(13, 110, 253, 0.2);
+    color: #084298;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+    .wizard-steps {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .wizard-step-line {
+        width: 3px;
+        height: 30px;
+        margin: 0;
+    }
+    
+    .wizard-step {
+        width: 100%;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 15px;
+    }
+    
+    .wizard-step-number {
+        margin-bottom: 0;
+    }
+    
+    .wizard-step-title {
+        text-align: left;
+    }
+}
+
+/* === MODAL === */
+.modal-xl {
+    max-width: 1200px;
+}
+
+.modal-header {
+    border-bottom: 2px solid #f0f0f0;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.modal-title {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.modal-footer {
+    border-top: 2px solid #f0f0f0;
+    background: #f8f9fa;
+}
+
+/* === LOADING === */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #D20A11;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* === BADGES DE ESTADO === */
+.badge.bg-success {
+    background-color: #28a745 !important;
+}
+
+.badge.bg-warning {
+    background-color: #ffc107 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+
+/* === ICONOS EN BADGES === */
+.badge i {
+    font-size: 0.85em;
+}
+
+/* === CAMPOS REQUERIDOS === */
+label .text-danger {
+    font-weight: 700;
+}
+
+/* === SELECTS Y INPUTS === */
+.form-control:focus,
+.form-select:focus {
+    border-color: #D20A11;
+    box-shadow: 0 0 0 0.25rem rgba(210, 10, 17, 0.25);
+}
+
+/* === BOTONES DEL WIZARD === */
+#btnNext,
+#btnPrev,
+#btnSave {
+    min-width: 120px;
+}
+
+/* === TRANSICIONES === */
+.wizard-content,
+.wizard-step,
+.btn-action-solid {
+    transition: all 0.3s ease;
+}
+
+/* === HOVER EFFECTS === */
+.table-hover tbody tr:hover {
+    background-color: rgba(210, 10, 17, 0.05);
+}
+
+/* === PAGINACIÓN === */
+.pagination .page-link {
+    color: #D20A11;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #D20A11;
+    border-color: #D20A11;
+}
+
+.pagination .page-link:hover {
+    color: #8B0000;
+    background-color: rgba(210, 10, 17, 0.1);
+}

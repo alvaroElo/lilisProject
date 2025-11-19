@@ -43,7 +43,7 @@
             {% endif %}
             
             <!-- Formulario de Login -->
-            <form method="post" action="{% url 'login' %}" id="loginForm" class="login-form">
+            <form method="post" action="{% url 'login' %}" id="loginForm" class="login-form" novalidate>
                 {% csrf_token %}
                 
                 <!-- Usuario -->
@@ -56,7 +56,6 @@
                         class="form-control" 
                         placeholder="Ingresa tu usuario o email"
                         autocomplete="username"
-                        required
                         autofocus
                     >
                     <i class="fas fa-user input-icon"></i>
@@ -72,7 +71,6 @@
                         class="form-control" 
                         placeholder="Ingresa tu contraseña"
                         autocomplete="current-password"
-                        required
                     >
                     <i class="fas fa-lock input-icon"></i>
                 </div>

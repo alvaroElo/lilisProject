@@ -56,18 +56,6 @@
                             <span class="sidebar-menu-text">Productos</span>
                         </a>
                     </li>
-                    <li class="sidebar-menu-item">
-                        <a href="/admin/maestros/categoria/" class="sidebar-menu-link {% if active_menu == 'categorias' %}active{% endif %}">
-                            <i class="fas fa-tags sidebar-menu-icon"></i>
-                            <span class="sidebar-menu-text">Categorías</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="/admin/maestros/marca/" class="sidebar-menu-link {% if active_menu == 'marcas' %}active{% endif %}">
-                            <i class="fas fa-trademark sidebar-menu-icon"></i>
-                            <span class="sidebar-menu-text">Marcas</span>
-                        </a>
-                    </li>
                     {% endif %}
                     {% if permisos_modulos.proveedores.ver %}
                     <li class="sidebar-menu-item">
@@ -93,7 +81,7 @@
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="/admin/inventario/movimientoinventario/" class="sidebar-menu-link {% if active_menu == 'movimientos' %}active{% endif %}">
+                        <a href="{% url 'inventario:movimientos_list' %}" class="sidebar-menu-link {% if active_menu == 'movimientos' %}active{% endif %}">
                             <i class="fas fa-exchange-alt sidebar-menu-icon"></i>
                             <span class="sidebar-menu-text">Movimientos</span>
                         </a>
@@ -114,35 +102,7 @@
             </div>
             {% endif %}
             
-            <!-- Compras -->
-            {% if permisos_modulos.compras.ver %}
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Compras</div>
-                <ul class="sidebar-menu">
-                    <li class="sidebar-menu-item">
-                        <a href="/admin/compras/ordencompra/" class="sidebar-menu-link {% if active_menu == 'ordenes' %}active{% endif %}">
-                            <i class="fas fa-file-invoice-dollar sidebar-menu-icon"></i>
-                            <span class="sidebar-menu-text">Órdenes de Compra</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            {% endif %}
-            
-            <!-- Sistema -->
-            {% if user.is_superuser %}
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Sistema</div>
-                <ul class="sidebar-menu">
-                    <li class="sidebar-menu-item">
-                        <a href="/admin/" class="sidebar-menu-link {% if active_menu == 'admin' %}active{% endif %}">
-                            <i class="fas fa-tools sidebar-menu-icon"></i>
-                            <span class="sidebar-menu-text">Administración</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            {% endif %}
+
         </div>
         
         <!-- Sidebar Footer -->

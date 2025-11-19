@@ -1,0 +1,631 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Movimientos de Inventario - Dulcería Lilis{% endblock %}
+{% block page_title %}Movimientos de Inventario 📦{% endblock %}
+
+{% block module_css %}
+<link rel="stylesheet" href="{% static 'css/movimientos.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Toolbar de Acciones -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div>
+        <p class="text-muted mb-0">Gestión y registro de movimientos de inventario</p>
+    </div>
+    {% if permisos.crear %}
+    <div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalMovimiento" onclick="openCreateModal()">
+            <i class="fas fa-plus me-2"></i>Registrar Movimiento
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Estadísticas -->
+<div class="row g-4 mb-4">
+    <!-- Total Movimientos -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #3b82f6 !important;">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
+                     style="width: 60px; height: 60px; background: #3b82f6;">
+                    <i class="fas fa-exchange-alt fs-2 text-white"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fs-2 fw-bold">{{ total_movimientos }}</div>
+                    <div class="text-muted small">Total Movimientos</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Movimientos Hoy -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #28a745 !important;">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
+                     style="width: 60px; height: 60px; background: #28a745;">
+                    <i class="fas fa-calendar-day fs-2 text-white"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fs-2 fw-bold">{{ movimientos_hoy }}</div>
+                    <div class="text-muted small">Movimientos Hoy</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pendientes -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #ffc107 !important;">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
+                     style="width: 60px; height: 60px; background: #ffc107;">
+                    <i class="fas fa-clock fs-2 text-white"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fs-2 fw-bold">{{ movimientos_pendientes }}</div>
+                    <div class="text-muted small">Pendientes</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ingresos del Mes -->
+    <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm" style="border-left: 4px solid #17a2b8 !important;">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="flex-shrink-0 d-flex align-items-center justify-content-center rounded-3" 
+                     style="width: 60px; height: 60px; background: #17a2b8;">
+                    <i class="fas fa-arrow-down fs-2 text-white"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="fs-2 fw-bold">{{ ingresos_mes }}</div>
+                    <div class="text-muted small">Ingresos del Mes</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filtros y Búsqueda -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" action="{% url 'inventario:movimientos_list' %}" id="filterForm">
+            <div class="row g-3">
+                <div class="col-12 col-md-3">
+                    <label class="form-label small text-muted mb-1">
+                        <i class="fas fa-search me-1"></i>Buscar
+                    </label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="searchInput"
+                           name="search" 
+                           value="{{ search }}"
+                           placeholder="SKU, producto, doc. referencia, lote, serie...">
+                </div>
+                
+                <div class="col-12 col-md-2">
+                    <label class="form-label small text-muted mb-1">
+                        <i class="fas fa-arrows-alt me-1"></i>Tipo
+                    </label>
+                    <select class="form-select" name="tipo_movimiento">
+                        <option value="">Todos</option>
+                        <option value="INGRESO" {% if tipo_movimiento == 'INGRESO' %}selected{% endif %}>Ingreso</option>
+                        <option value="SALIDA" {% if tipo_movimiento == 'SALIDA' %}selected{% endif %}>Salida</option>
+                        <option value="AJUSTE" {% if tipo_movimiento == 'AJUSTE' %}selected{% endif %}>Ajuste</option>
+                        <option value="DEVOLUCION" {% if tipo_movimiento == 'DEVOLUCION' %}selected{% endif %}>Devolución</option>
+                        <option value="TRANSFERENCIA" {% if tipo_movimiento == 'TRANSFERENCIA' %}selected{% endif %}>Transferencia</option>
+                    </select>
+                </div>
+                
+                <div class="col-12 col-md-2">
+                    <label class="form-label small text-muted mb-1">
+                        <i class="fas fa-check-circle me-1"></i>Estado
+                    </label>
+                    <select class="form-select" name="estado">
+                        <option value="">Todos</option>
+                        <option value="PENDIENTE" {% if estado == 'PENDIENTE' %}selected{% endif %}>Pendiente</option>
+                        <option value="CONFIRMADO" {% if estado == 'CONFIRMADO' %}selected{% endif %}>Confirmado</option>
+                        <option value="ANULADO" {% if estado == 'ANULADO' %}selected{% endif %}>Anulado</option>
+                    </select>
+                </div>
+                
+                <div class="col-12 col-md-2">
+                    <label class="form-label small text-muted mb-1">
+                        <i class="fas fa-warehouse me-1"></i>Bodega
+                    </label>
+                    <select class="form-select" name="bodega">
+                        <option value="">Todas</option>
+                        {% for bodega in bodegas %}
+                        <option value="{{ bodega.id }}" {% if bodega_id == bodega.id|stringformat:"s" %}selected{% endif %}>
+                            {{ bodega.codigo }} - {{ bodega.nombre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-12 col-md-3 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="fas fa-filter me-1"></i>Filtrar
+                    </button>
+                    <a href="{% url 'inventario:movimientos_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="row g-3 mt-2">
+                <div class="col-12 col-md-3">
+                    <label class="form-label small text-muted mb-1">
+                        <i class="fas fa-calendar me-1"></i>Fecha Desde
+                    </label>
+                    <input type="date" 
+                           class="form-control" 
+                           name="fecha_desde" 
+                           value="{{ fecha_desde }}">
+                </div>
+                
+                <div class="col-12 col-md-3">
+                    <label class="form-label small text-muted mb-1">
+                        <i class="fas fa-calendar me-1"></i>Fecha Hasta
+                    </label>
+                    <input type="date" 
+                           class="form-control" 
+                           name="fecha_hasta" 
+                           value="{{ fecha_hasta }}">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de Movimientos -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <h5 class="mb-0 fw-semibold">Listado de Movimientos</h5>
+                <span class="badge rounded-pill" style="background: rgba(210,10,17,0.15); color: #D20A11; padding: 0.4em 0.8em;">
+                    {{ total_movimientos }} registro{{ total_movimientos|pluralize }}
+                </span>
+            </div>
+            {% if permisos.exportar %}
+            <button onclick="exportarExcel()" class="btn btn-outline-success btn-sm">
+                <i class="fas fa-file-excel me-2"></i>Exportar Excel
+            </button>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="card-body p-0">
+        {% if movimientos %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="min-width: 1200px;">
+                <thead>
+                    <tr style="background: linear-gradient(135deg, #D20A11 0%, #8B0000 100%) !important;">
+                        <th class="ps-4" style="color: white !important; border: none !important; background: transparent !important; width: 80px;">Fecha</th>
+                        <th style="color: white !important; border: none !important; background: transparent !important; width: 100px;">Tipo</th>
+                        <th style="color: white !important; border: none !important; background: transparent !important; width: 120px;">Producto</th>
+                        <th class="text-end" style="color: white !important; border: none !important; background: transparent !important; width: 80px;">Cantidad</th>
+                        <th style="color: white !important; border: none !important; background: transparent !important; width: 140px;">Bodega Origen</th>
+                        <th style="color: white !important; border: none !important; background: transparent !important; width: 140px;">Bodega Destino</th>
+                        <th style="color: white !important; border: none !important; background: transparent !important; width: 120px;">Lote/Serie</th>
+                        <th style="color: white !important; border: none !important; background: transparent !important; width: 100px;">Doc. Ref.</th>
+                        <th class="text-center" style="color: white !important; border: none !important; background: transparent !important; width: 90px;">Estado</th>
+                        <th class="text-center" style="color: white !important; border: none !important; background: transparent !important; width: 120px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movimiento in movimientos %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="fw-semibold text-nowrap" style="font-size: 0.9rem;">
+                                {{ movimiento.fecha_movimiento|date:"d/m/Y" }}
+                            </div>
+                            <small class="text-muted">{{ movimiento.fecha_movimiento|date:"H:i" }}</small>
+                        </td>
+                        <td>
+                            {% if movimiento.tipo_movimiento == 'INGRESO' %}
+                            <span class="badge rounded-pill" style="background: rgba(23,162,184,0.15); color: #17a2b8; padding: 0.4em 0.8em;">
+                                <i class="fas fa-arrow-down me-1"></i>{{ movimiento.get_tipo_movimiento_display }}
+                            </span>
+                            {% elif movimiento.tipo_movimiento == 'SALIDA' %}
+                            <span class="badge rounded-pill" style="background: rgba(220,53,69,0.15); color: #dc3545; padding: 0.4em 0.8em;">
+                                <i class="fas fa-arrow-up me-1"></i>{{ movimiento.get_tipo_movimiento_display }}
+                            </span>
+                            {% elif movimiento.tipo_movimiento == 'AJUSTE' %}
+                            <span class="badge rounded-pill" style="background: rgba(255,193,7,0.15); color: #ffc107; padding: 0.4em 0.8em;">
+                                <i class="fas fa-adjust me-1"></i>{{ movimiento.get_tipo_movimiento_display }}
+                            </span>
+                            {% elif movimiento.tipo_movimiento == 'DEVOLUCION' %}
+                            <span class="badge rounded-pill" style="background: rgba(108,117,125,0.15); color: #6c757d; padding: 0.4em 0.8em;">
+                                <i class="fas fa-undo me-1"></i>{{ movimiento.get_tipo_movimiento_display }}
+                            </span>
+                            {% else %}
+                            <span class="badge rounded-pill" style="background: rgba(111,66,193,0.15); color: #6f42c1; padding: 0.4em 0.8em;">
+                                <i class="fas fa-exchange-alt me-1"></i>{{ movimiento.get_tipo_movimiento_display }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="fw-medium">{{ movimiento.producto.sku }}</div>
+                            <small class="text-muted">{{ movimiento.producto.nombre|truncatewords:3 }}</small>
+                        </td>
+                        <td class="text-end">
+                            <span class="fw-semibold">{{ movimiento.cantidad }}</span>
+                            <small class="text-muted ms-1">{{ movimiento.unidad_medida.codigo }}</small>
+                        </td>
+                        <td>
+                            {% if movimiento.bodega_origen %}
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-warehouse text-muted" style="font-size: 0.85rem;"></i>
+                                <div>
+                                    <div class="fw-medium" style="font-size: 0.9rem;">{{ movimiento.bodega_origen.codigo }}</div>
+                                    <small class="text-muted">{{ movimiento.bodega_origen.nombre|truncatewords:2 }}</small>
+                                </div>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if movimiento.bodega_destino %}
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fas fa-warehouse text-muted" style="font-size: 0.85rem;"></i>
+                                <div>
+                                    <div class="fw-medium" style="font-size: 0.9rem;">{{ movimiento.bodega_destino.codigo }}</div>
+                                    <small class="text-muted">{{ movimiento.bodega_destino.nombre|truncatewords:2 }}</small>
+                                </div>
+                            </div>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if movimiento.lote %}
+                            <div class="text-nowrap">
+                                <i class="fas fa-barcode text-primary me-1" style="font-size: 0.85rem;"></i>
+                                <span style="font-size: 0.9rem;">{{ movimiento.lote.codigo_lote }}</span>
+                            </div>
+                            {% endif %}
+                            {% if movimiento.serie %}
+                            <div class="text-nowrap">
+                                <i class="fas fa-hashtag text-info me-1" style="font-size: 0.85rem;"></i>
+                                <span style="font-size: 0.9rem;">{{ movimiento.serie }}</span>
+                            </div>
+                            {% endif %}
+                            {% if not movimiento.lote and not movimiento.serie %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if movimiento.documento_referencia %}
+                            <span class="text-nowrap" style="font-size: 0.9rem;">{{ movimiento.documento_referencia }}</span>
+                            {% else %}
+                            <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if movimiento.estado == 'CONFIRMADO' %}
+                            <span class="badge rounded-pill bg-success">
+                                <i class="fas fa-check-circle me-1"></i>Confirmado
+                            </span>
+                            {% elif movimiento.estado == 'PENDIENTE' %}
+                            <span class="badge rounded-pill bg-warning text-dark">
+                                <i class="fas fa-clock me-1"></i>Pendiente
+                            </span>
+                            {% else %}
+                            <span class="badge rounded-pill bg-danger">
+                                <i class="fas fa-ban me-1"></i>Anulado
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <button class="btn btn-primary btn-action-solid" 
+                                        title="Ver detalles" 
+                                        data-action="view"
+                                        data-id="{{ movimiento.id }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% if permisos.editar and movimiento.estado == 'PENDIENTE' %}
+                                <button class="btn btn-warning btn-action-solid" 
+                                        title="Editar" 
+                                        data-action="edit"
+                                        data-id="{{ movimiento.id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% endif %}
+                                {% if permisos.eliminar and movimiento.estado == 'PENDIENTE' %}
+                                <button class="btn btn-danger btn-action-solid" 
+                                        title="Anular" 
+                                        data-action="delete"
+                                        data-id="{{ movimiento.id }}"
+                                        data-tipo="{{ movimiento.get_tipo_movimiento_display }}">
+                                    <i class="fas fa-ban"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación -->
+        {% if movimientos.has_other_pages %}
+        <div class="d-flex justify-content-between align-items-center p-3 border-top">
+            <div class="text-muted small">
+                Mostrando {{ movimientos.start_index }} - {{ movimientos.end_index }} de {{ total_movimientos }} movimientos
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    {% if movimientos.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ movimientos.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if tipo_movimiento %}&tipo_movimiento={{ tipo_movimiento }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}{% if bodega_id %}&bodega={{ bodega_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in movimientos.paginator.page_range %}
+                        {% if movimientos.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > movimientos.number|add:'-3' and num < movimientos.number|add:'3' %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if tipo_movimiento %}&tipo_movimiento={{ tipo_movimiento }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}{% if bodega_id %}&bodega={{ bodega_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if movimientos.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ movimientos.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if tipo_movimiento %}&tipo_movimiento={{ tipo_movimiento }}{% endif %}{% if estado %}&estado={{ estado }}{% endif %}{% if bodega_id %}&bodega={{ bodega_id }}{% endif %}{% if fecha_desde %}&fecha_desde={{ fecha_desde }}{% endif %}{% if fecha_hasta %}&fecha_hasta={{ fecha_hasta }}{% endif %}">Siguiente</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="text-center py-5">
+            <div class="d-flex flex-column align-items-center gap-3">
+                <i class="fas fa-exchange-alt" style="font-size: 4rem; color: #dee2e6;"></i>
+                <div>
+                    <h6 class="text-muted mb-1">No se encontraron movimientos</h6>
+                    <p class="text-muted small mb-0">Intenta ajustar los filtros de búsqueda o registra un nuevo movimiento</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal Movimiento con Wizard de 3 Pasos -->
+<div class="modal fade" id="modalMovimiento" tabindex="-1" aria-labelledby="modalMovimientoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalMovimientoLabel">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    <span id="modalTitle">Registrar Movimiento</span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- Wizard Steps -->
+                <div class="wizard-steps mb-4">
+                    <div class="wizard-step active" data-step="1">
+                        <div class="wizard-step-number">1</div>
+                        <div class="wizard-step-title">Datos del movimiento</div>
+                    </div>
+                    <div class="wizard-step-line"></div>
+                    <div class="wizard-step" data-step="2">
+                        <div class="wizard-step-number">2</div>
+                        <div class="wizard-step-title">Control avanzado</div>
+                    </div>
+                    <div class="wizard-step-line"></div>
+                    <div class="wizard-step" data-step="3">
+                        <div class="wizard-step-number">3</div>
+                        <div class="wizard-step-title">Referencias/Observaciones</div>
+                    </div>
+                </div>
+                
+                <form id="formMovimiento">
+                    <input type="hidden" id="movimientoId" name="movimiento_id">
+                    
+                    <!-- Step 1: Datos del Movimiento -->
+                    <div class="wizard-content" data-step="1">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label for="fechaMovimiento" class="form-label">Fecha <span class="text-danger">*</span></label>
+                                <input type="datetime-local" class="form-control" id="fechaMovimiento" name="fecha_movimiento" required>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="tipoMovimiento" class="form-label">Tipo <span class="text-danger">*</span></label>
+                                <select class="form-select" id="tipoMovimiento" name="tipo_movimiento" required>
+                                    <option value="">Seleccione...</option>
+                                    <option value="INGRESO">Ingreso</option>
+                                    <option value="SALIDA">Salida</option>
+                                    <option value="AJUSTE">Ajuste</option>
+                                    <option value="DEVOLUCION">Devolución</option>
+                                    <option value="TRANSFERENCIA">Transferencia</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="producto" class="form-label">Producto <span class="text-danger">*</span></label>
+                                <select class="form-select" id="producto" name="producto_id" required>
+                                    <option value="">Seleccione un producto...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="cantidad" class="form-label">Cantidad <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="cantidad" name="cantidad" step="0.01" min="0.01" required>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="unidadMedida" class="form-label">Unidad <span class="text-danger">*</span></label>
+                                <select class="form-select" id="unidadMedida" name="unidad_medida_id" required>
+                                    <option value="">Seleccione...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3" id="proveedorGroup">
+                                <label for="proveedor" class="form-label">Proveedor</label>
+                                <select class="form-select" id="proveedor" name="proveedor_id">
+                                    <option value="">Seleccione...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3" id="bodegaOrigenGroup">
+                                <label for="bodegaOrigen" class="form-label">Bodega Origen</label>
+                                <select class="form-select" id="bodegaOrigen" name="bodega_origen_id">
+                                    <option value="">Seleccione...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3" id="bodegaDestinoGroup">
+                                <label for="bodegaDestino" class="form-label">Bodega Destino</label>
+                                <select class="form-select" id="bodegaDestino" name="bodega_destino_id">
+                                    <option value="">Seleccione...</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="costoUnitario" class="form-label">Costo Unitario</label>
+                                <input type="number" class="form-control" id="costoUnitario" name="costo_unitario" step="0.01" min="0">
+                            </div>
+                            
+                            <div class="col-md-3">
+                                <label for="costoTotal" class="form-label">Costo Total</label>
+                                <input type="number" class="form-control" id="costoTotal" name="costo_total" step="0.01" min="0" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 2: Control Avanzado -->
+                    <div class="wizard-content" data-step="2" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="alert alert-info d-flex align-items-center" role="alert">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <small>Las banderas (lote/serie/vencimiento) normalmente vienen desde la ficha del producto; aquí se permiten por demo.</small>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Manejo por Lotes</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="manejoPorLotes" name="manejo_por_lotes">
+                                    <label class="form-check-label" for="manejoPorLotes">
+                                        <span id="lotesLabel">0 (no)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Manejo por Series</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="manejoPorSeries" name="manejo_por_series">
+                                    <label class="form-check-label" for="manejoPorSeries">
+                                        <span id="seriesLabel">0 (no)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-4" id="loteGroup" style="display: none;">
+                                <label for="lote" class="form-label">Lote</label>
+                                <input type="text" class="form-control" id="lote" name="lote" placeholder="L-2025-001">
+                            </div>
+                            
+                            <div class="col-md-4" id="serieGroup" style="display: none;">
+                                <label for="serie" class="form-label">Serie</label>
+                                <input type="text" class="form-control" id="serie" name="serie" placeholder="SN123456789">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label class="form-label">Perecible (vencimiento)</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="perecible" name="perecible">
+                                    <label class="form-check-label" for="perecible">
+                                        <span id="perecibleLabel">0 (no)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6" id="fechaVencimientoGroup" style="display: none;">
+                                <label for="fechaVencimiento" class="form-label">Fecha Vencimiento</label>
+                                <input type="date" class="form-control" id="fechaVencimiento" name="fecha_vencimiento">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Step 3: Referencias y Observaciones -->
+                    <div class="wizard-content" data-step="3" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="documentoReferencia" class="form-label">Documento Referencia</label>
+                                <input type="text" class="form-control" id="documentoReferencia" name="documento_referencia" placeholder="OC-123 / FAC-456 / GUIA-789">
+                                <small class="form-text text-muted">Factura, guía despacho, orden de compra, etc.</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="motivoAjuste" class="form-label">Motivo (ajustes/devoluciones)</label>
+                                <input type="text" class="form-control" id="motivoAjuste" name="motivo_ajuste" placeholder="Diferencia inventario, devolución cliente, etc.">
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="estadoMovimiento" class="form-label">Estado</label>
+                                <select class="form-select" id="estadoMovimiento" name="estado">
+                                    <option value="PENDIENTE">Pendiente</option>
+                                    <option value="CONFIRMADO">Confirmado</option>
+                                </select>
+                                <small class="form-text text-muted">Confirmado afectará directamente el stock</small>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label for="observaciones" class="form-label">Observaciones</label>
+                                <textarea class="form-control" id="observaciones" name="observaciones" rows="3" placeholder="Notas de operación, recibo, daño, etc."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-outline-secondary" id="btnPrev" style="display: none;">
+                    <i class="fas fa-arrow-left me-1"></i>Anterior
+                </button>
+                <button type="button" class="btn btn-primary" id="btnNext">
+                    Siguiente<i class="fas fa-arrow-right ms-1"></i>
+                </button>
+                <button type="button" class="btn btn-success" id="btnSave" style="display: none;">
+                    <i class="fas fa-save me-1"></i>Guardar Movimiento
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Configuración global de permisos y URLs
+const PERMISOS = {
+    crear: {{ permisos.crear|yesno:"true,false" }},
+    editar: {{ permisos.editar|yesno:"true,false" }},
+    eliminar: {{ permisos.eliminar|yesno:"true,false" }},
+    exportar: {{ permisos.exportar|yesno:"true,false" }}
+};
+</script>
+
+{% endblock %}
+
+{% block module_js %}
+<script src="{% static 'js/movimientos.js' %}"></script>
+{% endblock %}
