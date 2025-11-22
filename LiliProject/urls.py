@@ -72,6 +72,9 @@ urlpatterns = [
     # Inventario - Movimientos
     path('movimientos/', include('inventario.urls')),
     
+    # API REST
+    path('api/', include('api.urls')),
+    
     # Rutas de prueba para páginas de error (SOLO PARA DESARROLLO)
     path('test-404/', error_404, name='test_404'),
     path('test-500/', error_500, name='test_500'),
