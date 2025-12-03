@@ -91,10 +91,10 @@
 </div>
 
 <!-- Filtros y Búsqueda -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
+<div class="card border-0 shadow-sm mb-4" style="overflow: visible;">
+    <div class="card-body" style="overflow: visible;">
         <form method="get" action="{% url 'inventario:movimientos_list' %}" id="filterForm">
-            <div class="row g-3">
+            <div class="row g-3" style="overflow: visible;">
                 <div class="col-12 col-md-3">
                     <label class="form-label small text-muted mb-1">
                         <i class="fas fa-search me-1"></i>Buscar
@@ -133,18 +133,25 @@
                     </select>
                 </div>
                 
-                <div class="col-12 col-md-2">
+                <div class="col-12 col-md-2" style="overflow: visible;">
                     <label class="form-label small text-muted mb-1">
                         <i class="fas fa-warehouse me-1"></i>Bodega
                     </label>
-                    <select class="form-select" name="bodega">
-                        <option value="">Todas</option>
-                        {% for bodega in bodegas %}
-                        <option value="{{ bodega.id }}" {% if bodega_id == bodega.id|stringformat:"s" %}selected{% endif %}>
-                            {{ bodega.codigo }} - {{ bodega.nombre }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    <div class="position-relative" style="z-index: 1000;">
+                        <input type="hidden" id="bodegaId" name="bodega" value="{{ bodega_id }}">
+                        <input type="text" 
+                               class="form-control" 
+                               id="bodegaSearch"
+                               placeholder="Buscar bodega..."
+                               autocomplete="off"
+                               value="{% if bodega_nombre %}{{ bodega_nombre }}{% endif %}">
+                        <div id="bodegaDropdown" class="autocomplete-dropdown" style="display: none;"></div>
+                        {% if bodega_id %}
+                        <button type="button" class="btn-clear-bodega" onclick="clearBodegaSelection()" title="Limpiar selección">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
                 
                 <div class="col-12 col-md-3 d-flex align-items-end gap-2">

@@ -185,6 +185,15 @@ def movimientos_list(request):
     # Obtener listas para filtros
     bodegas = Bodega.objects.filter(activo=True).order_by('nombre')
     
+    # Obtener nombre de bodega seleccionada si existe
+    bodega_nombre = None
+    if bodega_id:
+        try:
+            bodega_seleccionada = Bodega.objects.get(id=bodega_id)
+            bodega_nombre = f"{bodega_seleccionada.codigo} - {bodega_seleccionada.nombre}"
+        except Bodega.DoesNotExist:
+            pass
+    
     context = {
         'movimientos': movimientos_page,
         'page_obj': movimientos_page,
@@ -202,6 +211,7 @@ def movimientos_list(request):
         'tipo_movimiento': tipo_movimiento,
         'estado': estado,
         'bodega_id': bodega_id,
+        'bodega_nombre': bodega_nombre,
         'fecha_desde': fecha_desde,
         'fecha_hasta': fecha_hasta,
         'per_page': per_page,
@@ -593,3 +603,40 @@ def exportar_movimientos_excel(request):
     wb.save(response)
     
     return response
+
+
+@login_required
+@require_http_methods(["GET"])
+def buscar_bodegas(request):
+    """Buscar bodegas por nombre o código (para autocompletado)"""
+    
+    search = request.GET.get('q', '').strip()
+    
+    # Query base - solo bodegas activas
+    bodegas = Bodega.objects.filter(activo=True)
+    
+    # Filtrar si hay búsqueda
+    if search:
+        bodegas = bodegas.filter(
+            Q(nombre__icontains=search) |
+            Q(codigo__icontains=search)
+        )
+    
+    # Limitar a 20 resultados
+    bodegas = bodegas.order_by('nombre')[:20]
+    
+    # Formatear resultados
+    results = [
+        {
+            'id': bodega.id,
+            'codigo': bodega.codigo,
+            'nombre': bodega.nombre,
+            'text': f"{bodega.codigo} - {bodega.nombre}"
+        }
+        for bodega in bodegas
+    ]
+    
+    return JsonResponse({
+        'success': True,
+        'results': results
+    })

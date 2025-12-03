@@ -744,3 +744,260 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+/* ===================================
+   AUTOCOMPLETADO DE BODEGAS CON AJAX
+   =================================== */
+
+let bodegaSearchTimeout = null;
+let selectedBodega = null;
+let currentBodegaIndex = -1;
+
+// Inicializar autocompletado de bodegas
+function initBodegaAutocomplete() {
+    const bodegaSearch = document.getElementById('bodegaSearch');
+    const bodegaId = document.getElementById('bodegaId');
+    const bodegaDropdown = document.getElementById('bodegaDropdown');
+    
+    if (!bodegaSearch || !bodegaId || !bodegaDropdown) return;
+    
+    // Si hay una bodega seleccionada, mostrar botón de limpiar
+    if (bodegaId.value && bodegaSearch.value) {
+        showClearBodegaButton();
+    }
+    
+    // Evento input - búsqueda en tiempo real
+    bodegaSearch.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Limpiar timeout anterior
+        if (bodegaSearchTimeout) {
+            clearTimeout(bodegaSearchTimeout);
+        }
+        
+        // Si el campo está vacío, ocultar dropdown
+        if (query === '') {
+            bodegaDropdown.style.display = 'none';
+            bodegaSearch.classList.remove('active');
+            return;
+        }
+        
+        // Mostrar loading
+        showBodegaLoading();
+        
+        // Buscar después de 300ms
+        bodegaSearchTimeout = setTimeout(() => {
+            searchBodegas(query);
+        }, 300);
+    });
+    
+    // Evento focus - mostrar todas las bodegas si está vacío
+    bodegaSearch.addEventListener('focus', function() {
+        const query = this.value.trim();
+        
+        if (query === '') {
+            // Si está vacío, cargar todas las bodegas
+            showBodegaLoading();
+            searchBodegas('');
+        } else if (bodegaDropdown.innerHTML !== '') {
+            // Si hay texto y resultados previos, mostrar dropdown
+            bodegaDropdown.style.display = 'block';
+            bodegaSearch.classList.add('active');
+        }
+    });
+    
+    // Cerrar dropdown al hacer click fuera
+    document.addEventListener('click', function(e) {
+        if (!bodegaSearch.contains(e.target) && !bodegaDropdown.contains(e.target)) {
+            bodegaDropdown.style.display = 'none';
+            bodegaSearch.classList.remove('active');
+        }
+    });
+    
+    // Navegación con teclado
+    bodegaSearch.addEventListener('keydown', function(e) {
+        const items = bodegaDropdown.querySelectorAll('.autocomplete-item');
+        
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            currentBodegaIndex = Math.min(currentBodegaIndex + 1, items.length - 1);
+            updateActiveBodegaItem(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            currentBodegaIndex = Math.max(currentBodegaIndex - 1, 0);
+            updateActiveBodegaItem(items);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (currentBodegaIndex >= 0 && items[currentBodegaIndex]) {
+                items[currentBodegaIndex].click();
+            }
+        } else if (e.key === 'Escape') {
+            bodegaDropdown.style.display = 'none';
+            bodegaSearch.classList.remove('active');
+        }
+    });
+}
+
+// Buscar bodegas con AJAX
+function searchBodegas(query) {
+    const bodegaDropdown = document.getElementById('bodegaDropdown');
+    const bodegaSearch = document.getElementById('bodegaSearch');
+    
+    const url = `/movimientos/bodegas/buscar/?q=${encodeURIComponent(query)}`;
+    
+    fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                displayBodegaResults(data.results);
+            } else {
+                showBodegaError('Error al buscar bodegas');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showBodegaError('Error de conexión');
+        });
+}
+
+// Mostrar resultados de búsqueda
+function displayBodegaResults(results) {
+    const bodegaDropdown = document.getElementById('bodegaDropdown');
+    const bodegaSearch = document.getElementById('bodegaSearch');
+    
+    currentBodegaIndex = -1;
+    
+    if (results.length === 0) {
+        bodegaDropdown.innerHTML = '<div class="autocomplete-no-results">No se encontraron bodegas</div>';
+    } else {
+        let html = '';
+        results.forEach((bodega, index) => {
+            html += `
+                <div class="autocomplete-item" data-index="${index}" data-id="${bodega.id}" data-codigo="${bodega.codigo}" data-nombre="${bodega.nombre}">
+                    <div class="autocomplete-item-code">
+                        <i class="fas fa-warehouse me-2"></i>${bodega.codigo}
+                    </div>
+                    <div class="autocomplete-item-name">${bodega.nombre}</div>
+                </div>
+            `;
+        });
+        bodegaDropdown.innerHTML = html;
+        
+        // Agregar eventos click a los items
+        bodegaDropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+            item.addEventListener('click', function() {
+                selectBodega({
+                    id: this.dataset.id,
+                    codigo: this.dataset.codigo,
+                    nombre: this.dataset.nombre
+                });
+            });
+        });
+    }
+    
+    bodegaDropdown.style.display = 'block';
+    bodegaSearch.classList.add('active');
+}
+
+// Seleccionar una bodega
+function selectBodega(bodega) {
+    const bodegaSearch = document.getElementById('bodegaSearch');
+    const bodegaId = document.getElementById('bodegaId');
+    const bodegaDropdown = document.getElementById('bodegaDropdown');
+    
+    selectedBodega = bodega;
+    bodegaId.value = bodega.id;
+    bodegaSearch.value = `${bodega.codigo} - ${bodega.nombre}`;
+    
+    bodegaDropdown.style.display = 'none';
+    bodegaSearch.classList.remove('active');
+    
+    // Mostrar botón de limpiar
+    showClearBodegaButton();
+    
+    // Enviar formulario automáticamente para aplicar el filtro
+    document.getElementById('filterForm').submit();
+}
+
+// Limpiar selección de bodega
+function clearBodegaSelection() {
+    const bodegaSearch = document.getElementById('bodegaSearch');
+    const bodegaId = document.getElementById('bodegaId');
+    const bodegaDropdown = document.getElementById('bodegaDropdown');
+    
+    selectedBodega = null;
+    bodegaId.value = '';
+    bodegaSearch.value = '';
+    
+    bodegaDropdown.style.display = 'none';
+    bodegaSearch.classList.remove('active');
+    
+    // Ocultar botón de limpiar
+    hideClearBodegaButton();
+    
+    // Enviar formulario para quitar el filtro
+    document.getElementById('filterForm').submit();
+}
+
+// Mostrar loading en dropdown
+function showBodegaLoading() {
+    const bodegaDropdown = document.getElementById('bodegaDropdown');
+    const bodegaSearch = document.getElementById('bodegaSearch');
+    
+    bodegaDropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner me-2"></i>Buscando...</div>';
+    bodegaDropdown.style.display = 'block';
+    bodegaSearch.classList.add('active');
+}
+
+// Mostrar error en dropdown
+function showBodegaError(message) {
+    const bodegaDropdown = document.getElementById('bodegaDropdown');
+    bodegaDropdown.innerHTML = `<div class="autocomplete-no-results text-danger"><i class="fas fa-exclamation-circle me-2"></i>${message}</div>`;
+}
+
+// Actualizar item activo en navegación por teclado
+function updateActiveBodegaItem(items) {
+    items.forEach((item, index) => {
+        if (index === currentBodegaIndex) {
+            item.classList.add('active');
+            item.scrollIntoView({ block: 'nearest' });
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+// Mostrar botón de limpiar
+function showClearBodegaButton() {
+    let btn = document.querySelector('.btn-clear-bodega');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-clear-bodega';
+        btn.title = 'Limpiar selección';
+        btn.onclick = clearBodegaSelection;
+        btn.innerHTML = '<i class="fas fa-times"></i>';
+        document.getElementById('bodegaSearch').parentElement.appendChild(btn);
+    }
+    btn.style.display = 'block';
+}
+
+// Ocultar botón de limpiar
+function hideClearBodegaButton() {
+    const btn = document.querySelector('.btn-clear-bodega');
+    if (btn) {
+        btn.style.display = 'none';
+    }
+}
+
+// Inicializar cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBodegaAutocomplete);
+} else {
+    initBodegaAutocomplete();
+}

@@ -342,3 +342,130 @@ label .text-danger {
     color: #8B0000;
     background-color: rgba(210, 10, 17, 0.1);
 }
+
+/* === AUTOCOMPLETE DE BODEGAS === */
+.autocomplete-dropdown {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-top: none !important;
+    border-radius: 0 0 0.375rem 0.375rem !important;
+    max-height: 250px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    z-index: 9999 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    margin-top: -1px !important;
+}
+
+.autocomplete-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.active {
+    background: linear-gradient(135deg, rgba(210, 10, 17, 0.1) 0%, rgba(139, 0, 0, 0.1) 100%);
+}
+
+.autocomplete-item-code {
+    font-weight: 600;
+    color: #D20A11;
+    font-size: 0.9rem;
+}
+
+.autocomplete-item-name {
+    color: #6c757d;
+    font-size: 0.85rem;
+}
+
+.autocomplete-no-results {
+    padding: 1rem;
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.autocomplete-loading {
+    padding: 1rem;
+    text-align: center;
+    color: #6c757d;
+}
+
+.autocomplete-loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.btn-clear-bodega {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.btn-clear-bodega:hover {
+    color: #dc3545;
+}
+
+/* Ajuste para el input cuando está con dropdown */
+#bodegaSearch.active {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+/* Badge de selección de bodega */
+.bodega-selected-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: linear-gradient(135deg, rgba(210, 10, 17, 0.1) 0%, rgba(139, 0, 0, 0.1) 100%);
+    border: 1px solid rgba(210, 10, 17, 0.3);
+    border-radius: 0.375rem;
+    margin-top: 0.25rem;
+}
+
+.bodega-selected-badge .badge-text {
+    font-size: 0.875rem;
+    color: #D20A11;
+    font-weight: 500;
+}
+
+.bodega-selected-badge .badge-clear {
+    background: none;
+    border: none;
+    color: #D20A11;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.bodega-selected-badge .badge-clear:hover {
+    color: #8B0000;
+}
