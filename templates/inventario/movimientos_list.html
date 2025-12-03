@@ -542,9 +542,16 @@
                             
                             <div class="col-md-6">
                                 <label for="producto" class="form-label">Producto <span class="text-danger">*</span></label>
-                                <select class="form-select" id="producto" name="producto_id" required>
-                                    <option value="">Seleccione un producto...</option>
-                                </select>
+                                <div class="position-relative">
+                                    <input type="hidden" id="productoId" name="producto_id" required>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="productoSearch"
+                                           placeholder="Buscar por SKU o nombre..."
+                                           autocomplete="off"
+                                           required>
+                                    <div id="productoDropdown" class="autocomplete-dropdown" style="display: none;"></div>
+                                </div>
                             </div>
                             
                             <div class="col-md-3">
@@ -561,23 +568,41 @@
                             
                             <div class="col-md-3" id="proveedorGroup">
                                 <label for="proveedor" class="form-label">Proveedor</label>
-                                <select class="form-select" id="proveedor" name="proveedor_id">
-                                    <option value="">Seleccione...</option>
-                                </select>
+                                <div class="position-relative">
+                                    <input type="hidden" id="proveedorId" name="proveedor_id">
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="proveedorSearch"
+                                           placeholder="Buscar proveedor..."
+                                           autocomplete="off">
+                                    <div id="proveedorDropdown" class="autocomplete-dropdown" style="display: none;"></div>
+                                </div>
                             </div>
                             
                             <div class="col-md-3" id="bodegaOrigenGroup">
                                 <label for="bodegaOrigen" class="form-label">Bodega Origen</label>
-                                <select class="form-select" id="bodegaOrigen" name="bodega_origen_id">
-                                    <option value="">Seleccione...</option>
-                                </select>
+                                <div class="position-relative">
+                                    <input type="hidden" id="bodegaOrigenId" name="bodega_origen_id">
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="bodegaOrigenSearch"
+                                           placeholder="Buscar bodega..."
+                                           autocomplete="off">
+                                    <div id="bodegaOrigenDropdown" class="autocomplete-dropdown" style="display: none;"></div>
+                                </div>
                             </div>
                             
                             <div class="col-md-3" id="bodegaDestinoGroup">
                                 <label for="bodegaDestino" class="form-label">Bodega Destino</label>
-                                <select class="form-select" id="bodegaDestino" name="bodega_destino_id">
-                                    <option value="">Seleccione...</option>
-                                </select>
+                                <div class="position-relative">
+                                    <input type="hidden" id="bodegaDestinoId" name="bodega_destino_id">
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="bodegaDestinoSearch"
+                                           placeholder="Buscar bodega..."
+                                           autocomplete="off">
+                                    <div id="bodegaDestinoDropdown" class="autocomplete-dropdown" style="display: none;"></div>
+                                </div>
                             </div>
                             
                             <div class="col-md-3">

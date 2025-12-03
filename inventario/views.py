@@ -640,3 +640,79 @@ def buscar_bodegas(request):
         'success': True,
         'results': results
     })
+
+
+@login_required
+@require_http_methods(["GET"])
+def buscar_productos(request):
+    """Buscar productos por SKU o nombre (para autocompletado)"""
+    
+    search = request.GET.get('q', '').strip()
+    
+    # Query base - solo productos activos
+    productos = Producto.objects.filter(estado='ACTIVO')
+    
+    # Filtrar si hay búsqueda
+    if search:
+        productos = productos.filter(
+            Q(sku__icontains=search) |
+            Q(nombre__icontains=search)
+        )
+    
+    # Limitar a 20 resultados
+    productos = productos.order_by('nombre')[:20]
+    
+    # Formatear resultados
+    results = [
+        {
+            'id': producto.id,
+            'sku': producto.sku,
+            'nombre': producto.nombre,
+            'text': f"{producto.sku} - {producto.nombre}",
+            'control_por_lote': producto.control_por_lote,
+            'control_por_serie': producto.control_por_serie
+        }
+        for producto in productos
+    ]
+    
+    return JsonResponse({
+        'success': True,
+        'results': results
+    })
+
+
+@login_required
+@require_http_methods(["GET"])
+def buscar_proveedores(request):
+    """Buscar proveedores por RUT o razón social (para autocompletado)"""
+    
+    search = request.GET.get('q', '').strip()
+    
+    # Query base - solo proveedores activos
+    proveedores = Proveedor.objects.filter(estado='ACTIVO')
+    
+    # Filtrar si hay búsqueda
+    if search:
+        proveedores = proveedores.filter(
+            Q(rut_nif__icontains=search) |
+            Q(razon_social__icontains=search)
+        )
+    
+    # Limitar a 20 resultados
+    proveedores = proveedores.order_by('razon_social')[:20]
+    
+    # Formatear resultados
+    results = [
+        {
+            'id': proveedor.id,
+            'rut': proveedor.rut_nif,
+            'razon_social': proveedor.razon_social,
+            'text': f"{proveedor.rut_nif} - {proveedor.razon_social}"
+        }
+        for proveedor in proveedores
+    ]
+    
+    return JsonResponse({
+        'success': True,
+        'results': results
+    })

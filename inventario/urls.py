@@ -13,4 +13,6 @@ urlpatterns = [
     
     # AJAX endpoints
     path('bodegas/buscar/', views.buscar_bodegas, name='buscar_bodegas'),
+    path('productos/buscar/', views.buscar_productos, name='buscar_productos'),
+    path('proveedores/buscar/', views.buscar_proveedores, name='buscar_proveedores'),
 ]

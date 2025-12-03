@@ -111,7 +111,7 @@ async function viewMovimiento(id) {
     try {
         showLoading();
         
-        const response = await fetch(`/movimientos/movimientos/${id}/edit/`, {
+        const response = await fetch(`/movimientos/${id}/edit/`, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -177,7 +177,7 @@ async function editMovimiento(id) {
         await loadFormData();
         
         // Luego cargar datos del movimiento
-        const response = await fetch(`/movimientos/movimientos/${id}/edit/`, {
+        const response = await fetch(`/movimientos/${id}/edit/`, {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -280,7 +280,7 @@ function deleteMovimiento(id, tipo) {
             try {
                 showLoading();
                 
-                const response = await fetch(`/movimientos/movimientos/${id}/delete/`, {
+                const response = await fetch(`/movimientos/${id}/delete/`, {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': getCookie('csrftoken'),
@@ -319,7 +319,7 @@ async function loadFormData() {
     try {
         showLoading();
         
-        const response = await fetch('/movimientos/movimientos/create/', {
+        const response = await fetch('/movimientos/create/', {
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -330,16 +330,9 @@ async function loadFormData() {
         hideLoading();
         
         if (data.success) {
-            productos = data.productos;
-            bodegas = data.bodegas;
-            proveedores = data.proveedores;
             unidades = data.unidades;
             
-            // Poblar selects
-            populateSelect('producto', productos, 'id', item => `${item.sku} - ${item.nombre}`);
-            populateSelect('bodegaOrigen', bodegas, 'id', item => `${item.codigo} - ${item.nombre}`);
-            populateSelect('bodegaDestino', bodegas, 'id', item => `${item.codigo} - ${item.nombre}`);
-            populateSelect('proveedor', proveedores, 'id', item => `${item.rut_nif} - ${item.razon_social}`);
+            // Solo poblar el select de unidad de medida (los demás usan autocomplete)
             populateSelect('unidadMedida', unidades, 'id', item => `${item.codigo} - ${item.nombre}`);
         } else {
             showAlert('Error al cargar datos del formulario', 'error');
@@ -381,14 +374,14 @@ function updateFieldsVisibility() {
     const proveedorGroup = document.getElementById('proveedorGroup');
     const bodegaOrigenGroup = document.getElementById('bodegaOrigenGroup');
     const bodegaDestinoGroup = document.getElementById('bodegaDestinoGroup');
-    const proveedorSelect = document.getElementById('proveedor');
-    const bodegaOrigenSelect = document.getElementById('bodegaOrigen');
-    const bodegaDestinoSelect = document.getElementById('bodegaDestino');
+    const proveedorId = document.getElementById('proveedorId');
+    const bodegaOrigenId = document.getElementById('bodegaOrigenId');
+    const bodegaDestinoId = document.getElementById('bodegaDestinoId');
     
     // Reset required
-    proveedorSelect.required = false;
-    bodegaOrigenSelect.required = false;
-    bodegaDestinoSelect.required = false;
+    proveedorId.required = false;
+    bodegaOrigenId.required = false;
+    bodegaDestinoId.required = false;
     
     // Ocultar todos
     proveedorGroup.style.display = 'none';
@@ -400,28 +393,28 @@ function updateFieldsVisibility() {
         case 'INGRESO':
             proveedorGroup.style.display = 'block';
             bodegaDestinoGroup.style.display = 'block';
-            proveedorSelect.required = true;
-            bodegaDestinoSelect.required = true;
+            proveedorId.required = true;
+            bodegaDestinoId.required = true;
             break;
         case 'SALIDA':
             bodegaOrigenGroup.style.display = 'block';
-            bodegaOrigenSelect.required = true;
+            bodegaOrigenId.required = true;
             break;
         case 'AJUSTE':
             bodegaOrigenGroup.style.display = 'block';
-            bodegaOrigenSelect.required = true;
+            bodegaOrigenId.required = true;
             break;
         case 'DEVOLUCION':
             proveedorGroup.style.display = 'block';
             bodegaOrigenGroup.style.display = 'block';
-            proveedorSelect.required = true;
-            bodegaOrigenSelect.required = true;
+            proveedorId.required = true;
+            bodegaOrigenId.required = true;
             break;
         case 'TRANSFERENCIA':
             bodegaOrigenGroup.style.display = 'block';
             bodegaDestinoGroup.style.display = 'block';
-            bodegaOrigenSelect.required = true;
-            bodegaDestinoSelect.required = true;
+            bodegaOrigenId.required = true;
+            bodegaDestinoId.required = true;
             break;
     }
 }
@@ -513,7 +506,7 @@ function validateCurrentStep() {
         // Validar campos obligatorios del paso 1
         const fecha = document.getElementById('fechaMovimiento').value;
         const tipo = document.getElementById('tipoMovimiento').value;
-        const producto = document.getElementById('producto').value;
+        const producto = document.getElementById('productoId').value;
         const cantidad = document.getElementById('cantidad').value;
         const unidad = document.getElementById('unidadMedida').value;
         
@@ -523,9 +516,9 @@ function validateCurrentStep() {
         }
         
         // Validar campos según tipo
-        const proveedor = document.getElementById('proveedor').value;
-        const bodegaOrigen = document.getElementById('bodegaOrigen').value;
-        const bodegaDestino = document.getElementById('bodegaDestino').value;
+        const proveedor = document.getElementById('proveedorId').value;
+        const bodegaOrigen = document.getElementById('bodegaOrigenId').value;
+        const bodegaDestino = document.getElementById('bodegaDestinoId').value;
         
         if ((tipo === 'INGRESO' || tipo === 'DEVOLUCION') && !proveedor) {
             showAlert('Proveedor es obligatorio para este tipo de movimiento', 'warning');
@@ -559,12 +552,12 @@ async function saveMovimiento() {
         const formData = {
             tipo_movimiento: document.getElementById('tipoMovimiento').value,
             fecha_movimiento: document.getElementById('fechaMovimiento').value,
-            producto_id: document.getElementById('producto').value,
+            producto_id: document.getElementById('productoId').value,
             cantidad: document.getElementById('cantidad').value,
             unidad_medida_id: document.getElementById('unidadMedida').value,
-            proveedor_id: document.getElementById('proveedor').value || null,
-            bodega_origen_id: document.getElementById('bodegaOrigen').value || null,
-            bodega_destino_id: document.getElementById('bodegaDestino').value || null,
+            proveedor_id: document.getElementById('proveedorId').value || null,
+            bodega_origen_id: document.getElementById('bodegaOrigenId').value || null,
+            bodega_destino_id: document.getElementById('bodegaDestinoId').value || null,
             costo_unitario: document.getElementById('costoUnitario').value || null,
             costo_total: document.getElementById('costoTotal').value || null,
             lote_id: document.getElementById('manejoPorLotes').checked ? document.getElementById('lote').value : null,
@@ -578,10 +571,10 @@ async function saveMovimiento() {
         let url, method;
         if (isEditMode) {
             const id = document.getElementById('movimientoId').value;
-            url = `/movimientos/movimientos/${id}/edit/`;
+            url = `/movimientos/${id}/edit/`;
             method = 'POST';
         } else {
-            url = '/movimientos/movimientos/create/';
+            url = '/movimientos/create/';
             method = 'POST';
         }
         
@@ -648,7 +641,7 @@ function exportarExcel() {
         }
     });
     
-    const exportUrl = `/movimientos/movimientos/exportar-excel/${params ? '?' + params : ''}`;
+    const exportUrl = `/movimientos/exportar-excel/${params ? '?' + params : ''}`;
     window.location.href = exportUrl;
     
     setTimeout(() => {
@@ -669,6 +662,21 @@ function resetForm() {
     document.getElementById('movimientoId').value = '';
     currentStep = 1;
     isEditMode = false;
+    
+    // Resetear autocompletados
+    document.getElementById('productoId').value = '';
+    document.getElementById('productoSearch').value = '';
+    document.getElementById('proveedorId').value = '';
+    document.getElementById('proveedorSearch').value = '';
+    document.getElementById('bodegaOrigenId').value = '';
+    document.getElementById('bodegaOrigenSearch').value = '';
+    document.getElementById('bodegaDestinoId').value = '';
+    document.getElementById('bodegaDestinoSearch').value = '';
+    
+    selectedProducto = null;
+    selectedProveedor = null;
+    selectedBodegaOrigen = null;
+    selectedBodegaDestino = null;
     
     // Resetear switches
     document.getElementById('manejoPorLotes').checked = false;
@@ -997,7 +1005,374 @@ function hideClearBodegaButton() {
 
 // Inicializar cuando el DOM esté listo
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initBodegaAutocomplete);
+    document.addEventListener('DOMContentLoaded', () => {
+        initBodegaAutocomplete();
+        initModalAutocompletes();
+    });
 } else {
     initBodegaAutocomplete();
+    initModalAutocompletes();
+}
+
+/* ===================================
+   AUTOCOMPLETADOS DEL MODAL
+   =================================== */
+
+function initModalAutocompletes() {
+    initProductoAutocomplete();
+    initProveedorAutocomplete();
+    initBodegaOrigenAutocomplete();
+    initBodegaDestinoAutocomplete();
+}
+
+// ===== PRODUCTO AUTOCOMPLETE =====
+let productoSearchTimeout = null;
+let selectedProducto = null;
+
+function initProductoAutocomplete() {
+    const search = document.getElementById('productoSearch');
+    const dropdown = document.getElementById('productoDropdown');
+    
+    if (!search || !dropdown) return;
+    
+    search.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        if (productoSearchTimeout) clearTimeout(productoSearchTimeout);
+        
+        if (query === '') {
+            dropdown.style.display = 'none';
+            search.classList.remove('active');
+            return;
+        }
+        
+        dropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner me-2"></i>Buscando...</div>';
+        dropdown.style.display = 'block';
+        search.classList.add('active');
+        
+        productoSearchTimeout = setTimeout(() => searchProductos(query), 300);
+    });
+    
+    search.addEventListener('focus', function() {
+        if (this.value.trim() === '') {
+            dropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner me-2"></i>Buscando...</div>';
+            dropdown.style.display = 'block';
+            search.classList.add('active');
+            searchProductos('');
+        }
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!search.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+            search.classList.remove('active');
+        }
+    });
+}
+
+function searchProductos(query) {
+    fetch(`/movimientos/productos/buscar/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayProductoResults(data.results);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('productoDropdown').innerHTML = '<div class="autocomplete-no-results text-danger">Error de conexión</div>';
+        });
+}
+
+function displayProductoResults(results) {
+    const dropdown = document.getElementById('productoDropdown');
+    
+    if (results.length === 0) {
+        dropdown.innerHTML = '<div class="autocomplete-no-results">No se encontraron productos</div>';
+    } else {
+        let html = '';
+        results.forEach(producto => {
+            html += `
+                <div class="autocomplete-item" data-id="${producto.id}" data-sku="${producto.sku}" data-nombre="${producto.nombre}">
+                    <div class="autocomplete-item-code">
+                        <i class="fas fa-box me-2"></i>${producto.sku}
+                    </div>
+                    <div class="autocomplete-item-name">${producto.nombre}</div>
+                </div>
+            `;
+        });
+        dropdown.innerHTML = html;
+        
+        dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+            item.addEventListener('click', function() {
+                selectProducto({
+                    id: this.dataset.id,
+                    sku: this.dataset.sku,
+                    nombre: this.dataset.nombre
+                });
+            });
+        });
+    }
+    
+    dropdown.style.display = 'block';
+}
+
+function selectProducto(producto) {
+    selectedProducto = producto;
+    document.getElementById('productoId').value = producto.id;
+    document.getElementById('productoSearch').value = `${producto.sku} - ${producto.nombre}`;
+    document.getElementById('productoDropdown').style.display = 'none';
+    document.getElementById('productoSearch').classList.remove('active');
+}
+
+// ===== PROVEEDOR AUTOCOMPLETE =====
+let proveedorSearchTimeout = null;
+let selectedProveedor = null;
+
+function initProveedorAutocomplete() {
+    const search = document.getElementById('proveedorSearch');
+    const dropdown = document.getElementById('proveedorDropdown');
+    
+    if (!search || !dropdown) return;
+    
+    search.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        if (proveedorSearchTimeout) clearTimeout(proveedorSearchTimeout);
+        
+        if (query === '') {
+            dropdown.style.display = 'none';
+            search.classList.remove('active');
+            return;
+        }
+        
+        dropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner me-2"></i>Buscando...</div>';
+        dropdown.style.display = 'block';
+        search.classList.add('active');
+        
+        proveedorSearchTimeout = setTimeout(() => searchProveedores(query), 300);
+    });
+    
+    search.addEventListener('focus', function() {
+        if (this.value.trim() === '') {
+            dropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner me-2"></i>Buscando...</div>';
+            dropdown.style.display = 'block';
+            search.classList.add('active');
+            searchProveedores('');
+        }
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!search.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+            search.classList.remove('active');
+        }
+    });
+}
+
+function searchProveedores(query) {
+    fetch(`/movimientos/proveedores/buscar/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayProveedorResults(data.results);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('proveedorDropdown').innerHTML = '<div class="autocomplete-no-results text-danger">Error de conexión</div>';
+        });
+}
+
+function displayProveedorResults(results) {
+    const dropdown = document.getElementById('proveedorDropdown');
+    
+    if (results.length === 0) {
+        dropdown.innerHTML = '<div class="autocomplete-no-results">No se encontraron proveedores</div>';
+    } else {
+        let html = '';
+        results.forEach(proveedor => {
+            html += `
+                <div class="autocomplete-item" data-id="${proveedor.id}" data-rut="${proveedor.rut}" data-razon="${proveedor.razon_social}">
+                    <div class="autocomplete-item-code">
+                        <i class="fas fa-truck me-2"></i>${proveedor.rut}
+                    </div>
+                    <div class="autocomplete-item-name">${proveedor.razon_social}</div>
+                </div>
+            `;
+        });
+        dropdown.innerHTML = html;
+        
+        dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+            item.addEventListener('click', function() {
+                selectProveedor({
+                    id: this.dataset.id,
+                    rut: this.dataset.rut,
+                    razon_social: this.dataset.razon
+                });
+            });
+        });
+    }
+    
+    dropdown.style.display = 'block';
+}
+
+function selectProveedor(proveedor) {
+    selectedProveedor = proveedor;
+    document.getElementById('proveedorId').value = proveedor.id;
+    document.getElementById('proveedorSearch').value = `${proveedor.rut} - ${proveedor.razon_social}`;
+    document.getElementById('proveedorDropdown').style.display = 'none';
+    document.getElementById('proveedorSearch').classList.remove('active');
+}
+
+// ===== BODEGA ORIGEN AUTOCOMPLETE =====
+let bodegaOrigenSearchTimeout = null;
+let selectedBodegaOrigen = null;
+
+function initBodegaOrigenAutocomplete() {
+    const search = document.getElementById('bodegaOrigenSearch');
+    const dropdown = document.getElementById('bodegaOrigenDropdown');
+    
+    if (!search || !dropdown) return;
+    
+    search.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        if (bodegaOrigenSearchTimeout) clearTimeout(bodegaOrigenSearchTimeout);
+        
+        if (query === '') {
+            dropdown.style.display = 'none';
+            search.classList.remove('active');
+            return;
+        }
+        
+        dropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner me-2"></i>Buscando...</div>';
+        dropdown.style.display = 'block';
+        search.classList.add('active');
+        
+        bodegaOrigenSearchTimeout = setTimeout(() => searchBodegasModal(query, 'Origen'), 300);
+    });
+    
+    search.addEventListener('focus', function() {
+        if (this.value.trim() === '') {
+            dropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner me-2"></i>Buscando...</div>';
+            dropdown.style.display = 'block';
+            search.classList.add('active');
+            searchBodegasModal('', 'Origen');
+        }
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!search.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+            search.classList.remove('active');
+        }
+    });
+}
+
+// ===== BODEGA DESTINO AUTOCOMPLETE =====
+let bodegaDestinoSearchTimeout = null;
+let selectedBodegaDestino = null;
+
+function initBodegaDestinoAutocomplete() {
+    const search = document.getElementById('bodegaDestinoSearch');
+    const dropdown = document.getElementById('bodegaDestinoDropdown');
+    
+    if (!search || !dropdown) return;
+    
+    search.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        if (bodegaDestinoSearchTimeout) clearTimeout(bodegaDestinoSearchTimeout);
+        
+        if (query === '') {
+            dropdown.style.display = 'none';
+            search.classList.remove('active');
+            return;
+        }
+        
+        dropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner me-2"></i>Buscando...</div>';
+        dropdown.style.display = 'block';
+        search.classList.add('active');
+        
+        bodegaDestinoSearchTimeout = setTimeout(() => searchBodegasModal(query, 'Destino'), 300);
+    });
+    
+    search.addEventListener('focus', function() {
+        if (this.value.trim() === '') {
+            dropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner me-2"></i>Buscando...</div>';
+            dropdown.style.display = 'block';
+            search.classList.add('active');
+            searchBodegasModal('', 'Destino');
+        }
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!search.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = 'none';
+            search.classList.remove('active');
+        }
+    });
+}
+
+// Función compartida para buscar bodegas
+function searchBodegasModal(query, tipo) {
+    fetch(`/movimientos/bodegas/buscar/?q=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayBodegaModalResults(data.results, tipo);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const dropdown = document.getElementById(`bodega${tipo}Dropdown`);
+            dropdown.innerHTML = '<div class="autocomplete-no-results text-danger">Error de conexión</div>';
+        });
+}
+
+function displayBodegaModalResults(results, tipo) {
+    const dropdown = document.getElementById(`bodega${tipo}Dropdown`);
+    
+    if (results.length === 0) {
+        dropdown.innerHTML = '<div class="autocomplete-no-results">No se encontraron bodegas</div>';
+    } else {
+        let html = '';
+        results.forEach(bodega => {
+            html += `
+                <div class="autocomplete-item" data-id="${bodega.id}" data-codigo="${bodega.codigo}" data-nombre="${bodega.nombre}">
+                    <div class="autocomplete-item-code">
+                        <i class="fas fa-warehouse me-2"></i>${bodega.codigo}
+                    </div>
+                    <div class="autocomplete-item-name">${bodega.nombre}</div>
+                </div>
+            `;
+        });
+        dropdown.innerHTML = html;
+        
+        dropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+            item.addEventListener('click', function() {
+                selectBodegaModal({
+                    id: this.dataset.id,
+                    codigo: this.dataset.codigo,
+                    nombre: this.dataset.nombre
+                }, tipo);
+            });
+        });
+    }
+    
+    dropdown.style.display = 'block';
+}
+
+function selectBodegaModal(bodega, tipo) {
+    if (tipo === 'Origen') {
+        selectedBodegaOrigen = bodega;
+    } else {
+        selectedBodegaDestino = bodega;
+    }
+    
+    document.getElementById(`bodega${tipo}Id`).value = bodega.id;
+    document.getElementById(`bodega${tipo}Search`).value = `${bodega.codigo} - ${bodega.nombre}`;
+    document.getElementById(`bodega${tipo}Dropdown`).style.display = 'none';
+    document.getElementById(`bodega${tipo}Search`).classList.remove('active');
 }
