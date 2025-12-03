@@ -353,25 +353,10 @@ def movimiento_create(request):
 def movimiento_edit(request, movimiento_id):
     """Editar un movimiento de inventario"""
     
-    # Verificar permisos
-    permisos = {'editar': True}
-    if hasattr(request.user, 'usuario_profile'):
-        usuario = request.user.usuario_profile
-        if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
-            rol_permisos = usuario.rol.permisos.get('inventario', {})
-            if rol_permisos:
-                permisos = rol_permisos
-    
-    if not permisos.get('editar'):
-        return JsonResponse({'success': False, 'message': 'No tienes permisos para editar movimientos'}, status=403)
-    
     movimiento = get_object_or_404(MovimientoInventario, id=movimiento_id)
     
-    # No permitir editar movimientos confirmados
-    if movimiento.estado == 'CONFIRMADO':
-        return JsonResponse({'success': False, 'message': 'No se puede editar un movimiento confirmado'}, status=400)
-    
     if request.method == 'GET':
+        # GET es solo para ver detalles, no requiere validación de permisos de edición
         # Retornar datos del movimiento
         data = {
             'id': movimiento.id,
@@ -380,9 +365,13 @@ def movimiento_edit(request, movimiento_id):
             'producto_id': movimiento.producto_id,
             'producto_sku': movimiento.producto.sku,
             'producto_nombre': movimiento.producto.nombre,
+            'producto_texto': f"{movimiento.producto.sku} - {movimiento.producto.nombre}",
             'proveedor_id': movimiento.proveedor_id,
+            'proveedor_texto': f"{movimiento.proveedor.rut_nif} - {movimiento.proveedor.razon_social}" if movimiento.proveedor else '',
             'bodega_origen_id': movimiento.bodega_origen_id,
+            'bodega_origen_texto': f"{movimiento.bodega_origen.codigo} - {movimiento.bodega_origen.nombre}" if movimiento.bodega_origen else '',
             'bodega_destino_id': movimiento.bodega_destino_id,
+            'bodega_destino_texto': f"{movimiento.bodega_destino.codigo} - {movimiento.bodega_destino.nombre}" if movimiento.bodega_destino else '',
             'cantidad': str(movimiento.cantidad),
             'unidad_medida_id': movimiento.unidad_medida_id,
             'costo_unitario': str(movimiento.costo_unitario) if movimiento.costo_unitario else '',
@@ -401,6 +390,22 @@ def movimiento_edit(request, movimiento_id):
         return JsonResponse({'success': True, 'movimiento': data})
     
     # POST - Actualizar movimiento
+    # Verificar permisos para editar
+    permisos = {'editar': True}
+    if hasattr(request.user, 'usuario_profile'):
+        usuario = request.user.usuario_profile
+        if usuario.rol and usuario.rol.permisos and isinstance(usuario.rol.permisos, dict):
+            rol_permisos = usuario.rol.permisos.get('inventario', {})
+            if rol_permisos:
+                permisos = rol_permisos
+    
+    if not permisos.get('editar'):
+        return JsonResponse({'success': False, 'message': 'No tienes permisos para editar movimientos'}, status=403)
+    
+    # No permitir editar movimientos confirmados
+    if movimiento.estado == 'CONFIRMADO':
+        return JsonResponse({'success': False, 'message': 'No se puede editar un movimiento confirmado'}, status=400)
+    
     try:
         data = json.loads(request.body)
         

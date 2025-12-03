@@ -132,9 +132,9 @@ async function viewMovimiento(id) {
                         <tr><th>Tipo:</th><td><strong>${mov.tipo_movimiento}</strong></td></tr>
                         <tr><th>Producto:</th><td>${mov.producto_sku} - ${mov.producto_nombre}</td></tr>
                         <tr><th>Cantidad:</th><td><strong>${mov.cantidad}</strong></td></tr>
-                        ${mov.bodega_origen_id ? `<tr><th>Bodega Origen:</th><td>${mov.bodega_origen_id}</td></tr>` : ''}
-                        ${mov.bodega_destino_id ? `<tr><th>Bodega Destino:</th><td>${mov.bodega_destino_id}</td></tr>` : ''}
-                        ${mov.proveedor_id ? `<tr><th>Proveedor:</th><td>${mov.proveedor_id}</td></tr>` : ''}
+                        ${mov.bodega_origen_texto ? `<tr><th>Bodega Origen:</th><td>${mov.bodega_origen_texto}</td></tr>` : ''}
+                        ${mov.bodega_destino_texto ? `<tr><th>Bodega Destino:</th><td>${mov.bodega_destino_texto}</td></tr>` : ''}
+                        ${mov.proveedor_texto ? `<tr><th>Proveedor:</th><td>${mov.proveedor_texto}</td></tr>` : ''}
                         ${mov.lote_codigo ? `<tr><th>Lote:</th><td>${mov.lote_codigo}</td></tr>` : ''}
                         ${mov.serie ? `<tr><th>Serie:</th><td>${mov.serie}</td></tr>` : ''}
                         ${mov.costo_unitario ? `<tr><th>Costo Unitario:</th><td>$${mov.costo_unitario}</td></tr>` : ''}
@@ -194,18 +194,25 @@ async function editMovimiento(id) {
             document.getElementById('movimientoId').value = mov.id;
             document.getElementById('fechaMovimiento').value = mov.fecha_movimiento;
             document.getElementById('tipoMovimiento').value = mov.tipo_movimiento;
-            document.getElementById('producto').value = mov.producto_id;
             document.getElementById('cantidad').value = mov.cantidad;
             document.getElementById('unidadMedida').value = mov.unidad_medida_id;
             
+            // Llenar campos de autocomplete con IDs y textos
+            if (mov.producto_id) {
+                document.getElementById('productoId').value = mov.producto_id;
+                document.getElementById('productoSearch').value = mov.producto_texto;
+            }
             if (mov.proveedor_id) {
-                document.getElementById('proveedor').value = mov.proveedor_id;
+                document.getElementById('proveedorId').value = mov.proveedor_id;
+                document.getElementById('proveedorSearch').value = mov.proveedor_texto;
             }
             if (mov.bodega_origen_id) {
-                document.getElementById('bodegaOrigen').value = mov.bodega_origen_id;
+                document.getElementById('bodegaOrigenId').value = mov.bodega_origen_id;
+                document.getElementById('bodegaOrigenSearch').value = mov.bodega_origen_texto;
             }
             if (mov.bodega_destino_id) {
-                document.getElementById('bodegaDestino').value = mov.bodega_destino_id;
+                document.getElementById('bodegaDestinoId').value = mov.bodega_destino_id;
+                document.getElementById('bodegaDestinoSearch').value = mov.bodega_destino_texto;
             }
             if (mov.costo_unitario) {
                 document.getElementById('costoUnitario').value = mov.costo_unitario;
